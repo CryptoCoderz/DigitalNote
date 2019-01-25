@@ -1,0 +1,9 @@
+Building DigitalNote
+
+See doc/readme-qt.rst for instructions on building DigitalNote QT,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of DigitalNote.
+
+See doc/build-*.txt for instructions on building DigitalNoted,
+the intended-for-services, no-graphical-interface, reference
+implementation of DigitalNote.
