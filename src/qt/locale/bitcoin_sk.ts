@@ -1288,7 +1288,7 @@ To znamená, že je potrebný poplatok aspoň %2.</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Use black visual theme (requires restart)</source>
+        <source>Use Dark Visual theme (requires restart)</source>
         <translation>Použiť čiernu vizuálnu tému (vyžaduje reštart)</translation>
     </message>
     <message>

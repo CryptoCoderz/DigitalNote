@@ -374,16 +374,16 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
     switch(wtx->type)
     {
     case TransactionRecord::Generated:
-        return QIcon(fUseBlackTheme ? ":/icons/black/tx_mined" : ":/icons/tx_mined");
+        return QIcon(fUseDarkTheme ? ":/icons/dark/tx_mined" : ":/icons/tx_mined");
     case TransactionRecord::RecvWithMNengine:
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::RecvFromOther:
-        return QIcon(fUseBlackTheme ? ":/icons/black/tx_input" : ":/icons/tx_input");
+        return QIcon(fUseDarkTheme ? ":/icons/dark/tx_input" : ":/icons/tx_input");
     case TransactionRecord::SendToAddress:
     case TransactionRecord::SendToOther:
-        return QIcon(fUseBlackTheme ? ":/icons/black/tx_output" : ":/icons/tx_output");
+        return QIcon(fUseDarkTheme ? ":/icons/dark/tx_output" : ":/icons/tx_output");
     default:
-        return QIcon(fUseBlackTheme ? ":/icons/black/tx_inout" : ":/icons/tx_inout");
+        return QIcon(fUseDarkTheme ? ":/icons/dark/tx_inout" : ":/icons/tx_inout");
     }
 }
 
@@ -568,7 +568,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
         }
         if(index.column() == Amount && rec->type != TransactionRecord::Generated && (rec->credit+rec->debit) > 0)
         {
-            return fUseBlackTheme ? QColor(0, 255, 0) : QColor(0, 128, 0);
+            return fUseDarkTheme ? QColor(0, 255, 0) : QColor(0, 128, 0);
         }
         if(index.column() == ToAddress)
         {

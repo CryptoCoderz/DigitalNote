@@ -363,9 +363,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="useBlackTheme">
+        <widget class="QCheckBox" name="useDarkTheme">
          <property name="text">
-          <string>Use black visual theme (requires restart)</string>
+          <string>Use Dark Visual theme (requires restart)</string>
          </property>
         </widget>
        </item>

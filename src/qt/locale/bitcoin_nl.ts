@@ -1284,7 +1284,7 @@ Dit betekend dat een fee van %2 is vereist.</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Use black visual theme (requires restart)</source>
+        <source>Use Dark Visual theme (requires restart)</source>
         <translation type="unfinished"/>
     </message>
     <message>

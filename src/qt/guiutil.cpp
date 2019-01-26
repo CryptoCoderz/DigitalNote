@@ -724,7 +724,7 @@ void HelpMessageBox::showOrPrint()
 #endif
 }
 
-void SetBlackThemeQSS(QApplication& app)
+void SetDarkThemeQSS(QApplication& app)
 {
     app.setStyleSheet("QWidget        { background: rgb(41,44,48); }"
                       "QFrame         { border: none; }"

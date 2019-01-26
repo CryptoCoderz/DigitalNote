@@ -84,7 +84,7 @@ static void InitMessage(const std::string &message)
     {
         splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(255,255,255));
 
-        if(!fUseBlackTheme)
+        if(!fUseDarkTheme)
         {
             splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(255,255,255));
         }
@@ -229,13 +229,13 @@ int main(int argc, char *argv[])
     // on mac, also change the icon now because it would look strange to have a testnet splash (green) and a std app icon (orange)
     if(GetBoolArg("-testnet", false))
     {
-        MacDockIconHandler::instance()->setIcon(QIcon(":icons/bitcoin_testnet"));
+        MacDockIconHandler::instance()->setIcon(QIcon(fUseDarkTheme ? ":icons/dark/bitcoin_testnet" : ":icons/bitcoin_testnet"));
     }
 #endif
 
-    QString splashSelect = ":/images/splash_alt";
+    QString splashSelect = ":/images/splash-dark";
 
-    if (!fUseBlackTheme)
+    if (!fUseDarkTheme)
     {
         splashSelect = ":/images/splash";
     }
@@ -254,8 +254,8 @@ int main(int argc, char *argv[])
 
     try
     {
-        if (fUseBlackTheme)
-            GUIUtil::SetBlackThemeQSS(app);
+        if (fUseDarkTheme)
+            GUIUtil::SetDarkThemeQSS(app);
 
         // Regenerate startup link, to fix links to old versions
         if (GUIUtil::GetStartOnSystemStartup())

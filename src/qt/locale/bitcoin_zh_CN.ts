@@ -1282,7 +1282,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+7"/>
-        <source>Use black visual theme (requires restart)</source>
+        <source>Use Dark Visual theme (requires restart)</source>
         <translation>使用黑色主题(需要重启钱包)</translation>
     </message>
     <message>

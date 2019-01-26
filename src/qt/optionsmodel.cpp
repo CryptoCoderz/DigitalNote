@@ -18,7 +18,7 @@
 #include <QSettings>
 #include <QStringList>
 
-bool fUseBlackTheme;
+bool fUseDarkTheme;
 
 OptionsModel::OptionsModel(QObject *parent) :
     QAbstractListModel(parent)
@@ -56,7 +56,7 @@ void OptionsModel::Init()
         settings.setValue("nDisplayUnit", DigitalNoteUnits::XDN);
     nDisplayUnit = settings.value("nDisplayUnit").toInt();
     
-    fUseBlackTheme = settings.value("fUseBlackTheme", false).toBool();
+    fUseDarkTheme = settings.value("fUseDarkTheme", false).toBool();
     
     if (!settings.contains("fCoinControlFeatures"))
         settings.setValue("fCoinControlFeatures", false);
@@ -208,8 +208,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return QVariant(nMNengineRounds);
         case AnonymizeDigitalNoteAmount:
             return QVariant(nAnonymizeDigitalNoteAmount);
-        case UseBlackTheme:
-            return QVariant(fUseBlackTheme);
+        case UseDarkTheme:
+            return QVariant(fUseDarkTheme);
         default:
             return QVariant();
         }
@@ -309,9 +309,9 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
             emit coinControlFeaturesChanged(fCoinControlFeatures);
             break;
-        case UseBlackTheme:
-            fUseBlackTheme = value.toBool();
-            settings.setValue("fUseBlackTheme", fUseBlackTheme);
+        case UseDarkTheme:
+            fUseDarkTheme = value.toBool();
+            settings.setValue("fUseDarkTheme", fUseDarkTheme);
             break;
         case MNengineRounds:
             nMNengineRounds = value.toInt();
