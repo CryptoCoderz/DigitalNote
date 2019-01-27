@@ -1,5 +1,5 @@
-#ifndef HASHBLOCK_H
-#define HASHBLOCK_H
+#ifndef BMW512_H
+#define BMW512_H
 
 #include "uint256.h"
 #include "../common/sph_bmw.h"
@@ -48,4 +48,4 @@ inline uint256 Hash_bmw512(const T1 pbegin, const T1 pend)
 
 
 
-#endif // HASHBLOCK_H
+#endif // BMW512_H

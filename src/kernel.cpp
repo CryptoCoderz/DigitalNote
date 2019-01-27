@@ -74,7 +74,7 @@ static bool SelectBlockFromCandidates(vector<pair<int64_t, uint256> >& vSortedBy
         // previous proof-of-stake modifier
         CDataStream ss(SER_GETHASH, 0);
         ss << pindex->hashProof << nStakeModifierPrev;
-        uint256 hashSelection = Hash_bmw512(ss.begin(), ss.end());
+        uint256 hashSelection = Hash_echo512(ss.begin(), ss.end());
         // the selection hash is divided by 2**32 so that proof-of-stake block
         // is always favored over proof-of-work block. this is to preserve
         // the energy efficiency property
@@ -202,7 +202,7 @@ uint256 ComputeStakeModifierV2(const CBlockIndex* pindexPrev, const uint256& ker
 
     CDataStream ss(SER_GETHASH, 0);
     ss << kernel << pindexPrev->bnStakeModifierV2;
-    return Hash_bmw512(ss.begin(), ss.end());
+    return Hash_echo512(ss.begin(), ss.end());
 }
 
 // DigitalNote kernel protocol
@@ -253,7 +253,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, unsigned 
 
     ss << bnStakeModifierV2;
     ss << txPrev.nTime << prevout.hash << prevout.n << nTimeTx;
-    hashProofOfStake = Hash_bmw512(ss.begin(), ss.end());
+    hashProofOfStake = Hash_echo512(ss.begin(), ss.end());
 
     if (fPrintProofOfStake)
     {

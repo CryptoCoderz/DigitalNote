@@ -13,6 +13,7 @@
 #include "script.h"
 #include "scrypt.h"
 #include "crypto/bmw/bmw512.h"
+#include "crypto/echo/echo512.h"
 #include "fork.h"
 #include "genesis.h"
 #include "mining.h"
@@ -693,10 +694,15 @@ public:
 
     uint256 GetHash() const
     {
-        if (nVersion > 6)
-            return Hash_bmw512(BEGIN(nVersion), END(nNonce));
-        else
+        if (IsProofOfWork())
             return GetPoWHash();
+        else
+            return GetPoSHash();;
+    }
+
+    uint256 GetPoSHash() const
+    {
+     return Hash_echo512(BEGIN(nVersion), END(nNonce));
     }
 
     uint256 GetPoWHash() const

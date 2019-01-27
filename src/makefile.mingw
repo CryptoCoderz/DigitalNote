@@ -119,7 +119,8 @@ OBJS= \
     obj/crypto/common/sha256.o \
     obj/crypto/common/sha512.o \
     obj/crypto/common/aes_helper.o \
-    obj/crypto/common/bmw.o
+    obj/crypto/common/bmw.o \
+    obj/crypto/common/echo.o
 
 ifeq (${USE_WALLET}, 1)
     DEFS += -DENABLE_WALLET

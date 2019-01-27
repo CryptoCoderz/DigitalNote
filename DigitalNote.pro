@@ -330,8 +330,10 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/plugins/mrichtexteditor/mrichtextedit.h \
     src/qt/qvalidatedtextedit.h \
     src/crypto/common/sph_bmw.h \
+    src/crypto/common/sph_echo.h \
     src/crypto/common/sph_types.h \
     src/crypto/bmw/bmw512.h \
+    src/crypto/echo/echo512.h \
     src/limitedmap.h
 
 SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
@@ -445,7 +447,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/qvalidatedtextedit.cpp \
     src/qt/plugins/mrichtexteditor/mrichtextedit.cpp \
     src/crypto/common/aes_helper.c \
-    src/crypto/common/bmw.c
+    src/crypto/common/bmw.c \
+    src/crypto/common/echo.c
 
 RESOURCES += \
     src/qt/bitcoin.qrc
