@@ -694,15 +694,10 @@ public:
 
     uint256 GetHash() const
     {
-        if (IsProofOfWork())
-            return GetPoWHash();
+        if (nVersion > 6)
+            return Hash_bmw512(BEGIN(nVersion), END(nNonce));
         else
-            return GetPoSHash();;
-    }
-
-    uint256 GetPoSHash() const
-    {
-     return Hash_echo512(BEGIN(nVersion), END(nNonce));
+            return GetPoWHash();
     }
 
     uint256 GetPoWHash() const
