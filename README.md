@@ -1,7 +1,7 @@
 DigitalNote [XDN] integration/staging tree
 =====================================
 
-http://www.digitalnotecoin.com
+http://www.digitalnote.biz
 
 What is the DigitalNote [XDN] Blockchain?
 ---------------------------
@@ -33,7 +33,7 @@ RPC Port: 18094
 
 BUILD LINUX
 -----------
-1) git clone https://github.com/CryptoCoderz/XDN
+1) git clone https://github.com/DigitalNoteXDN/DigitalNote-1
 
 2) cd XDN/src
 
@@ -55,7 +55,7 @@ Development Process
 -------------------
 
 The `master` branch is regularly built and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/CryptoCoderz/XDN/tags) are created
+completely stable. [Tags](https://github.com/DigitalNoteXDN/DigitalNote-1) are created
 regularly to indicate new official, stable release versions of DigitalNote [XDN].
 
 The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -63,8 +63,6 @@ The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
 The developer [mailing list](https://lists.linuxfoundation.org/mailman/listinfo/bitcoin-dev)
 should be used to discuss complicated or controversial changes before working
 on a patch set.
-
-Developer Slack can be found at http://digitalnotecointeam.slack.com.
 
 Testing
 -------
