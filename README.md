@@ -1,7 +1,7 @@
 DigitalNote [XDN] 2014-2018 (CryptoNote Base), 2018-2019 (Current) integration/staging tree
 ===========================================================================================
 
-http://www.digitalnote.com
+http://www.digitalnote.biz
 
 What is the DigitalNote [XDN] Blockchain?
 -----------------------------------------
@@ -41,6 +41,10 @@ DigitalNote uses
 	Berkeley DB 6.2.32,
 	QT5.11,
 	to compile
+=======
+BUILD LINUX
+-----------
+1) git clone https://github.com/DigitalNoteXDN/DigitalNote-1
 
 
 General Specs
@@ -130,7 +134,7 @@ Development Process
 -------------------
 
 The `master` branch is regularly built and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/CryptoCoderz/XDN/tags) are created
+completely stable. [Tags](https://github.com/DigitalNoteXDN/DigitalNote-1) are created
 regularly to indicate new official, stable release versions of DigitalNote [XDN].
 
 The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -139,8 +143,10 @@ The developer [mailing list](https://lists.linuxfoundation.org/mailman/listinfo/
 should be used to discuss complicated or controversial changes before working
 on a patch set.
 
-Developer Discord can be found at https://discord.gg/eSb7nEx .
+<<
+Developer Discord can be found at https://discord.gg/eSb7nEx.
 
+=======
 Testing
 -------
 
