@@ -126,7 +126,7 @@ void UnregisterWallet(CWalletInterface* pwalletIn);
 /** Unregister all wallets from core */
 void UnregisterAllWallets();
 /** Push an updated transaction to all registered wallets */
-void SyncWithWallets(const CTransaction& tx, const CBlock* pblock = NULL, bool fConnect = true);
+void SyncWithWallets(const CTransaction& tx, const CBlock* pblock = NULL, bool fConnect = true, bool fFixSpentCoins = false);
 /** Ask wallets to resend their transactions */
 void ResendWalletTransactions(bool fForce = false);
 /** Register with a network node to receive its signals */
@@ -157,7 +157,7 @@ void ThreadStakeMiner(CWallet *pwallet);
 
 /** (try to) add transaction to memory pool **/
 bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
-                        bool* pfMissingInputs, bool fRejectinsaneFee=false, bool ignoreFees=false);
+                        bool* pfMissingInputs, bool fRejectinsaneFee=false, bool ignoreFees=false, bool fFixSpentCoins=false);
 
 bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree,
                         bool* pfMissingInputs, bool fRejectinsaneFee=false, bool isDSTX=false);
@@ -1452,7 +1452,7 @@ public:
 
 class CWalletInterface {
 protected:
-    virtual void SyncTransaction(const CTransaction &tx, const CBlock *pblock, bool fConnect) =0;
+    virtual void SyncTransaction(const CTransaction &tx, const CBlock *pblock, bool fConnect, bool fFixSpentCoins) =0;
     virtual void EraseFromWallet(const uint256 &hash) =0;
     virtual void SetBestChain(const CBlockLocator &locator) =0;
     virtual bool UpdatedTransaction(const uint256 &hash) =0;
