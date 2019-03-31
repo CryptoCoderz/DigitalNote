@@ -85,9 +85,9 @@ int DigitalNoteUnits::decimals(int unit)
 {
     switch(unit)
     {
-    case XDN: return 6; // Minimum 100 DigitalNoteoshi's GUI hard limit
-    case mXDN: return 3;
-    case uXDN: return 0;
+    case XDN: return 8;
+    case mXDN: return 5;
+    case uXDN: return 2;
     default: return 0;
     }
 }
