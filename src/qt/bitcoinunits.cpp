@@ -74,9 +74,9 @@ int DigitalNoteUnits::amountDigits(int unit)
 {
     switch(unit)
     {
-    case XDN: return 8; // 21,000,000 (# digits, without commas)
-    case mXDN: return 11; // 21,000,000,000
-    case uXDN: return 14; // 21,000,000,000,000
+    case XDN: return 11;  // 21,000,000,000         (# digits, without commas)
+    case mXDN: return 14; // 21,000,000,000,000
+    case uXDN: return 17; // 21,000,000,000,000,000
     default: return 0;
     }
 }

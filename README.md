@@ -41,10 +41,6 @@ DigitalNote uses
 	Berkeley DB 6.2.32,
 	QT5.11,
 	to compile
-=======
-BUILD LINUX
------------
-1) git clone https://github.com/DigitalNoteXDN/DigitalNote-1
 
 
 General Specs
@@ -146,7 +142,6 @@ on a patch set.
 <<
 Developer Discord can be found at https://discord.gg/eSb7nEx.
 
-=======
 Testing
 -------
 
