@@ -77,7 +77,7 @@ cd ~; wget http://download.oracle.com/berkeley-db/db-6.2.32.NC.tar.gz; tar zxf d
 
 ### GitHub pull (Source Download)
 ```
-cd ~; git clone https://github.com/CryptoCoderz/DigitalNote
+cd ~; git clone https://github.com/DigitalNoteXDN/DigitalNote-1
 ```
 
 ### Build DigitalNote daemon
