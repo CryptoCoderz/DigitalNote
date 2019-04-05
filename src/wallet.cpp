@@ -3129,7 +3129,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         // define address
         CBitcoinAddress devopaddress;
         if (Params().NetworkID() == CChainParams::MAIN)
-            devopaddress = CBitcoinAddress("dPxigPi3gY3Za2crBUV2Sn2BDCrpX9eweo"); // TODO: nothing, already set to a valid DigitalNote address
+            devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"); // TODO: nothing, already set to a valid DigitalNote address
       //  else if (Params().NetworkIDString() == CBaseChainParams::TESTNET)
       //      address = CBitcoinAddress(" ");
       //  else if (Params().NetworkIDString() == CBaseChainParams::REGTEST)
