@@ -443,7 +443,7 @@ void DigitalNoteGUI::createToolBars()
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
     toolbar->setObjectName("tabs");
-    toolbar->setStyleSheet("QToolButton { color: #ffffff; font-weight:bold; background-color: #1d1f22;} QToolButton:hover { background-color: #3098c6; } QToolButton:checked { background-color: #3bb2e7 } QToolButton:pressed { background-color: #25779c; } #tabs { color: #ffffff; background-color: #1d1f22; }");
+    toolbar->setStyleSheet("QToolButton { color: #ffffff; font-weight:bold; background-color: #121418;} QToolButton:hover { background-color: #2f1d4b; } QToolButton:checked { background-color: #2f1d4b } QToolButton:pressed { background-color: #2f1d4b; } #tabs { color: #ffffff; background-color: #121418; }");
     toolbar->setIconSize(QSize(24,24));
 
     if(!fUseDarkTheme)
