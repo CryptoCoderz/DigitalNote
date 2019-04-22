@@ -102,6 +102,9 @@ public:
 
         nPoolMaxTransactions = 9;
         strMNenginePoolDummyAddress = "dUnVN6zz2apaoWkb5krGoBCwwo8ZD3axue";
+        // TODO: Verify upgrade
+        strDevOpsAddress = "dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7";
+        strDevOpsScriptPubKey = "76a9148c2fad4e8bdfdc047ad5ad5378084de415e1538988ac";
         nEndPoWBlock = 0x7fffffff;
         nStartPoSBlock = 0;
     }

@@ -2488,99 +2488,13 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         for (unsigned int i = 2; i < vtx.size(); i++)
             if (vtx[i].IsCoinStake())
                 return DoS(100, error("CheckBlock() : more than one coinstake"));
-
-        // Verify coin stake tx includes devops payment -
-        // first check for start of devops payments
-        bool bDevOpsPayment = false;
-
-        if ( Params().NetworkID() == CChainParams::TESTNET ){
-            if (GetTime() > START_DEVOPS_PAYMENTS_TESTNET ){
-                bDevOpsPayment = true;
-            }
-        }else{
-            if (GetTime() > START_DEVOPS_PAYMENTS){
-                bDevOpsPayment = true;
-            }
-        }
-        // stop devops payments (for testing)
-        if ( Params().NetworkID() == CChainParams::TESTNET ){
-            if (GetTime() > STOP_DEVOPS_PAYMENTS_TESTNET ){
-                bDevOpsPayment = false;
-            }
-        }else{
-            if (GetTime() > STOP_DEVOPS_PAYMENTS){
-                bDevOpsPayment = false;
-            }
-        }
-
-        bool fIsInitialDownload = IsInitialBlockDownload();
-        if (!fIsInitialDownload)
-        {
-            if(bDevOpsPayment && Params().NetworkID() == CChainParams::TESTNET)
-            {
-                LOCK2(cs_main, mempool.cs);
-
-                CBlockIndex *pindex = pindexBest;
-                if(pindex != NULL){
-                    if(pindex->GetBlockHash() == hashPrevBlock){
-                        // If we don't already have its previous block, skip devops payment step
-                        // TODO: elaborate on payment catch, currently unused and throws warning
-                        CAmount blockPayment;
-                        for (int i = vtx[1].vout.size(); i--> 0; ) {
-                            blockPayment = vtx[1].vout[i].nValue;
-                            break;
-                        }
-
-                        // Set values
-                        CBitcoinAddress devopaddress;
-                        CScript devpayee;
-                        if (Params().NetworkID() == CChainParams::MAIN)
-                            devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7 ");
-
-                        int64_t devopsPayment = GetDevOpsPayment(pindexBest->nHeight+1, nPoSageReward);
-                        bool foundDevOpspayment = false;
-                        bool foundDevOpspayee = false;
-
-                        // verify address
-                        if(devopaddress.IsValid())
-                        {
-                            //spork
-                            if(pindexBest->GetBlockTime() > 1546123500) { // ON  (Saturday, December 29, 2018 10:45 PM)
-                                devpayee = GetScriptForDestination(devopaddress.Get());
-                            }
-                            else {
-                                foundDevOpspayment = true;
-                                foundDevOpspayee = true;
-                            }
-                        }
-                        else {
-                            return DoS(100, error("CheckBlock() : coinstake failed to include devops recipient"));
-                        }
-                        // Search for devops payment
-                        for (unsigned int i = 0; i < vtx[1].vout.size(); i++) {
-                            if(vtx[1].vout[i].nValue == devopsPayment )
-                                foundDevOpspayment = true;
-                            if(vtx[1].vout[i].scriptPubKey == devpayee )
-                                foundDevOpspayee = true;
-                        }
-
-                        // velocity: reject if illogical
-                        if (!foundDevOpspayment)
-                            return DoS(100, error("CheckBlock() : coinstake failed to include devops payment"));
-                        if (!foundDevOpspayee)
-                            return DoS(100, error("CheckBlock() : coinstake failed to include devops recipient"));
-                    }
-                }
-            }
-        }
     }
 
     // Check proof-of-stake block signature
     if (fCheckSig && !CheckBlockSignature())
         return DoS(100, error("CheckBlock() : bad proof-of-stake block signature"));
 
-
-// ----------- instantX transaction scanning -----------
+    // ----------- instantX transaction scanning -----------
 
     if(IsSporkActive(SPORK_3_INSTANTX_BLOCK_FILTERING)){
         BOOST_FOREACH(const CTransaction& tx, vtx){
@@ -2600,9 +2514,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         if(fDebug) { LogPrintf("CheckBlock() : skipping transaction locking checks\n"); }
     }
 
-
-
-    // ----------- masternode payments -----------
+    // ----------- masternode / devops - payments -----------
 
     bool MasternodePayments = false;
     bool fIsInitialDownload = IsInitialBlockDownload();
@@ -2670,7 +2582,130 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         if(fDebug) { LogPrintf("CheckBlock() : Is initial download, skipping masternode payment check %d\n", pindexBest->nHeight+1); }
     }
 
+    // Verify coinbase/coinstake tx includes devops payment -
+    // first check for start of devops payments
+    bool bDevOpsPayment = false;
 
+    if ( Params().NetworkID() == CChainParams::TESTNET ){
+        if (GetTime() > START_DEVOPS_PAYMENTS_TESTNET ){
+            bDevOpsPayment = true;
+        }
+    }else{
+        if (GetTime() > START_DEVOPS_PAYMENTS){
+            bDevOpsPayment = true;
+        }
+    }
+    // stop devops payments (for testing)
+    if ( Params().NetworkID() == CChainParams::TESTNET ){
+        if (GetTime() > STOP_DEVOPS_PAYMENTS_TESTNET ){
+            bDevOpsPayment = false;
+        }
+    }else{
+        if (GetTime() > STOP_DEVOPS_PAYMENTS){
+            bDevOpsPayment = false;
+        }
+    }
+    // TODO: verify upgrade
+    if(bDevOpsPayment && Params().NetworkID() == CChainParams::TESTNET)
+    {
+        int64_t nMasternodePayment = masternodePayment;
+        int64_t nDevopsPayment = devopsPayment;
+        LogPrintf("Hardset MasternodePayment: %lu | Hardset DevOpsPayment: %lu \n", nMasternodePayment, nDevopsPayment);
+        // TODO: verify upgrade
+        bool fBlockHasPayments = true;
+        if (IsProofOfWork() && vtx[0].vout.size() != 3) {
+                LogPrintf("CheckBlock() : PoW submission doesn't include devops and/or masternode payment\n");
+                fBlockHasPayments = false;
+        } else if (!IsProofOfWork() && vtx[1].vout.size() != 5) {
+                LogPrintf("CheckBlock() : PoS submission doesn't include devops and/or masternode payment\n");
+                fBlockHasPayments = false;
+        }
+        // Set PoW or PoS for current block
+        bool isProofOfStake = !IsProofOfWork();
+        for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
+            // Define values
+            CTxDestination address;
+            ExtractDestination(vtx[isProofOfStake].vout[i].scriptPubKey, address);
+            CBitcoinAddress addressOut(address);
+            int64_t nAmount = vtx[isProofOfStake].vout[i].nValue / COIN;
+            LogPrintf(" - vtx[%d].vout[%d] Address: %s Amount: %lu \n", isProofOfStake, i, addressOut.ToString(), nAmount);
+            // PoS Checks
+            if (isProofOfStake) {
+                // Check for PoS masternode payment
+                if (i == 3) {
+                   CMasternode* pmn = mnodeman.Find(vtx[1].vout[i].scriptPubKey);
+                   if (pmn) {
+                      LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verfied\n");
+                   } else {
+                      LogPrintf("CheckBlock() : PoS Recipient masternode address validity could not be verfied\n");
+                      fBlockHasPayments = false;
+                   }
+                   if (nAmount == nMasternodePayment) {
+                       LogPrintf("CheckBlock() : PoS Recipient masternode amount validity succesfully verfied\n");
+                   } else {
+                       LogPrintf("CheckBlock() : PoS Recipient masternode amount validity could not be verfied\n");
+                       fBlockHasPayments = false;
+                   }
+                }
+                // Check for PoS devops payment
+                if (i == 4) {
+                   if (addressOut.ToString() == Params().DevOpsAddress()) {
+                      LogPrintf("CheckBlock() : PoS Recipient devops address validity succesfully verfied\n");
+                   } else {
+                      LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verfied\n");
+                      fBlockHasPayments = false;
+                   }
+                   if (nAmount == nDevopsPayment) {
+                      LogPrintf("CheckBlock() : PoS Recipient devops amount validity succesfully verfied\n");
+                   } else {
+                       LogPrintf("CheckBlock() : PoS Recipient devops amount validity could not be verfied\n");
+                       fBlockHasPayments = false;
+                   }
+                }
+            }
+            // PoW Checks
+            else if (!isProofOfStake) {
+                // Check for PoW masternode payment
+                if (i == 1) {
+                   CMasternode* pmn = mnodeman.Find(vtx[0].vout[i].scriptPubKey);
+                   if (pmn) {
+                      LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verfied\n");
+                   } else {
+                      LogPrintf("CheckBlock() : PoW Recipient masternode address validity could not be verfied\n");
+                      fBlockHasPayments = false;
+                   }
+                   if (nAmount == nMasternodePayment) {
+                      LogPrintf("CheckBlock() : PoW Recipient masternode amount validity succesfully verfied\n");
+                   } else {
+                      LogPrintf("CheckBlock() : PoW Recipient masternode amount validity could not be verfied\n");
+                      fBlockHasPayments = false;
+                   }
+                }
+                // Check for PoW devops payment
+                if (i == 2) {
+                   if (addressOut.ToString() == Params().DevOpsAddress()) {
+                      LogPrintf("CheckBlock() : PoW Recipient devops address validity succesfully verfied\n");
+                   } else {
+                      LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verfied\n");
+                      fBlockHasPayments = false;
+                   }
+                   if (nAmount == nDevopsPayment) {
+                      LogPrintf("CheckBlock() : PoW Recipient devops amount validity succesfully verfied\n");
+                   } else {
+                      LogPrintf("CheckBlock() : PoW Recipient devops amount validity could not be verfied\n");
+                      fBlockHasPayments = false;
+                   }
+                }
+            }
+        }
+        // Final checks (DevOps/Masternode payments)
+        if (fBlockHasPayments) {
+            LogPrintf("CheckBlock() : PoW/PoS non-miner reward payments succesfully verified\n");
+        } else {
+            LogPrintf("CheckBlock() : PoW/PoS non-miner reward payments could not be verified\n");
+            return DoS(100, error("CheckBlock() : PoW/PoS invalid payments in current block\n"));
+        }
+    }
 
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, vtx)

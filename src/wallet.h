@@ -24,6 +24,8 @@
 
 // Settings
 extern int64_t nPoSageReward;
+extern int64_t masternodePayment;
+extern int64_t devopsPayment;
 extern int64_t nTransactionFee;
 extern int64_t nReserveBalance;
 extern int64_t nMinimumInputValue;

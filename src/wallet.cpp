@@ -31,6 +31,8 @@ int64_t nTransactionFee = MIN_TX_FEE;
 int64_t nReserveBalance = 0;
 int64_t nMinimumInputValue = 0;
 int64_t nPoSageReward = 0;
+int64_t masternodePayment = 0;
+int64_t devopsPayment = 0;
 
 int64_t GetStakeCombineThreshold() { return GetArg("-stakethreshold", 1000) * COIN; }
 static int64_t GetStakeSplitThreshold() { return 2 * GetStakeCombineThreshold(); }
@@ -3171,8 +3173,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     int64_t blockValue = nCredit;
-    int64_t masternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, nReward);
-    int64_t devopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, nReward); // TODO: Activate devops
+    masternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, nReward);
+    devopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, nReward); // TODO: Activate devops
 
 
     // Set output amount
