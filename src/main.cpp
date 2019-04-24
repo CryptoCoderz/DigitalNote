@@ -2605,8 +2605,24 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             bDevOpsPayment = false;
         }
     }
+    // Live fork toggle for upgrade testing
+    if(nLiveForkToggle > 0)
+    {
+        if(pindexBest->nHeight > nLiveForkToggle)
+        {
+            bDevOpsPayment = true;
+        }
+        else
+        {
+            bDevOpsPayment = false;
+        }
+    }
+    else
+    {
+        bDevOpsPayment = false;
+    }
     // TODO: verify upgrade
-    if(bDevOpsPayment && Params().NetworkID() == CChainParams::TESTNET)
+    if(bDevOpsPayment)
     {
         int64_t nMasternodePayment = masternodePayment;
         int64_t nDevopsPayment = devopsPayment;

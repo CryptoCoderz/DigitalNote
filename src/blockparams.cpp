@@ -515,10 +515,13 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
     // Set calculated position of seesaw arc
     retDouble = swingSubsidy * seesawBase;
     // v1.1 payment subsidy patch
-    if(pindexBest->GetBlockTime() > 9993058800) // OFF (NOT TOGGLED)
+    if(nLiveForkToggle > 0)
     {
-        // set returned value to calculated value
-        ret = retDouble;
+        if(pindexBest->nHeight > nLiveForkToggle) // Selectable toggle
+        {
+            // set returned value to calculated value
+            ret = retDouble;
+        }
     }
     // Return our seesaw arc value (reward in current position of arc)
     return ret;
