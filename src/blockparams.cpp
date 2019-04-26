@@ -520,7 +520,8 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
         if(pindexBest->nHeight > nLiveForkToggle) // Selectable toggle
         {
             // set returned value to calculated value
-            ret = retDouble;
+            ret = retDouble;// TODO: Re-enable after static testing
+            ret = 50 * COIN;// TODO: Disable after static testing
         }
     }
     // Return our seesaw arc value (reward in current position of arc)
