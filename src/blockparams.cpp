@@ -312,6 +312,17 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
     if (pindexLast->nHeight < scanheight+124)
         return bnVelocity.GetCompact(); // can't index prevblock
 
+    // Live fork toggle diff reset
+    if(nLiveForkToggle > 0)
+    {
+        if(pindexLast->nHeight > nLiveForkToggle) // Selectable toggle
+        {
+            if(pindexLast->nHeight < nLiveForkToggle+5) {
+                return bnVelocity.GetCompact(); // diff reset
+            }
+        }
+    }
+
     // Differentiate PoW/PoS prev block
     BlockVelocityType = GetLastBlockIndex(pindexLast, fProofOfStake);
 
