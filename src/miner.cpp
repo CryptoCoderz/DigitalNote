@@ -8,6 +8,7 @@
 #include "txdb.h"
 #include "miner.h"
 #include "kernel.h"
+#include "masternode.h"
 #include "masternodeman.h"
 #include "masternode-payments.h"
 
@@ -366,9 +367,49 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
         if (fDebug && GetBoolArg("-printpriority", false))
             LogPrintf("CreateNewBlock(): total size %u\n", nBlockSize);
-// > XDN <
-        if (!fProofOfStake)
+        // > XDN <
+        if (!fProofOfStake){
             pblock->vtx[0].vout[0].nValue = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
+
+            // TODO: Verify upgrade
+            /*if(nLiveForkToggle > 0){
+                if(pindexPrev->nHeight + 1 > nLiveForkToggle){
+                    // masternode payment
+                    bool hasPayment = true;
+                    bool bMasterNodePayment = true;// TODO: Setup proper network toggle
+                    CScript payee;
+
+                    if(bMasterNodePayment) {
+                        //spork
+                        if(!masternodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee, vin)){
+                            CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
+                            if(winningNode){
+                                payee = GetScriptForDestination(winningNode->pubkey.GetID());
+                            } else {
+                                return error("CreateCoinStake: Failed to detect masternode to pay\n");
+                            }
+                        }
+                    } else {
+                        hasPayment = false;
+                    }
+
+                    CAmount masternodePayment = GetMasternodePayment(nHeight, blockReward);
+
+                    if (hasPayment) {
+                        coinbaseTx.vout.resize(2);
+                        coinbaseTx.vout[1].scriptPubKey = payee;
+                        coinbaseTx.vout[1].nValue = masternodePayment;
+                        coinbaseTx.vout[0].nValue = blockReward - masternodePayment;
+                    }
+
+                    CTxDestination address1;
+                    ExtractDestination(payee, address1);
+                    CBitcoinAddress address2(address1);
+                    LogPrintf("CreateNewBlock::FillBlockPayee -- Masternode payment %lld to %s\n",
+                    masternodePayment, EncodeDestination(address2));
+                }
+            }*/ //
+        }
 
         if (pFees)
             *pFees = nFees;
