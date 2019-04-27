@@ -2647,7 +2647,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                 fBlockHasPayments = false;
         }
         // Check PoW or PoS payments for current block
-        for (unsigned int i=0; i <= vtx[isProofOfStake].vout.size(); i++) {
+        for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
             // Define values
             CTxDestination address;
             ExtractDestination(vtx[isProofOfStake].vout[i].scriptPubKey, address);
