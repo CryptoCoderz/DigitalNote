@@ -690,15 +690,17 @@ Value getblocktemplate(const Array& params, bool fHelp)
             // Include Masternode payments
             CAmount masternodeSplit = masternodePayment;
             CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
-            CScript payee = GetScriptForDestination(winningNode->pubkey.GetID());
 
-            CTxDestination address1;
-            ExtractDestination(payee, address1);
-            CBitcoinAddress address2(address1);
-            result.push_back(Pair("payee", address2.ToString().c_str()));
-            result.push_back(Pair("payee_amount", (int64_t)masternodeSplit));
-            result.push_back(Pair("masternode_payments", true));
-            result.push_back(Pair("enforce_masternode_payments", true));
+            if (winningNode) {
+		CScript payee = GetScriptForDestination(winningNode->pubkey.GetID());
+		CTxDestination address1;
+		ExtractDestination(payee, address1);
+		CBitcoinAddress address2(address1);
+		result.push_back(Pair("payee", address2.ToString().c_str()));
+		result.push_back(Pair("payee_amount", (int64_t)masternodeSplit));
+		result.push_back(Pair("masternode_payments", true));
+		result.push_back(Pair("enforce_masternode_payments", true));
+	     }
         }
     }
 
