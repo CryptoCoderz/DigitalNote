@@ -2629,23 +2629,29 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         int64_t nProofOfIndexMasternode = 0;
         int64_t nProofOfIndexDevops = 0;
         bool isProofOfStake = !IsProofOfWork();
+        bool fBlockHasPayments = true;
         LogPrintf("Hardset MasternodePayment: %lu | Hardset DevOpsPayment: %lu \n", nMasternodePayment, nDevopsPayment);
         if (isProofOfStake) {
             nProofOfIndexMasternode = 2;
             nProofOfIndexDevops = 3;
+            if (vtx[isProofOfStake].vout.size() != 4) {
+                if (vtx[isProofOfStake].vout.size() != 5) {
+                    LogPrintf("CheckBlock() : PoS submission doesn't include devops and/or masternode payment\n");
+                    fBlockHasPayments = false;
+                } else {
+                    nProofOfIndexMasternode = 3;
+                    nProofOfIndexDevops = 4;
+                }
+            }
         } else {
             nProofOfIndexMasternode = 1;
             nProofOfIndexDevops = 2;
+            if (vtx[isProofOfStake].vout.size() != 3) {
+                    LogPrintf("CheckBlock() : PoW submission doesn't include devops and/or masternode payment\n");
+                    fBlockHasPayments = false;
+            }
         }
         // TODO: verify upgrade
-        bool fBlockHasPayments = true;
-        if (IsProofOfWork() && vtx[isProofOfStake].vout.size() != 3) {
-                LogPrintf("CheckBlock() : PoW submission doesn't include devops and/or masternode payment\n");
-                fBlockHasPayments = false;
-        } else if (!IsProofOfWork() && vtx[isProofOfStake].vout.size() != 4) {
-                LogPrintf("CheckBlock() : PoS submission doesn't include devops and/or masternode payment\n");
-                fBlockHasPayments = false;
-        }
         // Check PoW or PoS payments for current block
         for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
             // Define values
@@ -2659,8 +2665,8 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             // PoS Checks
             if (isProofOfStake) {
                 // Check for PoS masternode payment
-                if (i == 2) {
-                   CMasternode* pmn = mnodeman.Find(vtx[isProofOfStake].vout[i].scriptPubKey);
+                if (i == nProofOfIndexMasternode) {
+                   CMasternode* pmn = mnodeman.Find(vtx[isProofOfStake].vout[nProofOfIndexMasternode].scriptPubKey);
                    if (pmn) {
                       LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verfied\n");
                    } else {
@@ -2675,7 +2681,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    }
                 }
                 // Check for PoS devops payment
-                if (i == 3) {
+                if (i == nProofOfIndexDevops) {
                    if (addressOut.ToString() == Params().DevOpsAddress()) {
                       LogPrintf("CheckBlock() : PoS Recipient devops address validity succesfully verfied\n");
                    } else {
@@ -2693,8 +2699,8 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             // PoW Checks
             else if (!isProofOfStake) {
                 // Check for PoW masternode payment
-                if (i == 1) {
-                   CMasternode* pmn = mnodeman.Find(vtx[isProofOfStake].vout[i].scriptPubKey);
+                if (i == nProofOfIndexMasternode) {
+                   CMasternode* pmn = mnodeman.Find(vtx[isProofOfStake].vout[nProofOfIndexMasternode].scriptPubKey);
                    if (pmn) {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verfied\n");
                    } else {
@@ -2709,7 +2715,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    }
                 }
                 // Check for PoW devops payment
-                if (i == 2) {
+                if (i == nProofOfIndexDevops) {
                    if (addressOut.ToString() == Params().DevOpsAddress()) {
                       LogPrintf("CheckBlock() : PoW Recipient devops address validity succesfully verfied\n");
                    } else {
