@@ -15,6 +15,8 @@
 #include "txdb.h"
 #include "velocity.h"
 #include "main.h"
+#include "mnengine.h"
+#include "masternodeman.h"
 
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
@@ -75,6 +77,7 @@ uint64_t cntTime = 0;
 uint64_t prvTime = 0;
 uint64_t difTimePoS = 0;
 uint64_t difTimePoW = 0;
+string loggedpayee = "";
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -548,4 +551,27 @@ int64_t GetDevOpsPayment(int nHeight, int64_t blockValue)
     ret2 = blockValue - (250 * COIN); // 50 XDN per block
 
     return ret2;
+}
+
+//
+// Masternode payee logging
+//
+void LogLastMasternodePayee()
+{
+    CScript payee;
+    CTxIn vin;
+    if(!masternodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee, vin)){
+        CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
+        if(winningNode){
+            payee = GetScriptForDestination(winningNode->pubkey.GetID());
+            CTxDestination address1;
+            ExtractDestination(payee, address1);
+            CBitcoinAddress address2(address1);
+            loggedpayee = address2.ToString();
+            LogPrintf("LogLastMasternodePayee() : Found target masternode payee %s \n", loggedpayee.c_str());
+        } else {
+            LogPrintf("LogLastMasternodePayee() : Failed to find Masternode to pay \n");
+        }
+        return;
+    }
 }

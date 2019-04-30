@@ -692,15 +692,15 @@ Value getblocktemplate(const Array& params, bool fHelp)
             CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
 
             if (winningNode) {
-		CScript payee = GetScriptForDestination(winningNode->pubkey.GetID());
-		CTxDestination address1;
-		ExtractDestination(payee, address1);
-		CBitcoinAddress address2(address1);
-		result.push_back(Pair("payee", address2.ToString().c_str()));
-		result.push_back(Pair("payee_amount", (int64_t)masternodeSplit));
-		result.push_back(Pair("masternode_payments", true));
-		result.push_back(Pair("enforce_masternode_payments", true));
-	     }
+                CScript payee = GetScriptForDestination(winningNode->pubkey.GetID());
+                CTxDestination address1;
+                ExtractDestination(payee, address1);
+                CBitcoinAddress address2(address1);
+                result.push_back(Pair("payee", address2.ToString().c_str()));
+                result.push_back(Pair("payee_amount", (int64_t)masternodeSplit));
+                result.push_back(Pair("masternode_payments", true));
+                result.push_back(Pair("enforce_masternode_payments", true));
+            }
         }
     }
 

@@ -10,6 +10,7 @@
 #include "net.h"
 #include "chain.h"
 #include "bignum.h"
+#include "base58.h"
 
 #define START_MASTERNODE_PAYMENTS_TESTNET      9993058800  // OFF (NOT TOGGLED)
 #define START_MASTERNODE_PAYMENTS              1554494400  // OFF (Friday, April 5, 2019 1:00:00 PM GMT-07:00 | PDT)
@@ -30,6 +31,7 @@ enum DiffMode {
     DIFF_VRX     = 1, // Retarget using Terminal-Velocity-RateX
 };
 
+void LogLastMasternodePayee();
 void VRXswngPoSdebug();
 void VRXswngPoWdebug();
 void VRXdebug();
@@ -42,6 +44,7 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees);
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees);
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue);
 int64_t GetDevOpsPayment(int nHeight, int64_t blockValue);
+extern std::string loggedpayee;
 
 
 #endif // BITCOIN_BLOCKPARAMS_H
