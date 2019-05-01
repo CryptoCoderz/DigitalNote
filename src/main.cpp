@@ -2656,6 +2656,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         // Check PoW or PoS payments for current block
         for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
             // Define values
+            CScript rawPayee = vtx[isProofOfStake].vout[i].scriptPubKey;
             CTxDestination address;
             ExtractDestination(vtx[isProofOfStake].vout[i].scriptPubKey, address);
             CBitcoinAddress addressOut(address);
@@ -2667,7 +2668,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             if (isProofOfStake) {
                 // Check for PoS masternode payment
                 if (i == nProofOfIndexMasternode) {
-                   if (addressOut.ToString() == loggedpayee) {
+                   if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
                    } else {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity could not be verified\n");
@@ -2700,7 +2701,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             else if (!isProofOfStake) {
                 // Check for PoW masternode payment
                 if (i == nProofOfIndexMasternode) {
-                   if (addressOut.ToString() == loggedpayee) {
+                   if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
                    } else {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity could not be verified\n");
