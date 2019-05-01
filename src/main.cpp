@@ -2624,13 +2624,13 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     // TODO: verify upgrade
     if(bDevOpsPayment)
     {
-        int64_t nMasternodePayment = masternodePayment / COIN;
-        int64_t nDevopsPayment = devopsPayment / COIN;
+        int64_t nMasternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, nReward) / COIN;
+        int64_t nDevopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, nReward) / COIN;
         int64_t nProofOfIndexMasternode = 0;
         int64_t nProofOfIndexDevops = 0;
         bool isProofOfStake = !IsProofOfWork();
         bool fBlockHasPayments = true;
-        LogLastMasternodePayee();
+        //LogLastMasternodePayee();
         LogPrintf("Hardset MasternodePayment: %lu | Hardset DevOpsPayment: %lu \n", nMasternodePayment, nDevopsPayment);
         if (isProofOfStake) {
             nProofOfIndexMasternode = 2;
