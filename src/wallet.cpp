@@ -2889,6 +2889,10 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     txNew.vin.clear();
     txNew.vout.clear();
 
+    // Determine our payment script for devops
+    CScript devopsScript;
+    devopsScript << OP_DUP << OP_HASH160 << ParseHex(Params().DevOpsPubKey()) << OP_EQUALVERIFY << OP_CHECKSIG;
+
     // Mark coin stake transaction
     CScript scriptEmpty;
     scriptEmpty.clear();
@@ -3079,7 +3083,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             if(winningNode){
                 payee = GetScriptForDestination(winningNode->pubkey.GetID());
             } else {
-                return error("CreateCoinStake: Failed to detect masternode to pay\n");
+                payee = devopsScript;
             }
         }
     } else {

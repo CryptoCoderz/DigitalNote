@@ -674,35 +674,30 @@ Value getblocktemplate(const Array& params, bool fHelp)
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
     result.push_back(Pair("votes", aVotes));
 
-    // TODO: Verify upgrade
-    if (nLiveForkToggle > 0)
-    {
-        if (pindexBest->nHeight > nLiveForkToggle)
-        {
-            // Include DevOps payments
-            CAmount devopsSplit = devopsPayment;
-            Object devopsReward;
-            devopsReward.push_back(Pair("devopspayee", Params().DevOpsAddress()));
-            devopsReward.push_back(Pair("amount", devopsSplit));
-            result.push_back(Pair("devopsreward", devopsReward));
-            result.push_back(Pair("devops_reward_enforced", true));
+	// Include DevOps payments
+	CAmount devopsSplit = devopsPayment;
+	Object devopsReward;
+	devopsReward.push_back(Pair("devopspayee", Params().DevOpsAddress()));
+	devopsReward.push_back(Pair("amount", devopsSplit));
+	result.push_back(Pair("devopsreward", devopsReward));
+	result.push_back(Pair("devops_reward_enforced", true));
 
-            // Include Masternode payments
-            CAmount masternodeSplit = masternodePayment;
-            CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
+	// Include Masternode payments
+	CAmount masternodeSplit = masternodePayment;
+	CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
 
-            if (winningNode) {
-                CScript payee = GetScriptForDestination(winningNode->pubkey.GetID());
-                CTxDestination address1;
-                ExtractDestination(payee, address1);
-                CBitcoinAddress address2(address1);
-                result.push_back(Pair("payee", address2.ToString().c_str()));
-                result.push_back(Pair("payee_amount", (int64_t)masternodeSplit));
-                result.push_back(Pair("masternode_payments", true));
-                result.push_back(Pair("enforce_masternode_payments", true));
-            }
-        }
-    }
+	if (winningNode) {
+		CScript payee = GetScriptForDestination(winningNode->pubkey.GetID());
+		CTxDestination address1;
+		ExtractDestination(payee, address1);
+		CBitcoinAddress address2(address1);
+		result.push_back(Pair("payee", address2.ToString().c_str()));
+	} else {
+		result.push_back(Pair("payee", Params().DevOpsAddress().c_str()));
+	}
+	result.push_back(Pair("payee_amount", (int64_t)masternodeSplit));
+	result.push_back(Pair("masternode_payments", true));
+	result.push_back(Pair("enforce_masternode_payments", true));
 
     return result;
 }
