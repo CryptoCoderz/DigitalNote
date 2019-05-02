@@ -674,6 +674,10 @@ Value getblocktemplate(const Array& params, bool fHelp)
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
     result.push_back(Pair("votes", aVotes));
 
+    // Set Masternode / DevOps payments
+    int64_t masternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, (int64_t)pblock->vtx[0].vout[0].nValue);
+    int64_t devopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, (int64_t)pblock->vtx[0].vout[0].nValue);
+
 	// Include DevOps payments
 	CAmount devopsSplit = devopsPayment;
 	Object devopsReward;

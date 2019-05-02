@@ -2624,14 +2624,15 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     // TODO: verify upgrade
     if(bDevOpsPayment)
     {
-        int64_t nMasternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, nReward) / COIN;
-        int64_t nDevopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, nReward) / COIN;
+        int64_t nStandardPayment = 0;
+        int64_t nMasternodePayment = 0;
+        int64_t nDevopsPayment = 0;
         int64_t nProofOfIndexMasternode = 0;
         int64_t nProofOfIndexDevops = 0;
+        const CBlockIndex* pindexPrev = pindexBest->pprev;
         bool isProofOfStake = !IsProofOfWork();
         bool fBlockHasPayments = true;
         //LogLastMasternodePayee();
-        LogPrintf("Hardset MasternodePayment: %lu | Hardset DevOpsPayment: %lu \n", nMasternodePayment, nDevopsPayment);
         if (isProofOfStake) {
             nProofOfIndexMasternode = 2;
             nProofOfIndexDevops = 3;
@@ -2644,6 +2645,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                     nProofOfIndexDevops = 4;
                 }
             }
+            nStandardPayment = GetProofOfStakeReward(pindexPrev, 0, 0);
         } else {
             nProofOfIndexMasternode = 1;
             nProofOfIndexDevops = 2;
@@ -2651,7 +2653,11 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                     LogPrintf("CheckBlock() : PoW submission doesn't include devops and/or masternode payment\n");
                     fBlockHasPayments = false;
             }
+            nStandardPayment = GetProofOfWorkReward(nBestHeight, 0);
         }
+        nMasternodePayment = GetMasternodePayment(pindexBest->nHeight, nStandardPayment) / COIN;
+        nDevopsPayment = GetDevOpsPayment(pindexBest->nHeight, nStandardPayment) / COIN;
+        LogPrintf("Hardset MasternodePayment: %lu | Hardset DevOpsPayment: %lu \n", nMasternodePayment, nDevopsPayment);
         // TODO: verify upgrade
         // Check PoW or PoS payments for current block
         for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
