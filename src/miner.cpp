@@ -419,9 +419,9 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     ExtractDestination(do_payee, address3);
                     CBitcoinAddress address2(address1);
                     CBitcoinAddress address4(address3);
-                    LogPrintf("CreateNewBlock::FillBlockPayee -- Masternode payment %lld to %s\n",
+                    LogPrintf("CreateNewBlock(): Masternode payment %lld to %s\n",
                     masternodePayment, address2.ToString().c_str());
-                    LogPrintf("CreateNewBlock::FillBlockPayee -- Devops payment %lld to %s\n",
+                    LogPrintf("CreateNewBlock(): -- Devops payment %lld to %s\n",
                     devopsPayment, address4.ToString().c_str());
                 }
             } //
