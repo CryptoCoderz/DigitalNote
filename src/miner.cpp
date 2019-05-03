@@ -372,21 +372,29 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
             pblock->vtx[0].vout[0].nValue = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
 
             // TODO: Verify upgrade
-            /*if(nLiveForkToggle > 0){
+            if(nLiveForkToggle > 0){
                 if(pindexPrev->nHeight + 1 > nLiveForkToggle){
-                    // masternode payment
+                    // masternode/devops payment
+                    int64_t blockReward = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
                     bool hasPayment = true;
                     bool bMasterNodePayment = true;// TODO: Setup proper network toggle
-                    CScript payee;
+                    CScript mn_payee;
+                    CScript do_payee;
+                    CTxIn vin;
+
+                    // Determine our payment script for devops
+                    CScript devopsScript;
+                    devopsScript << OP_DUP << OP_HASH160 << ParseHex(Params().DevOpsPubKey()) << OP_EQUALVERIFY << OP_CHECKSIG;
+                    do_payee = devopsScript;
 
                     if(bMasterNodePayment) {
                         //spork
-                        if(!masternodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee, vin)){
+                        if(!masternodePayments.GetBlockPayee(pindexPrev->nHeight+1, mn_payee, vin)){
                             CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
                             if(winningNode){
-                                payee = GetScriptForDestination(winningNode->pubkey.GetID());
+                                mn_payee = GetScriptForDestination(winningNode->pubkey.GetID());
                             } else {
-                                return error("CreateCoinStake: Failed to detect masternode to pay\n");
+                                mn_payee = devopsScript;
                             }
                         }
                     } else {
@@ -394,21 +402,29 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     }
 
                     CAmount masternodePayment = GetMasternodePayment(nHeight, blockReward);
+                    CAmount devopsPayment = GetDevOpsPayment(nHeight, blockReward);
 
                     if (hasPayment) {
-                        coinbaseTx.vout.resize(2);
-                        coinbaseTx.vout[1].scriptPubKey = payee;
-                        coinbaseTx.vout[1].nValue = masternodePayment;
-                        coinbaseTx.vout[0].nValue = blockReward - masternodePayment;
+                        pblock->vtx[0].vout.resize(3);
+                        pblock->vtx[0].vout[1].scriptPubKey = mn_payee;
+                        pblock->vtx[0].vout[1].nValue = masternodePayment;
+                        pblock->vtx[0].vout[2].scriptPubKey = do_payee;
+                        pblock->vtx[0].vout[2].nValue = devopsPayment;
+                        pblock->vtx[0].vout[0].nValue = blockReward - (masternodePayment + devopsPayment);
                     }
 
                     CTxDestination address1;
-                    ExtractDestination(payee, address1);
+                    CTxDestination address3;
+                    ExtractDestination(mn_payee, address1);
+                    ExtractDestination(do_payee, address3);
                     CBitcoinAddress address2(address1);
+                    CBitcoinAddress address4(address3);
                     LogPrintf("CreateNewBlock::FillBlockPayee -- Masternode payment %lld to %s\n",
-                    masternodePayment, EncodeDestination(address2));
+                    masternodePayment, address2.ToString().c_str());
+                    LogPrintf("CreateNewBlock::FillBlockPayee -- Devops payment %lld to %s\n",
+                    devopsPayment, address4.ToString().c_str());
                 }
-            }*/ //
+            } //
         }
 
         if (pFees)

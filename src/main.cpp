@@ -2632,7 +2632,6 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         const CBlockIndex* pindexPrev = pindexBest->pprev;
         bool isProofOfStake = !IsProofOfWork();
         bool fBlockHasPayments = true;
-        //LogLastMasternodePayee();
         if (isProofOfStake) {
             nProofOfIndexMasternode = 2;
             nProofOfIndexDevops = 3;
@@ -2658,7 +2657,6 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         nMasternodePayment = GetMasternodePayment(pindexBest->nHeight, nStandardPayment) / COIN;
         nDevopsPayment = GetDevOpsPayment(pindexBest->nHeight, nStandardPayment) / COIN;
         LogPrintf("Hardset MasternodePayment: %lu | Hardset DevOpsPayment: %lu \n", nMasternodePayment, nDevopsPayment);
-        // TODO: verify upgrade
         // Check PoW or PoS payments for current block
         for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
             // Define values
@@ -2675,6 +2673,8 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                 // Check for PoS masternode payment
                 if (i == nProofOfIndexMasternode) {
                    if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
+                       LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
+                   } else if (addressOut.ToString() == Params().DevOpsAddress()) {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
                    } else {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity could not be verified\n");
@@ -2709,6 +2709,8 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                 if (i == nProofOfIndexMasternode) {
                    if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
+                   } else if (addressOut.ToString() == Params().DevOpsAddress()) {
+                       LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
                    } else {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity could not be verified\n");
                       fBlockHasPayments = false;

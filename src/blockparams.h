@@ -31,7 +31,6 @@ enum DiffMode {
     DIFF_VRX     = 1, // Retarget using Terminal-Velocity-RateX
 };
 
-void LogLastMasternodePayee();
 void VRXswngPoSdebug();
 void VRXswngPoWdebug();
 void VRXdebug();
@@ -44,7 +43,5 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees);
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees);
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue);
 int64_t GetDevOpsPayment(int nHeight, int64_t blockValue);
-extern std::string loggedpayee;
-
 
 #endif // BITCOIN_BLOCKPARAMS_H
