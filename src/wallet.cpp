@@ -3102,7 +3102,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         LogPrintf("Masternode payment to %s\n", address2.ToString().c_str());
     }
 
-    // TODO: Activate devops
+    // TODO: Clean this up, it's a mess (could be done much more cleanly)
+    //       Not an issue otherwise, merely a pet peev. Done in a rush...
+    //
     // DevOps Payments
     int devoppay = 1;
     // start devops payments
@@ -3134,10 +3136,10 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         CBitcoinAddress devopaddress;
         if (Params().NetworkID() == CChainParams::MAIN)
             devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"); // TODO: nothing, already set to a valid DigitalNote address
-      //  else if (Params().NetworkIDString() == CBaseChainParams::TESTNET)
-      //      address = CBitcoinAddress(" ");
-      //  else if (Params().NetworkIDString() == CBaseChainParams::REGTEST)
-      //      address = CBitcoinAddress(" ");
+        else if (Params().NetworkID() == CChainParams::TESTNET)
+            devopaddress = CBitcoinAddress("");
+        else if (Params().NetworkID() == CChainParams::REGTEST)
+            devopaddress = CBitcoinAddress("");
 
         // verify address
         if(devopaddress.IsValid())

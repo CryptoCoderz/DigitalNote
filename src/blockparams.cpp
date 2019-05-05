@@ -494,6 +494,7 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
     double seesawCeiling = 1;
     // Set bottom of seesaw arc
     seesawBase = seesawMidIncrmt;
+    LogPrint("creation", "GetMasternodePayment(): seesawEpoch=%lu\n", seesawEpoch);
     // Adjust for arc epochs
     if(seesawEpoch >= 1)
     {

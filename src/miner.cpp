@@ -382,10 +382,41 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     CScript do_payee;
                     CTxIn vin;
 
-                    // Determine our payment script for devops
-                    CScript devopsScript;
-                    devopsScript << OP_DUP << OP_HASH160 << ParseHex(Params().DevOpsPubKey()) << OP_EQUALVERIFY << OP_CHECKSIG;
-                    do_payee = devopsScript;
+                    // Determine our payment address for devops
+                    //
+                    // OLD IMPLEMENTATION COMMNETED OUT
+                    // CScript devopsScript;
+                    // devopsScript << OP_DUP << OP_HASH160 << ParseHex(Params().DevOpsPubKey()) << OP_EQUALVERIFY << OP_CHECKSIG;
+                    // do_payee = devopsScript;
+                    //
+                    // Define Address
+                    //
+                    // TODO: Clean this up, it's a mess (could be done much more cleanly)
+                    //       Not an issue otherwise, merely a pet peev. Done in a rush...
+                    //
+                    CBitcoinAddress devopaddress;
+                    if (Params().NetworkID() == CChainParams::MAIN)
+                        devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"); // TODO: nothing, already set to a valid DigitalNote address
+                    else if (Params().NetworkID() == CChainParams::TESTNET)
+                        devopaddress = CBitcoinAddress("");
+                    else if (Params().NetworkID() == CChainParams::REGTEST)
+                        devopaddress = CBitcoinAddress("");
+
+                    // verify address
+                    if(devopaddress.IsValid())
+                    {
+                        //spork
+                        if(pindexBest->GetBlockTime() > 1546123500) { // ON  (Saturday, December 29, 2018 10:45 PM)
+                                do_payee = GetScriptForDestination(devopaddress.Get());
+                        }
+                        else {
+                            hasPayment = false;
+                        }
+                    }
+                    else
+                    {
+                        LogPrintf("CreateNewBlock(): Failed to detect dev address to pay\n");
+                    }
 
                     if(bMasterNodePayment) {
                         //spork
@@ -394,7 +425,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                             if(winningNode){
                                 mn_payee = GetScriptForDestination(winningNode->pubkey.GetID());
                             } else {
-                                mn_payee = devopsScript;
+                                mn_payee = do_payee;
                             }
                         }
                     } else {
