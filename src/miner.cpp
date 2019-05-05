@@ -371,9 +371,9 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
         if (!fProofOfStake){
             pblock->vtx[0].vout[0].nValue = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
 
-            // TODO: Verify upgrade
-            if(nLiveForkToggle > 0){
-                if(pindexPrev->nHeight + 1 > nLiveForkToggle){
+            // Check for payment update fork
+            if(pindexBest->GetBlockTime() > 0){
+                if(pindexBest->GetBlockTime() > nPaymentUpdate_1){ // Monday, May 20, 2019 12:00:00 AM
                     // masternode/devops payment
                     int64_t blockReward = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
                     bool hasPayment = true;

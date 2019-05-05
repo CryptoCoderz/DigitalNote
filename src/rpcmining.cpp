@@ -675,9 +675,9 @@ Value getblocktemplate(const Array& params, bool fHelp)
     result.push_back(Pair("votes", aVotes));
 
     // TODO: Verify upgrade
-    if (nLiveForkToggle > 0)
+    if (pindexBest->GetBlockTime() > 0)
     {
-        if (pindexBest->nHeight > nLiveForkToggle)
+        if (pindexBest->GetBlockTime() > nPaymentUpdate_1) // Monday, May 20, 2019 12:00:00 AM
         {
             // Set Masternode / DevOps payments
             int64_t masternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, (int64_t)pblock->vtx[0].vout[0].nValue);

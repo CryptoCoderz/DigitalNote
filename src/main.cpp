@@ -2605,10 +2605,10 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             bDevOpsPayment = false;
         }
     }
-    // Live fork toggle for upgrade testing
-    if(nLiveForkToggle > 0)
+    // Fork toggle for payment upgrade
+    if(pindexBest->GetBlockTime() > 0)
     {
-        if(pindexBest->nHeight > nLiveForkToggle)
+        if(pindexBest->GetBlockTime() > nPaymentUpdate_1) // Monday, May 20, 2019 12:00:00 AM
         {
             bDevOpsPayment = true;
         }
@@ -2621,7 +2621,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     {
         bDevOpsPayment = false;
     }
-    // TODO: verify upgrade
+    // Run checks if at fork height
     if(bDevOpsPayment)
     {
         int64_t nStandardPayment = 0;
@@ -2710,7 +2710,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
                    } else if (addressOut.ToString() == Params().DevOpsAddress()) {
-                       LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
+                      LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
                    } else {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity could not be verified\n");
                       fBlockHasPayments = false;
@@ -3728,12 +3728,22 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CAddress addrFrom;
         uint64_t nNonce = 1;
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
-        if (pfrom->nVersion < MIN_PEER_PROTO_VERSION)
+        if(pfrom->nVersion <= (PROTOCOL_VERSION - 1))
         {
-            // disconnect from peers older than this proto version
-            LogPrintf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString(), pfrom->nVersion);
-            pfrom->fDisconnect = true;
-            return false;
+            if(pindexBest->GetBlockTime() > HRD_LEGACY_CUTOFF)
+            {
+                // disconnect from peers older than legacy cutoff allows : Disconnect message 02
+                LogPrintf("partner %s using obsolete version %i; disconnecting DCM:02\n", pfrom->addr.ToString(), pfrom->nVersion);
+                pfrom->fDisconnect = true;
+                return false;
+            }
+            else if(pfrom->nVersion < MIN_PEER_PROTO_VERSION)
+            {
+                // disconnect from peers older than this proto version : Disconnect message 01
+                LogPrintf("partner %s using obsolete version %i; disconnecting DCM:01\n", pfrom->addr.ToString(), pfrom->nVersion);
+                pfrom->fDisconnect = true;
+                return false;
+            }
         }
 
         if (pfrom->nVersion == 10300)
