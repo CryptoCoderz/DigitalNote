@@ -479,7 +479,7 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 {
     // Define values
     int64_t ret = 0;
-    int64_t swingSubsidy = blockValue - (50 * COIN); // 200 XDN ceiling
+    int64_t swingSubsidy = blockValue - (100 * COIN); // 200 XDN ceiling
     int64_t seesawHeight = nHeight;
     int64_t seesawInterval = seesawHeight / 30;
     int64_t seesawEpoch = seesawInterval / 15;
@@ -498,7 +498,14 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
     if(seesawEpoch >= 1)
     {
         seesawRollover = seesawArcend * seesawEpoch;
+        LogPrint("creation", "GetMasternodePayment(): seesawRollover=%lu\n", seesawRollover);
         seesawInterval =- seesawRollover;
+        LogPrint("creation", "GetMasternodePayment(): seesawInterval=%lu\n", seesawInterval);
+    }
+    else
+    {
+        LogPrint("creation", "GetMasternodePayment(): seesawRollover=%lu\n", seesawRollover);
+        LogPrint("creation", "GetMasternodePayment(): seesawInterval=%lu\n", seesawInterval);
     }
     // Seesaw downswing (first for logic order)
     if(seesawInterval > seesawArc)
@@ -506,10 +513,12 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
         if(seesawInterval <= seesawArcend)
         {
             seesawBase = seesawCeiling - ((seesawIncrement * seesawInterval) - 1);
+            LogPrint("creation", "GetMasternodePayment(): seesawBase_1=%lu\n", seesawBase);
             // Limit seesaw arc
             if(seesawBase < seesawMidIncrmt)
             {
                 seesawBase = seesawMidIncrmt;
+                LogPrint("creation", "GetMasternodePayment(): seesawBase_2=%lu\n", seesawBase);
             }
         }
     }
@@ -519,10 +528,12 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
         if(seesawInterval <= seesawArc)
         {
             seesawBase = seesawIncrement * seesawInterval;
+            LogPrint("creation", "GetMasternodePayment(): seesawBase_3=%lu\n", seesawBase);
             // Limit seesaw arc
             if(seesawBase > seesawCeiling)
             {
                 seesawBase = seesawCeiling;
+                LogPrint("creation", "GetMasternodePayment(): seesawBase_4=%lu\n", seesawBase);
             }
         }
     }
@@ -535,6 +546,8 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
         {
             // set returned value to calculated value
             ret = retDouble;
+            LogPrint("creation", "GetMasternodePayment(): Value=%lu\n\n", ret);
+
         }
     }
     // Return our seesaw arc value (reward in current position of arc)
