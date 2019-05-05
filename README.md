@@ -37,9 +37,9 @@ DigitalNote uses
 	libsecp256k1,
 	libgmp,
 	Boost1.68, OR Boost1.58,  
-	Openssl1.02o,
+	Openssl1.02r,
 	Berkeley DB 6.2.32,
-	QT5.11,
+	QT5.12.1,
 	to compile
 
 
@@ -139,7 +139,6 @@ The developer [mailing list](https://lists.linuxfoundation.org/mailman/listinfo/
 should be used to discuss complicated or controversial changes before working
 on a patch set.
 
-<<
 Developer Discord can be found at https://discord.gg/eSb7nEx.
 
 Testing

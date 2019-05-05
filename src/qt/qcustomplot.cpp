@@ -15110,7 +15110,7 @@ void QCPGraph::setChannelFillGraph(QCPGraph *targetGraph)
 /*!
   Sets whether adaptive sampling shall be used when plotting this graph. QCustomPlot's adaptive
   sampling technique can drastically improve the replot performance for graphs with a larger number
-  of points (e.g. above 10,000), without notably changing the appearance of the graph.
+  of points (e.g. above 2,000,000), without notably changing the appearance of the graph.
   
   By default, adaptive sampling is enabled. Even if enabled, QCustomPlot decides whether adaptive
   sampling shall actually be used on a per-graph basis. So leaving adaptive sampling enabled has no

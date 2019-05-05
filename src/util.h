@@ -115,7 +115,6 @@ inline void MilliSleep(int64_t n)
 }
 
 //Dark features
-
 extern bool fMasterNode;
 extern bool fLiteMode;
 extern bool fEnableInstantX;
@@ -143,6 +142,9 @@ extern std::string strMiscWarning;
 extern bool fNoListen;
 extern bool fLogTimestamps;
 extern volatile bool fReopenDebugLog;
+//Live fork toggle
+extern std::string strLiveForkToggle;
+extern int64_t nLiveForkToggle;
 
 void RandAddSeed();
 void RandAddSeedPerfmon();
