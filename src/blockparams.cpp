@@ -316,11 +316,11 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
         return bnVelocity.GetCompact(); // can't index prevblock
 
     // Live fork toggle diff reset
-    if(nLiveForkToggle > 0)
+    if(pindexLast->GetBlockTime() > 0)
     {
-        if(pindexLast->nHeight > nLiveForkToggle) // Selectable toggle
+        if(pindexLast->GetBlockTime() > nPaymentUpdate_1) // Monday, May 20, 2019 12:00:00 AM
         {
-            if(pindexLast->nHeight < nLiveForkToggle+5) {
+            if(pindexLast->GetBlockTime() < nPaymentUpdate_1+480) {
                 return bnVelocity.GetCompact(); // diff reset
             }
         }
@@ -541,9 +541,9 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
     // Set calculated position of seesaw arc
     retDouble = swingSubsidy * seesawBase;
     // v1.1 payment subsidy patch
-    if(nLiveForkToggle > 0)
+    if(pindexBest->GetBlockTime() > 0)
     {
-        if(pindexBest->nHeight > nLiveForkToggle) // Selectable toggle
+        if(pindexBest->GetBlockTime() > nPaymentUpdate_1) // Monday, May 20, 2019 12:00:00 AM
         {
             // set returned value to calculated value
             ret = retDouble;
