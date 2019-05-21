@@ -674,7 +674,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
     result.push_back(Pair("votes", aVotes));
 
-    // TODO: Verify upgrade
+    // Check for payment upgrade fork
     if (pindexBest->GetBlockTime() > 0)
     {
         if (pindexBest->GetBlockTime() > nPaymentUpdate_1) // Monday, May 20, 2019 12:00:00 AM
