@@ -2679,7 +2679,8 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    } else {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity could not be verified\n");
                        if (!fIsInitialDownload) {
-                           fBlockHasPayments = false;
+                           LogPrintf("CheckBlock() : PoS Recipient masternode address validity disabled at this time...\n");
+                           // fBlockHasPayments = false;
                        } else {
                            LogPrintf("CheckBlock() : PoS Recipient masternode address validity skipping, syncing in progress!\n");
                        }
@@ -2718,7 +2719,8 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    } else {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity could not be verified\n");
                       if (!fIsInitialDownload) {
-                          fBlockHasPayments = false;
+                          LogPrintf("CheckBlock() : PoW Recipient masternode address validity disabled at this time...\n");
+                          // fBlockHasPayments = false;
                       } else {
                           LogPrintf("CheckBlock() : PoW Recipient masternode address validity skipping, syncing in progress!\n");
                       }
