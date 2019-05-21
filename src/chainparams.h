@@ -72,7 +72,6 @@ public:
     int StartPoSBlock() const { return nStartPoSBlock; }
     int PoolMaxTransactions() const { return nPoolMaxTransactions; }
     std::string MNenginePoolDummyAddress() const { return strMNenginePoolDummyAddress; }
-    // TODO: Verify upgrade
     std::string DevOpsAddress() const { return strDevOpsAddress; }
     std::string DevOpsPubKey() const { return strDevOpsScriptPubKey; }
 protected:
@@ -93,7 +92,6 @@ protected:
     int nStartPoSBlock;
     int nPoolMaxTransactions;
     std::string strMNenginePoolDummyAddress;
-    // TODO: Verify upgrade
     std::string strDevOpsAddress;
     std::string strDevOpsScriptPubKey;
 };
