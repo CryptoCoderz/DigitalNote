@@ -45,7 +45,7 @@ DigitalNote uses
 
 General Specs
 
-	Block Spacing: 5 Minutes
+	Block Spacing: 2 Minutes
 	Stake Minimum Age: 15 Confirmations (PoS-v3) | 30 Minutes (PoS-v2)
 	Port: 18092
 	RPC Port: 18094
@@ -77,7 +77,7 @@ cd ~; wget http://download.oracle.com/berkeley-db/db-6.2.32.NC.tar.gz; tar zxf d
 
 ### GitHub pull (Source Download)
 ```
-cd ~; git clone https://github.com/DigitalNoteXDN/DigitalNote-1 DigitalNote
+cd ~; git clone https://github.com/DigitalNoteXDN/DigitalNote-2 DigitalNote
 ```
 
 ### Build DigitalNote daemon
