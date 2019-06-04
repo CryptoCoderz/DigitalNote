@@ -2703,8 +2703,17 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (nIndexedDevopsPayment == nDevopsPayment) {
                        LogPrintf("CheckBlock() : PoS Recipient devops amount validity succesfully verified\n");
                    } else {
-                       LogPrintf("CheckBlock() : PoS Recipient devops amount validity could not be verified\n");
-                       fBlockHasPayments = false;
+                       if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
+                           LogPrintf("CheckBlock() : PoS Recipient devops amount validity could not be verified\n");
+                           fBlockHasPayments = false;
+                       } else {
+                           if (nIndexedDevopsPayment >= nDevopsPayment) {
+                               LogPrintf("CheckBlock() : PoS Reciepient devops amount is abnormal due to large fee paid");
+                           } else {
+                               LogPrintf("CheckBlock() : PoS Reciepient devops amount validity could not be verified");
+                               fBlockHasPayments = false;
+                           }
+                       }
                    }
                 }
             }
@@ -2743,8 +2752,17 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (nAmount == nDevopsPayment) {
                       LogPrintf("CheckBlock() : PoW Recipient devops amount validity succesfully verified\n");
                    } else {
-                      LogPrintf("CheckBlock() : PoW Recipient devops amount validity could not be verified\n");
-                      fBlockHasPayments = false;
+                       if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
+                           LogPrintf("CheckBlock() : PoW Recipient devops amount validity could not be verified\n");
+                           fBlockHasPayments = false;
+                       } else {
+                           if (nIndexedDevopsPayment >= nDevopsPayment) {
+                               LogPrintf("CheckBlock() : PoW Reciepient devops amount is abnormal due to large fee paid");
+                           } else {
+                               LogPrintf("CheckBlock() : PoW Reciepient devops amount validity could not be verified");
+                               fBlockHasPayments = false;
+                           }
+                       }
                    }
                 }
             }
