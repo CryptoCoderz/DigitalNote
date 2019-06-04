@@ -1267,21 +1267,32 @@ void ThreadSocketHandler()
 
             if (GetTime() - pnode->nTimeConnected > IDLE_TIMEOUT)
             {
+                // First see if we've received/sent anything
                 if (pnode->nLastRecv == 0 || pnode->nLastSend == 0)
                 {
+                    // Disconnect if we have a completely stale connection
                     LogPrint("net", "socket no message in timeout, %d %d\n", pnode->nLastRecv != 0, pnode->nLastSend != 0);
                     pnode->fDisconnect = true;
                     pnode->CloseSocketDisconnect();
                 }
+                // Send timeout
                 else if (GetTime() - pnode->nLastSend > DATA_TIMEOUT)
                 {
                     LogPrintf("socket not sending\n");
                     pnode->fDisconnect = true;
                     pnode->CloseSocketDisconnect();
                 }
+                // Receive timeout
                 else if (GetTime() - pnode->nLastRecv > DATA_TIMEOUT)
                 {
                     LogPrintf("socket inactivity timeout\n");
+                    pnode->fDisconnect = true;
+                    pnode->CloseSocketDisconnect();
+                }
+                // Ping timeout
+                else if (pnode->nPingNonceSent && pnode->nPingUsecStart + TIMEOUT_INTERVAL * 1000000 < GetTimeMicros())
+                {
+                    LogPrintf("ping timeout: %fs\n", 0.000001 * (GetTimeMicros() - pnode->nPingUsecStart));
                     pnode->fDisconnect = true;
                     pnode->CloseSocketDisconnect();
                 }

@@ -687,7 +687,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
             CAmount devopsSplit = devopsPayment;
             Object devopsReward;
             devopsReward.push_back(Pair("devopspayee", Params().DevOpsAddress()));
-            devopsReward.push_back(Pair("amount", devopsSplit));
+            devopsReward.push_back(Pair("amount", (int64_t)devopsSplit));
             result.push_back(Pair("devopsreward", devopsReward));
             result.push_back(Pair("devops_reward_enforced", true));
 

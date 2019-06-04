@@ -145,6 +145,8 @@ extern volatile bool fReopenDebugLog;
 //Live fork toggle
 extern std::string strLiveForkToggle;
 extern int64_t nLiveForkToggle;
+//MasterNode recipient verification delay base time
+extern int64_t nMasterNodeChecksDelayBaseTime;
 
 void RandAddSeed();
 void RandAddSeedPerfmon();

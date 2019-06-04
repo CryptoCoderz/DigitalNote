@@ -2629,9 +2629,12 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         int64_t nDevopsPayment = 0;
         int64_t nProofOfIndexMasternode = 0;
         int64_t nProofOfIndexDevops = 0;
+        int64_t nMasterNodeChecksDelay = 30 * 60;
+        int64_t nMasterNodeChecksEngageTime = 0;
         const CBlockIndex* pindexPrev = pindexBest->pprev;
         bool isProofOfStake = !IsProofOfWork();
         bool fBlockHasPayments = true;
+        // Define primitives depending if PoW/PoS
         if (isProofOfStake) {
             nProofOfIndexMasternode = 2;
             nProofOfIndexDevops = 3;
@@ -2654,9 +2657,16 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             }
             nStandardPayment = GetProofOfWorkReward(nBestHeight, 0);
         }
+        // Set payout values depending if PoW/PoS
         nMasternodePayment = GetMasternodePayment(pindexBest->nHeight, nStandardPayment) / COIN;
         nDevopsPayment = GetDevOpsPayment(pindexBest->nHeight, nStandardPayment) / COIN;
         LogPrintf("Hardset MasternodePayment: %lu | Hardset DevOpsPayment: %lu \n", nMasternodePayment, nDevopsPayment);
+        // Increase time for Masternode checks delay during sync per-block
+        if (fIsInitialDownload) {
+            nMasterNodeChecksDelayBaseTime = GetTime();
+        } else {
+            nMasterNodeChecksEngageTime = nMasterNodeChecksDelayBaseTime + nMasterNodeChecksDelay;
+        }
         // Check PoW or PoS payments for current block
         for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
             // Define values
@@ -2677,10 +2687,13 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    } else if (addressOut.ToString() == Params().DevOpsAddress()) {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
                    } else {
-                       LogPrintf("CheckBlock() : PoS Recipient masternode address validity could not be verified\n");
-                       if (!fIsInitialDownload) {
-                           LogPrintf("CheckBlock() : PoS Recipient masternode address validity disabled at this time...\n");
-                           // fBlockHasPayments = false;
+                       if (nMasterNodeChecksEngageTime != 0) {
+                           if (nMasterNodeChecksEngageTime < GetTime()) {
+                               LogPrintf("CheckBlock() : PoS Recipient masternode address validity could not be verified\n");
+                               fBlockHasPayments = false;
+                           } else {
+                               LogPrintf("CheckBlock() : PoS Recipient masternode address validity skipping, Checks delay still active!\n");
+                           }
                        } else {
                            LogPrintf("CheckBlock() : PoS Recipient masternode address validity skipping, syncing in progress!\n");
                        }
@@ -2726,10 +2739,13 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    } else if (addressOut.ToString() == Params().DevOpsAddress()) {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
                    } else {
-                      LogPrintf("CheckBlock() : PoW Recipient masternode address validity could not be verified\n");
-                      if (!fIsInitialDownload) {
-                          LogPrintf("CheckBlock() : PoW Recipient masternode address validity disabled at this time...\n");
-                          // fBlockHasPayments = false;
+                      if (nMasterNodeChecksEngageTime != 0) {
+                          if (nMasterNodeChecksEngageTime < GetTime()) {
+                              LogPrintf("CheckBlock() : PoW Recipient masternode address validity could not be verified\n");
+                              fBlockHasPayments = false;
+                          } else {
+                              LogPrintf("CheckBlock() : PoW Recipient masternode address validity skipping, Checks delay still active!\n");
+                          }
                       } else {
                           LogPrintf("CheckBlock() : PoW Recipient masternode address validity skipping, syncing in progress!\n");
                       }
