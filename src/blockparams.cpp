@@ -479,7 +479,7 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 {
     // Define values
     int64_t ret = 0;
-    int64_t swingSubsidy = blockValue - (100 * COIN); // 200 XDN ceiling
+    int64_t swingSubsidy = 200 * COIN; // 200 XDN ceiling
     int64_t seesawHeight = nHeight;
     int64_t seesawInterval = seesawHeight / 30;
     int64_t seesawEpoch = seesawInterval / 15;
@@ -561,7 +561,7 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 int64_t GetDevOpsPayment(int nHeight, int64_t blockValue)
 {
     int64_t ret2 = 0;
-    ret2 = blockValue - (250 * COIN); // 50 XDN per block
+    ret2 = 50 * COIN; // 50 XDN per block
 
     return ret2;
 }

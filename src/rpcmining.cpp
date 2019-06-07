@@ -656,32 +656,23 @@ Value getblocktemplate(const Array& params, bool fHelp)
     }
 
     Array aVotes;
-
     Object result;
+
+    // Define coinbase payment
+    int64_t networkPayment = pblock->vtx[0].vout[0].nValue;
+
+    // Standard values
     result.push_back(Pair("version", pblock->nVersion));
     result.push_back(Pair("previousblockhash", pblock->hashPrevBlock.GetHex()));
     result.push_back(Pair("transactions", transactions));
-    result.push_back(Pair("coinbaseaux", aux));
-    result.push_back(Pair("coinbasevalue", (int64_t)pblock->vtx[0].vout[0].nValue));
-    result.push_back(Pair("target", hashTarget.GetHex()));
-    result.push_back(Pair("mintime", (int64_t)pindexPrev->GetPastTimeLimit()+1));
-    result.push_back(Pair("mutable", aMutable));
-    result.push_back(Pair("noncerange", "00000000ffffffff"));
-    result.push_back(Pair("sigoplimit", (int64_t)MAX_BLOCK_SIGOPS));
-    result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_SIZE));
-    result.push_back(Pair("curtime", (int64_t)pblock->nTime));
-    result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
-    result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
-    result.push_back(Pair("votes", aVotes));
-
     // Check for payment upgrade fork
     if (pindexBest->GetBlockTime() > 0)
     {
         if (pindexBest->GetBlockTime() > nPaymentUpdate_1) // Monday, May 20, 2019 12:00:00 AM
         {
             // Set Masternode / DevOps payments
-            int64_t masternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, (int64_t)pblock->vtx[0].vout[0].nValue);
-            int64_t devopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, (int64_t)pblock->vtx[0].vout[0].nValue);
+            int64_t masternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, networkPayment);
+            int64_t devopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, networkPayment);
 
             // Include DevOps payments
             CAmount devopsSplit = devopsPayment;
@@ -707,6 +698,19 @@ Value getblocktemplate(const Array& params, bool fHelp)
             result.push_back(Pair("enforce_masternode_payments", true));
         }
     }
+    // Standard values cont...
+    result.push_back(Pair("coinbaseaux", aux));
+    result.push_back(Pair("coinbasevalue", networkPayment));
+    result.push_back(Pair("target", hashTarget.GetHex()));
+    result.push_back(Pair("mintime", (int64_t)pindexPrev->GetPastTimeLimit()+1));
+    result.push_back(Pair("mutable", aMutable));
+    result.push_back(Pair("noncerange", "00000000ffffffff"));
+    result.push_back(Pair("sigoplimit", (int64_t)MAX_BLOCK_SIGOPS));
+    result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_SIZE));
+    result.push_back(Pair("curtime", (int64_t)pblock->nTime));
+    result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
+    result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
+    result.push_back(Pair("votes", aVotes));
 
     return result;
 }
