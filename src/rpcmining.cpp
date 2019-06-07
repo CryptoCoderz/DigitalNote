@@ -685,24 +685,22 @@ Value getblocktemplate(const Array& params, bool fHelp)
 
             // Include DevOps payments
             CAmount devopsSplit = devopsPayment;
-            Object devopsReward;
-            devopsReward.push_back(Pair("devopspayee", Params().DevOpsAddress()));
-            devopsReward.push_back(Pair("amount", (int64_t)devopsSplit));
-            result.push_back(Pair("devopsreward", devopsReward));
-            result.push_back(Pair("devops_reward_enforced", true));
+            result.push_back(Pair("devops_payee", Params().DevOpsAddress()));
+            result.push_back(Pair("payee_amount", (int64_t)devopsSplit));
+            result.push_back(Pair("devops_payments", true));
+            result.push_back(Pair("enforce_devops_payments", true));
 
             // Include Masternode payments
             CAmount masternodeSplit = masternodePayment;
             CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
-
             if (winningNode) {
                 CScript payee = GetScriptForDestination(winningNode->pubkey.GetID());
                 CTxDestination address1;
                 ExtractDestination(payee, address1);
                 CBitcoinAddress address2(address1);
-                result.push_back(Pair("payee", address2.ToString().c_str()));
+                result.push_back(Pair("masternode_payee", address2.ToString().c_str()));
             } else {
-                result.push_back(Pair("payee", Params().DevOpsAddress().c_str()));
+                result.push_back(Pair("masternode_payee", Params().DevOpsAddress().c_str()));
             }
             result.push_back(Pair("payee_amount", (int64_t)masternodeSplit));
             result.push_back(Pair("masternode_payments", true));
