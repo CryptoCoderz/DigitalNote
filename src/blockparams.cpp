@@ -47,6 +47,7 @@ double VRFup2 = 1.5;
 double VRFup3 = 2;
 double TerminalAverage = 0;
 double TerminalFactor = 10000;
+double debugTerminalAverage = 0;
 CBigNum newBN = 0;
 CBigNum oldBN = 0;
 int64_t VLrate1 = 0;
@@ -68,16 +69,20 @@ int64_t scantime_1 = 0;
 int64_t scantime_2 = 0;
 int64_t prevPoW = 0; // hybrid value
 int64_t prevPoS = 0; // hybrid value
-const CBlockIndex* pindexPrev = 0;
-const CBlockIndex* BlockVelocityType = 0;
-CBigNum bnOld;
-CBigNum bnNew;
-unsigned int retarget = DIFF_VRX; // Default with VRX
 uint64_t cntTime = 0;
 uint64_t prvTime = 0;
-uint64_t difTimePoS = 0;
-uint64_t difTimePoW = 0;
-string loggedpayee = "";
+uint64_t difTime = 0;
+uint64_t hourRounds = 0;
+uint64_t difCurve = 0;
+uint64_t debugHourRounds = 0;
+uint64_t debugDifCurve = 0;
+const CBlockIndex* pindexPrev = 0;
+const CBlockIndex* BlockVelocityType = 0;
+CBigNum bnVelocity = 0;
+CBigNum bnOld;
+CBigNum bnNew;
+std::string difType ("");
+unsigned int retarget = DIFF_VRX; // Default with VRX
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -89,29 +94,31 @@ string loggedpayee = "";
 // Debug log printing
 //
 
-void VRXswngPoSdebug()
+void VRXswngdebug()
 {
     // Print for debugging
-    LogPrintf("Previously discovered PoS block: %u: \n",prvTime);
-    LogPrintf("Current block-time: %u: \n",cntTime);
-    LogPrintf("Time since last PoS block: %u: \n",difTimePoS);
-    if(difTimePoS > 1 * 60 * 60) { TerminalAverage /= 2; LogPrintf("diffTimePoS is greater than 1 Hours: %u \n",cntTime);}
-    if(difTimePoS > 2 * 60 * 60) { TerminalAverage /= 2; LogPrintf("diffTimePoS is greater than 2 Hours: %u \n",cntTime);}
-    if(difTimePoS > 3 * 60 * 60) { TerminalAverage /= 2; LogPrintf("diffTimePoS is greater than 3 Hours: %u \n",cntTime);}
-    if(difTimePoS > 4 * 60 * 60) { TerminalAverage /= 2; LogPrintf("diffTimePoS is greater than 4 Hours: %u \n",cntTime);}
-    return;
-}
+    LogPrintf("Previously discovered %s block: %u: \n",difType.c_str(),prvTime);
+    LogPrintf("Current block-time: %u: \n",difType.c_str(),cntTime);
+    LogPrintf("Time since last %s block: %u: \n",difType.c_str(),difTime);
+    // Handle updated versions as well as legacy
+    if(GetTime() > nPaymentUpdate_2) {
+        debugHourRounds = hourRounds;
+        debugTerminalAverage = TerminalAverage;
+        debugDifCurve = difCurve;
+        while(difTime > (debugHourRounds * 60 * 60)) {
+            debugTerminalAverage /= debugDifCurve;
+            LogPrintf("diffTime%s is greater than %u Hours: %u \n",difType.c_str(),debugHourRounds,cntTime);
+            LogPrintf("Difficulty will be multiplied by: %d \n",debugTerminalAverage);
+            debugDifCurve ++;
+            debugHourRounds ++;
+        }
+    } else {
+        if(difTime > hourRounds * 60 * 60) {LogPrintf("diffTime%s is greater than 1 Hours: %u \n",difType.c_str(),cntTime);}
+        if(difTime > (hourRounds+1) * 60 * 60) {LogPrintf("diffTime%s is greater than 2 Hours: %u \n",difType.c_str(),cntTime);}
+        if(difTime > (hourRounds+2) * 60 * 60) {LogPrintf("diffTime%s is greater than 3 Hours: %u \n",difType.c_str(),cntTime);}
+        if(difTime > (hourRounds+3) * 60 * 60) {LogPrintf("diffTime%s is greater than 4 Hours: %u \n",difType.c_str(),cntTime);}
+    }
 
-void VRXswngPoWdebug()
-{
-    // Print for debugging
-    LogPrintf("Previously discovered PoW block: %u: \n",prvTime);
-    LogPrintf("Current block-time: %u: \n",cntTime);
-    LogPrintf("Time since last PoW block: %u: \n",difTimePoW);
-    if(difTimePoW > 1 * 60 * 60) { TerminalAverage /= 2; LogPrintf("diffTimePoW is greater than 1 Hours: %u \n",cntTime);}
-    if(difTimePoW > 2 * 60 * 60) { TerminalAverage /= 2; LogPrintf("diffTimePoW is greater than 2 Hours: %u \n",cntTime);}
-    if(difTimePoW > 3 * 60 * 60) { TerminalAverage /= 2; LogPrintf("diffTimePoW is greater than 3 Hours: %u \n",cntTime);}
-    if(difTimePoW > 4 * 60 * 60) { TerminalAverage /= 2; LogPrintf("diffTimePoW is greater than 4 Hours: %u \n",cntTime);}
     return;
 }
 
@@ -161,9 +168,9 @@ void GNTdebug()
 //
 
 //
-// This is VRX revised implementation
+// This is VRX (v3.5) revised implementation
 //
-// Terminal-Velocity-RateX, v10-Beta-R7, written by Jonathan Dan Zaretsky - cryptocoderz@gmail.com
+// Terminal-Velocity-RateX, v10-Beta-R8, written by Jonathan Dan Zaretsky - cryptocoderz@gmail.com
 void VRX_BaseEngine(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
        // Set base values
@@ -187,6 +194,7 @@ void VRX_BaseEngine(const CBlockIndex* pindexLast, bool fProofOfStake)
        scantime_2 = pindexLast->GetBlockTime();
        prevPoW = 0; // hybrid value
        prevPoS = 0; // hybrid value
+       bnVelocity = fProofOfStake ? Params().ProofOfStakeLimit() : Params().ProofOfWorkLimit();
        // Set prev blocks...
        pindexPrev = pindexLast;
        // ...and deduce spacing
@@ -249,6 +257,19 @@ void VRX_BaseEngine(const CBlockIndex* pindexLast, bool fProofOfStake)
        return;
 }
 
+void VRX_Simulate_Retarget()
+{
+    // Perform retarget simulation
+    TerminalFactor *= TerminalAverage;
+    difficultyfactor = TerminalFactor;
+    bnOld.SetCompact(BlockVelocityType->nBits);
+    bnNew = bnOld / difficultyfactor;
+    bnNew *= 10000;
+    // Reset TerminalFactor for actual retarget
+    TerminalFactor = 10000;
+    return;
+}
+
 void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
     // Run VRX engine
@@ -272,36 +293,39 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
         // Define time values
         cntTime = BlockVelocityType->GetBlockTime();
         prvTime = BlockVelocityType->pprev->GetBlockTime();
+        difTime = cntTime - prvTime;
+        hourRounds = 1;
+        difCurve = 2;
 
-        if(fProofOfStake)
-        {
-            difTimePoS = cntTime - prvTime;
-
-            // Debug print toggle
-            if(fDebug) VRXswngPoSdebug();
-            // Normal Run
-            else if(!fDebug)
-            {
-                if(difTimePoS > 1 * 60 * 60) { TerminalAverage /= 2; }
-                if(difTimePoS > 2 * 60 * 60) { TerminalAverage /= 2; }
-                if(difTimePoS > 3 * 60 * 60) { TerminalAverage /= 2; }
-                if(difTimePoS > 4 * 60 * 60) { TerminalAverage /= 2; }
-            }
+        // Debug print toggle
+        if(fProofOfStake) {
+            difType = "PoS";
+        } else {
+            difType = "PoW";
         }
-        else if(!fProofOfStake)
-        {
-            difTimePoW = cntTime - prvTime;
+        if(fDebug) VRXswngdebug();
 
-            // Debug print toggle
-            if(fDebug) VRXswngPoWdebug();
-            // Normal Run
-            else if(!fDebug)
-            {
-                if(difTimePoW > 1 * 60 * 60) { TerminalAverage /= 2; }
-                if(difTimePoW > 2 * 60 * 60) { TerminalAverage /= 2; }
-                if(difTimePoW > 3 * 60 * 60) { TerminalAverage /= 2; }
-                if(difTimePoW > 4 * 60 * 60) { TerminalAverage /= 2; }
+        // Version 1.2 Extended Curve Run Upgrade
+        if(pindexLast->GetBlockTime() > nPaymentUpdate_2) {
+            while(difTime > (hourRounds * 60 * 60)) {
+                // Drop difficulty per round
+                TerminalAverage /= difCurve;
+                // Simulate retarget for sanity
+                VRX_Simulate_Retarget();
+                // Break loop on nbit limit, otherwise time threshold will auto-break loop
+                if (bnNew > bnVelocity){
+                    break;
+                }
+                // Increase Curve per round
+                difCurve ++;
+                // Move up an hour per round
+                hourRounds ++;
             }
+        } else {// Version 1.1 Standard Curve Run
+            if(difTime > hourRounds * 60 * 60) { TerminalAverage /= difCurve; }
+            if(difTime > (hourRounds+1) * 60 * 60) { TerminalAverage /= difCurve; }
+            if(difTime > (hourRounds+2) * 60 * 60) { TerminalAverage /= difCurve; }
+            if(difTime > (hourRounds+3) * 60 * 60) { TerminalAverage /= difCurve; }
         }
     }
     return;
@@ -309,8 +333,6 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
 
 unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
-    const CBigNum bnVelocity = fProofOfStake ? Params().ProofOfStakeLimit() : Params().ProofOfWorkLimit();
-
     // Check for blocks to index | Allowing for initial chain start
     if (pindexLast->nHeight < scanheight+124)
         return bnVelocity.GetCompact(); // can't index prevblock
@@ -332,16 +354,13 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
     // Run VRX threadcurve
     VRX_ThreadCurve(pindexLast, fProofOfStake);
 
-    // Retarget
-    TerminalFactor *= TerminalAverage;
-    difficultyfactor = TerminalFactor;
-    bnOld.SetCompact(BlockVelocityType->nBits);
-    bnNew = bnOld / difficultyfactor;
-    bnNew *= 10000;
+    // Retarget using simulation
+    VRX_Simulate_Retarget();
 
     // Limit
-    if (bnNew > bnVelocity)
-      bnNew = bnVelocity;
+    if (bnNew > bnVelocity){
+        bnNew = bnVelocity;
+    }
 
     // Final log
     oldBN = bnOld.GetCompact();

@@ -31,8 +31,8 @@ enum DiffMode {
     DIFF_VRX     = 1, // Retarget using Terminal-Velocity-RateX
 };
 
-void VRXswngPoSdebug();
-void VRXswngPoWdebug();
+void VRXswngdebug();
+void VRX_Simulate_Retarget();
 void VRXdebug();
 void GNTdebug();
 void VRX_BaseEngine(const CBlockIndex* pindexLast, bool fProofOfStake);
