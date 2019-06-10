@@ -37,6 +37,7 @@ void VRXdebug();
 void GNTdebug();
 void VRX_BaseEngine(const CBlockIndex* pindexLast, bool fProofOfStake);
 void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake);
+void VRX_Dry_Run(const CBlockIndex* pindexLast);
 unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake);
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake);
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees);
