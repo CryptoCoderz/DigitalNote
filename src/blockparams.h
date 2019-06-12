@@ -32,10 +32,10 @@ enum DiffMode {
 };
 
 void VRXswngdebug();
-void VRX_Simulate_Retarget();
 void VRXdebug();
 void GNTdebug();
 void VRX_BaseEngine(const CBlockIndex* pindexLast, bool fProofOfStake);
+void VRX_Simulate_Retarget();
 void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake);
 void VRX_Dry_Run(const CBlockIndex* pindexLast);
 unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake);

@@ -77,6 +77,7 @@ uint64_t difCurve = 0;
 uint64_t debugHourRounds = 0;
 uint64_t debugDifCurve = 0;
 bool fDryRun;
+bool fCRVreset;
 const CBlockIndex* pindexPrev = 0;
 const CBlockIndex* BlockVelocityType = 0;
 CBigNum bnVelocity = 0;
@@ -110,7 +111,11 @@ void VRXswngdebug()
             debugTerminalAverage /= debugDifCurve;
             LogPrintf("diffTime%s is greater than %u Hours: %u \n",difType.c_str(),debugHourRounds,cntTime);
             LogPrintf("Difficulty will be multiplied by: %d \n",debugTerminalAverage);
-            debugDifCurve ++;
+            // Break loop after 5 hours, otherwise time threshold will auto-break loop
+            if (debugHourRounds > 5){
+                break;
+            }
+            debugDifCurve *= 10;
             debugHourRounds ++;
         }
     } else {
@@ -290,6 +295,7 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
         difTime = cntTime - prvTime;
         hourRounds = 1;
         difCurve = 2;
+        fCRVreset = false;
 
         // Debug print toggle
         if(fProofOfStake) {
@@ -306,12 +312,13 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
                 TerminalAverage /= difCurve;
                 // Simulate retarget for sanity
                 VRX_Simulate_Retarget();
-                // Break loop on nbit limit, otherwise time threshold will auto-break loop
-                if (bnNew > bnVelocity){
+                // Break loop after 5 hours, otherwise time threshold will auto-break loop
+                if (hourRounds > 5){
+                    fCRVreset = true;
                     break;
                 }
                 // Increase Curve per round
-                difCurve ++;
+                difCurve *= 10;
                 // Move up an hour per round
                 hourRounds ++;
             }
@@ -364,6 +371,7 @@ unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake)
 
     // Run VRX threadcurve
     VRX_ThreadCurve(pindexLast, fProofOfStake);
+    if (fCRVreset) { return bnVelocity.GetCompact(); }
 
     // Retarget using simulation
     VRX_Simulate_Retarget();
