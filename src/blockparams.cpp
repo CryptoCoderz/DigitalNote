@@ -307,6 +307,7 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
 
         // Version 1.2 Extended Curve Run Upgrade
         if(pindexLast->nHeight+1 >= nLiveForkToggle && nLiveForkToggle != 0) {
+            difTime = GetTime() - cntTime;
             while(difTime > (hourRounds * 60 * 60)) {
                 // Drop difficulty per round
                 TerminalAverage /= difCurve;
