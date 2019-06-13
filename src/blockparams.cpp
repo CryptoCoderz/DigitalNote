@@ -308,9 +308,10 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
         // Version 1.2 Extended Curve Run Upgrade
         if(pindexLast->nHeight+1 >= nLiveForkToggle && nLiveForkToggle != 0) {
             difTime = GetTime() - cntTime;
+            if (fProofOfStake) { fCRVreset = true; }// TODO remove PoS diff reset
             while(difTime > (hourRounds * 60 * 60)) {
                 // Break loop after 5 hours, otherwise time threshold will auto-break loop
-                if (hourRounds > 5 || fProofOfStake){// TODO: remove PoS reset
+                if (hourRounds > 5){
                     fCRVreset = true;
                     break;
                 }
