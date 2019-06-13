@@ -115,7 +115,7 @@ void VRXswngdebug()
             if (debugHourRounds > 5){
                 break;
             }
-            debugDifCurve *= 10;
+            debugDifCurve ++;
             debugHourRounds ++;
         }
     } else {
@@ -309,17 +309,17 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
         if(pindexLast->nHeight+1 >= nLiveForkToggle && nLiveForkToggle != 0) {
             difTime = GetTime() - cntTime;
             while(difTime > (hourRounds * 60 * 60)) {
+                // Break loop after 5 hours, otherwise time threshold will auto-break loop
+                if (hourRounds > 5 || fProofOfStake){// TODO: remove PoS reset
+                    fCRVreset = true;
+                    break;
+                }
                 // Drop difficulty per round
                 TerminalAverage /= difCurve;
                 // Simulate retarget for sanity
                 VRX_Simulate_Retarget();
-                // Break loop after 5 hours, otherwise time threshold will auto-break loop
-                if (hourRounds > 5){
-                    fCRVreset = true;
-                    break;
-                }
                 // Increase Curve per round
-                difCurve *= 10;
+                difCurve ++;
                 // Move up an hour per round
                 hourRounds ++;
             }
