@@ -2710,8 +2710,12 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (addressOut.ToString() == Params().DevOpsAddress()) {
                        LogPrintf("CheckBlock() : PoS Recipient devops address validity succesfully verified\n");
                    } else {
-                       LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verified\n");
-                       fBlockHasPayments = false;
+                       if (pindexBest->nHeight >= nLiveForkToggle) {
+                           LogPrintf("CheckBlock() : PoS Recipient devops address validity skipped, pre-enforcement phase\n");
+                       } else {
+                           LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verified\n");
+                           fBlockHasPayments = false;
+                       }
                    }
                    if (nIndexedDevopsPayment == nDevopsPayment) {
                        LogPrintf("CheckBlock() : PoS Recipient devops amount validity succesfully verified\n");
@@ -2762,8 +2766,12 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (addressOut.ToString() == Params().DevOpsAddress()) {
                       LogPrintf("CheckBlock() : PoW Recipient devops address validity succesfully verified\n");
                    } else {
-                      LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verified\n");
-                      fBlockHasPayments = false;
+                       if (pindexBest->nHeight >= nLiveForkToggle) {
+                           LogPrintf("CheckBlock() : PoW Recipient devops address validity skipped, pre-enforcement phase\n");
+                       } else {
+                           LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verified\n");
+                           fBlockHasPayments = false;
+                       }
                    }
                    if (nAmount == nDevopsPayment) {
                       LogPrintf("CheckBlock() : PoW Recipient devops amount validity succesfully verified\n");

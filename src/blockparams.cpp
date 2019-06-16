@@ -307,8 +307,9 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
 
         // Version 1.2 Extended Curve Run Upgrade
         if(pindexLast->nHeight+1 >= nLiveForkToggle && nLiveForkToggle != 0) {
+            // Set live values instead of static
             difTime = GetTime() - cntTime;
-            if (fProofOfStake) { fCRVreset = true; }// TODO remove PoS diff reset
+            // Run Curve
             while(difTime > (hourRounds * 60 * 60)) {
                 // Break loop after 5 hours, otherwise time threshold will auto-break loop
                 if (hourRounds > 5){
@@ -353,6 +354,15 @@ void VRX_Dry_Run(const CBlockIndex* pindexLast)
             }
         }
     }
+
+    // Test Fork
+    if (nLiveForkToggle != 0) {
+        if (pindexLast->nHeight+2 >= nLiveForkToggle) {// +2 to ensure Curve runs first and unlocks chain
+            if (pindexLast->nHeight+2 < nLiveForkToggle+5) {
+                fCRVreset = true;
+            }
+        }
+    }// TODO remove diff reset
 
     // Standard, non-Dry Run
     fDryRun = false;
