@@ -2712,9 +2712,9 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    } else {
                        if (pindexBest->nHeight >= nLiveForkToggle) {
                            LogPrintf("CheckBlock() : PoS Recipient devops address validity skipped, pre-enforcement phase\n");
+                           if (nLiveForkToggle != 0) { fBlockHasPayments = false; }
                        } else {
                            LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verified\n");
-                           fBlockHasPayments = false;
                        }
                    }
                    if (nIndexedDevopsPayment == nDevopsPayment) {
@@ -2768,9 +2768,9 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    } else {
                        if (pindexBest->nHeight >= nLiveForkToggle) {
                            LogPrintf("CheckBlock() : PoW Recipient devops address validity skipped, pre-enforcement phase\n");
+                           if (nLiveForkToggle != 0) { fBlockHasPayments = false; }
                        } else {
                            LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verified\n");
-                           fBlockHasPayments = false;
                        }
                    }
                    if (nAmount == nDevopsPayment) {
