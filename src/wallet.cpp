@@ -3053,7 +3053,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     // define address
     CBitcoinAddress devopaddress;
     if (Params().NetworkID() == CChainParams::MAIN)
-        devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"); // TODO: nothing, already set to a valid DigitalNote address
+        devopaddress = CBitcoinAddress("dHy3LZvqX5B2rAAoLiA7Y7rpvkLXKTkD18"); // TODO: nothing, already set to a valid DigitalNote address
     else if (Params().NetworkID() == CChainParams::TESTNET)
         devopaddress = CBitcoinAddress("");
     else if (Params().NetworkID() == CChainParams::REGTEST)

@@ -73,7 +73,6 @@ public:
     int PoolMaxTransactions() const { return nPoolMaxTransactions; }
     std::string MNenginePoolDummyAddress() const { return strMNenginePoolDummyAddress; }
     std::string DevOpsAddress() const { return strDevOpsAddress; }
-    std::string DevOpsPubKey() const { return strDevOpsScriptPubKey; }
 protected:
     CChainParams() {};
 
@@ -93,7 +92,6 @@ protected:
     int nPoolMaxTransactions;
     std::string strMNenginePoolDummyAddress;
     std::string strDevOpsAddress;
-    std::string strDevOpsScriptPubKey;
 };
 
 /**

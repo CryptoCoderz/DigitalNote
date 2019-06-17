@@ -90,7 +90,7 @@ int64_t enforceMasternodePaymentsTime = 4085657524;
 int nMasternodeMinProtocol = 0;
 bool fSucessfullyLoaded = false;
 bool fEnableMNengine = false;
-
+//Standard features
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
 bool fDebug = false;
@@ -105,10 +105,11 @@ string strMiscWarning;
 bool fNoListen = false;
 bool fLogTimestamps = false;
 volatile bool fReopenDebugLog = false;
-
 //Live fork toggle
 string strLiveForkToggle = "";
 int64_t nLiveForkToggle = 0;
+//MasterNode recipient verification delay base time
+int64_t nMasterNodeChecksDelayBaseTime = 0;
 
 // Init OpenSSL library multithreading support
 static CCriticalSection** ppmutexOpenSSL;
