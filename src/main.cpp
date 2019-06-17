@@ -2710,11 +2710,11 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (addressOut.ToString() == Params().DevOpsAddress()) {
                        LogPrintf("CheckBlock() : PoS Recipient devops address validity succesfully verified\n");
                    } else {
-                       if (pindexBest->nHeight <= nLiveForkToggle) {
-                           LogPrintf("CheckBlock() : PoS Recipient devops address validity skipped, pre-enforcement phase\n");
-                       } else {
+                       if (pindexBest->nHeight >= nLiveForkToggle && nLiveForkToggle != 0) {
                            LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verified\n");
                            fBlockHasPayments = false;
+                       } else {
+                           LogPrintf("CheckBlock() : PoS Recipient devops address validity skipped, pre-enforcement phase\n");
                        }
                    }
                    if (nIndexedDevopsPayment == nDevopsPayment) {
@@ -2766,11 +2766,11 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (addressOut.ToString() == Params().DevOpsAddress()) {
                       LogPrintf("CheckBlock() : PoW Recipient devops address validity succesfully verified\n");
                    } else {
-                       if (pindexBest->nHeight <= nLiveForkToggle) {
-                           LogPrintf("CheckBlock() : PoW Recipient devops address validity skipped, pre-enforcement phase\n");
-                       } else {
+                       if (pindexBest->nHeight >= nLiveForkToggle && nLiveForkToggle != 0) {
                            LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verified\n");
                            fBlockHasPayments = false;
+                       } else {
+                           LogPrintf("CheckBlock() : PoW Recipient devops address validity skipped, pre-enforcement phase\n");
                        }
                    }
                    if (nAmount == nDevopsPayment) {
