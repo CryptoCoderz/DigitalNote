@@ -2710,7 +2710,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (addressOut.ToString() == Params().DevOpsAddress()) {
                        LogPrintf("CheckBlock() : PoS Recipient devops address validity succesfully verified\n");
                    } else {
-                       if (pindexBest->nHeight >= nLiveForkToggle && nLiveForkToggle != 0) {
+                       if (pindexBest->GetBlockTime() > nPaymentUpdate_2) {
                            LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verified\n");
                            fBlockHasPayments = false;
                        } else {
@@ -2720,7 +2720,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (nIndexedDevopsPayment == nDevopsPayment) {
                        LogPrintf("CheckBlock() : PoS Recipient devops amount validity succesfully verified\n");
                    } else {
-                       if (pindexBest->nHeight <= nLiveForkToggle) {
+                       if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
                            LogPrintf("CheckBlock() : PoS Recipient devops amount validity could not be verified\n");
                            fBlockHasPayments = false;
                        } else {
@@ -2766,7 +2766,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (addressOut.ToString() == Params().DevOpsAddress()) {
                       LogPrintf("CheckBlock() : PoW Recipient devops address validity succesfully verified\n");
                    } else {
-                       if (pindexBest->nHeight >= nLiveForkToggle && nLiveForkToggle != 0) {
+                       if (pindexBest->GetBlockTime() > nPaymentUpdate_2) {
                            LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verified\n");
                            fBlockHasPayments = false;
                        } else {
@@ -2776,7 +2776,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                    if (nAmount == nDevopsPayment) {
                       LogPrintf("CheckBlock() : PoW Recipient devops amount validity succesfully verified\n");
                    } else {
-                       if (pindexBest->nHeight <= nLiveForkToggle) {
+                       if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
                            LogPrintf("CheckBlock() : PoW Recipient devops amount validity could not be verified\n");
                            fBlockHasPayments = false;
                        } else {
