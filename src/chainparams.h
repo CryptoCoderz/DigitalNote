@@ -72,9 +72,9 @@ public:
     int StartPoSBlock() const { return nStartPoSBlock; }
     int PoolMaxTransactions() const { return nPoolMaxTransactions; }
     std::string MNenginePoolDummyAddress() const { return strMNenginePoolDummyAddress; }
-    std::string DevOpsAddress() const { return strDevOpsAddress; }
+    std::string DevOpsAddress() { return strDevOpsAddress; }
 protected:
-    CChainParams() {};
+    CChainParams() {/* Do Nothing */;}
 
     uint256 hashGenesisBlock;
     MessageStartChars pchMessageStart;
