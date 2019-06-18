@@ -2634,6 +2634,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         const CBlockIndex* pindexPrev = pindexBest->pprev;
         bool isProofOfStake = !IsProofOfWork();
         bool fBlockHasPayments = true;
+        std::string strVfyDevopsAddress;
         // Define primitives depending if PoW/PoS
         if (isProofOfStake) {
             nProofOfIndexMasternode = 2;
@@ -2667,6 +2668,9 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         } else {
             nMasterNodeChecksEngageTime = nMasterNodeChecksDelayBaseTime + nMasterNodeChecksDelay;
         }
+        // Devops Address Set and Updates
+        strVfyDevopsAddress = "dHy3LZvqX5B2rAAoLiA7Y7rpvkLXKTkD18";
+        if(pindexBest->GetBlockTime() < nPaymentUpdate_2) { strVfyDevopsAddress = Params().DevOpsAddress(); }
         // Check PoW or PoS payments for current block
         for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
             // Define values
@@ -2684,7 +2688,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                 if (i == nProofOfIndexMasternode) {
                    if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
-                   } else if (addressOut.ToString() == Params().DevOpsAddress()) {
+                   } else if (addressOut.ToString() == strVfyDevopsAddress) {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
                    } else {
                        if (nMasterNodeChecksEngageTime != 0) {
@@ -2707,15 +2711,11 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                 }
                 // Check for PoS devops payment
                 if (i == nProofOfIndexDevops) {
-                   if (addressOut.ToString() == Params().DevOpsAddress()) {
+                   if (addressOut.ToString() == strVfyDevopsAddress) {
                        LogPrintf("CheckBlock() : PoS Recipient devops address validity succesfully verified\n");
                    } else {
-                       if (pindexBest->GetBlockTime() > nPaymentUpdate_2) {
-                           LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verified\n");
-                           fBlockHasPayments = false;
-                       } else {
-                           LogPrintf("CheckBlock() : PoS Recipient devops address validity skipped, pre-enforcement phase\n");
-                       }
+                       LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verified\n");
+                       fBlockHasPayments = false;
                    }
                    if (nIndexedDevopsPayment == nDevopsPayment) {
                        LogPrintf("CheckBlock() : PoS Recipient devops amount validity succesfully verified\n");
@@ -2740,7 +2740,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                 if (i == nProofOfIndexMasternode) {
                    if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
-                   } else if (addressOut.ToString() == Params().DevOpsAddress()) {
+                   } else if (addressOut.ToString() == strVfyDevopsAddress) {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
                    } else {
                       if (nMasterNodeChecksEngageTime != 0) {
@@ -2763,15 +2763,11 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                 }
                 // Check for PoW devops payment
                 if (i == nProofOfIndexDevops) {
-                   if (addressOut.ToString() == Params().DevOpsAddress()) {
+                   if (addressOut.ToString() == strVfyDevopsAddress) {
                       LogPrintf("CheckBlock() : PoW Recipient devops address validity succesfully verified\n");
                    } else {
-                       if (pindexBest->GetBlockTime() > nPaymentUpdate_2) {
-                           LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verified\n");
-                           fBlockHasPayments = false;
-                       } else {
-                           LogPrintf("CheckBlock() : PoW Recipient devops address validity skipped, pre-enforcement phase\n");
-                       }
+                       LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verified\n");
+                       fBlockHasPayments = false;
                    }
                    if (nAmount == nDevopsPayment) {
                       LogPrintf("CheckBlock() : PoW Recipient devops amount validity succesfully verified\n");
