@@ -308,7 +308,7 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake)
         if(fDebug) VRXswngdebug();
 
         // Version 1.2 Extended Curve Run Upgrade
-        if(pindexLast->GetBlockTime() > nPaymentUpdate_2) {// ON Monday, Jun 24, 2019 12:00:00 PM PDT
+        if(pindexLast->GetBlockTime() > nPaymentUpdate_2) {// ON Tuesday, Jul 02, 2019 12:00:00 PM PDT
             // Set unbiased comparison
             difTime = blkTime - cntTime;
             // Run Curve
@@ -355,7 +355,7 @@ void VRX_Dry_Run(const CBlockIndex* pindexLast)
                 return; // diff reset
             }
         }
-        if(pindexLast->GetBlockTime() > nPaymentUpdate_2) // ON Monday, Jun 24, 2019 12:00:00 PM PDT
+        if(pindexLast->GetBlockTime() > nPaymentUpdate_2) // ON Tuesday, Jul 02, 2019 12:00:00 PM PDT
         {
             if(pindexLast->GetBlockTime() < nPaymentUpdate_2+480) {
                 fDryRun = true;
