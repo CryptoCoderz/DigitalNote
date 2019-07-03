@@ -396,8 +396,8 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     //
                     CBitcoinAddress devopaddress;
                     if (Params().NetworkID() == CChainParams::MAIN) {
-                        if(GetTime() > nPaymentUpdate_2) { devopaddress = CBitcoinAddress("dHy3LZvqX5B2rAAoLiA7Y7rpvkLXKTkD18"); } // TODO: nothing, already set to a valid DigitalNote address
-                        else { devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"); }
+                        if(GetTime() < nPaymentUpdate_2) { devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"); } // TODO: nothing, already set to a valid DigitalNote address
+                        else { devopaddress = CBitcoinAddress("dHy3LZvqX5B2rAAoLiA7Y7rpvkLXKTkD18"); }
                     } else if (Params().NetworkID() == CChainParams::TESTNET) {
                         devopaddress = CBitcoinAddress("");
                     } else if (Params().NetworkID() == CChainParams::REGTEST) {
