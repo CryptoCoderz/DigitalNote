@@ -72,7 +72,7 @@ public:
     int StartPoSBlock() const { return nStartPoSBlock; }
     int PoolMaxTransactions() const { return nPoolMaxTransactions; }
     std::string MNenginePoolDummyAddress() const { return strMNenginePoolDummyAddress; }
-    std::string DevOpsAddress() { return strDevOpsAddress; }
+    std::string DevOpsAddress() const { return strDevOpsAddress; }
 protected:
     CChainParams() {/* Do Nothing */;}
 

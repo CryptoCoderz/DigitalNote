@@ -14,6 +14,8 @@ static const int64_t nReservePhaseStart = 1;
 static const int64_t nPaymentUpdate_1 = 1558310400;
 /** Masternode/Devops Payment Update 2 **/
 static const int64_t nPaymentUpdate_2 = 1562094000;
+/** Masternode/Devops Payment Update 3 **/
+static const int64_t nPaymentUpdate_3 = 1562281200;
 /** Velocity toggle block */
 static const int64_t VELOCITY_TOGGLE = 175; // Implementation of the Velocity system into the chain.
 /** Velocity retarget toggle block */

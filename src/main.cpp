@@ -2715,7 +2715,16 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                        LogPrintf("CheckBlock() : PoS Recipient devops address validity succesfully verified\n");
                    } else {
                        LogPrintf("CheckBlock() : PoS Recipient devops address validity could not be verified\n");
-                       fBlockHasPayments = false;
+                       // Skip check during transition to new DevOps
+                       if (pindexBest->GetBlockTime() < nPaymentUpdate_3) {
+                           // Check legacy blocks for valid payment, only skip for Update_2
+                           if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
+                               fBlockHasPayments = false;
+                           }
+                       } else {
+                           // Re-enable enforcement post transition (Update_3)
+                           fBlockHasPayments = false;
+                       }
                    }
                    if (nIndexedDevopsPayment == nDevopsPayment) {
                        LogPrintf("CheckBlock() : PoS Recipient devops amount validity succesfully verified\n");
@@ -2767,7 +2776,16 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                       LogPrintf("CheckBlock() : PoW Recipient devops address validity succesfully verified\n");
                    } else {
                        LogPrintf("CheckBlock() : PoW Recipient devops address validity could not be verified\n");
-                       fBlockHasPayments = false;
+                       // Skip check during transition to new DevOps
+                       if (pindexBest->GetBlockTime() < nPaymentUpdate_3) {
+                           // Check legacy blocks for valid payment, only skip for Update_2
+                           if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
+                               fBlockHasPayments = false;
+                           }
+                       } else {
+                           // Re-enable enforcement post transition (Update_3)
+                           fBlockHasPayments = false;
+                       }
                    }
                    if (nAmount == nDevopsPayment) {
                       LogPrintf("CheckBlock() : PoW Recipient devops amount validity succesfully verified\n");
