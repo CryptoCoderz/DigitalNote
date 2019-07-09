@@ -101,7 +101,7 @@ void VRXswngdebug()
 {
     // Print for debugging
     LogPrintf("Previously discovered %s block: %u: \n",difType.c_str(),prvTime);
-    LogPrintf("Current block-time: %u: \n",difType.c_str(),cntTime);
+    LogPrintf("Current block-time: %u: \n",cntTime);
     LogPrintf("Time since last %s block: %u: \n",difType.c_str(),difTime);
     // Handle updated versions as well as legacy
     if(GetTime() > nPaymentUpdate_2) {
