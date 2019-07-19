@@ -1283,13 +1283,13 @@ void ThreadSocketHandler()
                     pnode->fDisconnect = true;
                     pnode->CloseSocketDisconnect();
                 }
-                // Ping timeout - TODO Investigate this section and correct cause of Log spam during disconnect
-                /*else if (pnode->nPingNonceSent && pnode->nPingUsecStart + TIMEOUT_INTERVAL * 1000000 < GetTimeMicros())
+                // Ping timeout - TODO : Review function
+                else if (pnode->nPingNonceSent && pnode->nPingUsecStart + TIMEOUT_INTERVAL * 1000000 < GetTimeMicros())
                 {
                     LogPrintf("ping timeout: %fs\n", 0.000001 * (GetTimeMicros() - pnode->nPingUsecStart));
                     pnode->fDisconnect = true;
                     pnode->CloseSocketDisconnect();
-                }*/
+                }
             }
         }
         {
