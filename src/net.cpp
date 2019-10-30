@@ -19,10 +19,10 @@
 #endif
 
 #ifdef USE_UPNP
-#include <miniupnpc-1.9/miniupnpc.h>
-#include <miniupnpc-1.9/miniwget.h>
-#include <miniupnpc-1.9/upnpcommands.h>
-#include <miniupnpc-1.9/upnperrors.h>
+#include <miniupnpc-2.1/miniupnpc.h>
+#include <miniupnpc-2.1/miniwget.h>
+#include <miniupnpc-2.1/upnpcommands.h>
+#include <miniupnpc-2.1/upnperrors.h>
 #endif
 
 #include <boost/filesystem.hpp>

@@ -29,7 +29,18 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/version.hpp>
 #include <list>
+
+// ====== BOOST RETROCOMPATIBILITY WORKAROUND========
+
+#if BOOST_VERSION >= 107000
+#define GET_IO_SERVICE(s) ((boost::asio::io_context&)(s)->get_executor().context())
+#else
+#define GET_IO_SERVICE(s) ((s)->get_io_service())
+#endif
+
+// RETROCOMPATIBILITY SHOULD NOT BE AN OPTION
 
 using namespace std;
 using namespace boost;
@@ -451,8 +462,10 @@ static void RPCListen(boost::shared_ptr< basic_socket_acceptor<Protocol> > accep
                    const bool fUseSSL)
 {
     // Accept connection
-    AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(acceptor->get_io_service(), context, fUseSSL);
-
+    //
+    // Boost Version < 1.70 handling - Thank you Mino#8171
+    // AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(acceptor->get_io_service(), context, fUseSSL);
+AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(GET_IO_SERVICE(acceptor), context, fUseSSL);
     acceptor->async_accept(
             conn->sslStream.lowest_layer(),
             conn->peer,
