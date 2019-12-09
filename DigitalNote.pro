@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = DigitalNote-qt
-VERSION = 1.0.2.1
+VERSION = 1.0.2.2
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 QT += core gui widgets network printsupport
 DEFINES += ENABLE_WALLET
@@ -326,6 +326,11 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/addeditadrenalinenode.h \
     src/qt/adrenalinenodeconfigdialog.h \
     src/qt/qcustomplot.h \
+    src/smessage.h \
+    src/qt/messagepage.h \
+    src/qt/messagemodel.h \
+    src/qt/sendmessagesdialog.h \
+    src/qt/sendmessagesentry.h \
     src/qt/blockbrowser.h \
     src/qt/plugins/mrichtexteditor/mrichtextedit.h \
     src/qt/qvalidatedtextedit.h \
@@ -443,9 +448,15 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/addeditadrenalinenode.cpp \
     src/qt/adrenalinenodeconfigdialog.cpp \
     src/qt/qcustomplot.cpp \
+    src/smessage.cpp \
+    src/qt/messagepage.cpp \
+    src/qt/messagemodel.cpp \
+    src/qt/sendmessagesdialog.cpp \
+    src/qt/sendmessagesentry.cpp \
     src/qt/blockbrowser.cpp \
     src/qt/qvalidatedtextedit.cpp \
     src/qt/plugins/mrichtexteditor/mrichtextedit.cpp \
+    src/rpcsmessage.cpp \
     src/crypto/common/aes_helper.c \
     src/crypto/common/bmw.c \
     src/crypto/common/echo.c
@@ -471,6 +482,9 @@ FORMS += \
     src/qt/forms/masternodemanager.ui \
     src/qt/forms/addeditadrenalinenode.ui \
     src/qt/forms/adrenalinenodeconfigdialog.ui \
+    src/qt/forms/messagepage.ui \
+    src/qt/forms/sendmessagesentry.ui \
+    src/qt/forms/sendmessagesdialog.ui \
     src/qt/forms/blockbrowser.ui \
     src/qt/plugins/mrichtexteditor/mrichtextedit.ui
 
