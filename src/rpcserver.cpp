@@ -29,7 +29,18 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/version.hpp>
 #include <list>
+
+// ====== BOOST RETROCOMPATIBILITY WORKAROUND========
+
+#if BOOST_VERSION >= 107000
+#define GET_IO_SERVICE(s) ((boost::asio::io_context&)(s)->get_executor().context())
+#else
+#define GET_IO_SERVICE(s) ((s)->get_io_service())
+#endif
+
+// RETROCOMPATIBILITY SHOULD NOT BE AN OPTION
 
 using namespace std;
 using namespace boost;
@@ -317,6 +328,19 @@ static const CRPCCommand vRPCCommands[] =
     { "scanforstealthtxns",     &scanforstealthtxns,     false,     false,     false },
     { "importstealthaddress",   &importstealthaddress,   false,     false,     true },
     { "sendtostealthaddress",   &sendtostealthaddress,   false,     false,     true },
+    { "smsgenable",             &smsgenable,             false,     false,     false },
+    { "smsgdisable",            &smsgdisable,            false,     false,     false },
+    { "smsglocalkeys",          &smsglocalkeys,          false,     false,     false },
+    { "smsgoptions",            &smsgoptions,            false,     false,     false },
+    { "smsgscanchain",          &smsgscanchain,          false,     false,     false },
+    { "smsgscanbuckets",        &smsgscanbuckets,        false,     false,     false },
+    { "smsgaddkey",             &smsgaddkey,             false,     false,     false },
+    { "smsggetpubkey",          &smsggetpubkey,          false,     false,     false },
+    { "smsgsend",               &smsgsend,               false,     false,     false },
+    { "smsgsendanon",           &smsgsendanon,           false,     false,     false },
+    { "smsginbox",              &smsginbox,              false,     false,     false },
+    { "smsgoutbox",             &smsgoutbox,             false,     false,     false },
+    { "smsgbuckets",            &smsgbuckets,            false,     false,     false },
 #endif
 };
 
@@ -451,8 +475,14 @@ static void RPCListen(boost::shared_ptr< basic_socket_acceptor<Protocol> > accep
                    const bool fUseSSL)
 {
     // Accept connection
+    //
+    // Boost Version < 1.70 handling - Thank you Mino#8171
+    // Boost 1.70+ update patch by https://github.com/g1itch
+    // (This improves upon Mino's 1.70 support update)
+    //
+    // AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(acceptor->get_io_service(), context, fUseSSL);
+    // AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(GET_IO_SERVICE(acceptor), context, fUseSSL);
     AcceptedConnectionImpl<Protocol>* conn = new AcceptedConnectionImpl<Protocol>(GetIOServiceFromPtr(acceptor), context, fUseSSL);
-
     acceptor->async_accept(
             conn->sslStream.lowest_layer(),
             conn->peer,
