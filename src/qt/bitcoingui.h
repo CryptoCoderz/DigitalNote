@@ -17,6 +17,8 @@ class SignVerifyMessageDialog;
 class Notificator;
 class RPCConsole;
 class MasternodeManager;
+class MessagePage;
+class MessageModel;
 class BlockBrowser;
 
 QT_BEGIN_NAMESPACE
@@ -49,6 +51,11 @@ public:
         functionality.
     */
     void setWalletModel(WalletModel *walletModel);
+    /** Set the message model.
+        The message model represents a DigitalNote  Note or D-Note, and offers secure messaging through a peer to peer
+        relay.
+    */
+    void setMessageModel(MessageModel *messageModel);
 
 protected:
     void changeEvent(QEvent *e);
@@ -59,6 +66,7 @@ protected:
 private:
     ClientModel *clientModel;
     WalletModel *walletModel;
+    MessageModel *messageModel;
 
     QToolBar *toolbar;
 
@@ -73,6 +81,7 @@ private:
     SendCoinsDialog *sendCoinsPage;
     SignVerifyMessageDialog *signVerifyMessageDialog;
     MasternodeManager *masternodeManagerPage;
+    MessagePage *messagePage;
     QLabel* netLabel;
     BlockBrowser *blockBrowser;
     QLabel *labelEncryptionIcon;
@@ -105,6 +114,7 @@ private:
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
     QAction *masternodeManagerAction;
+    QAction *messageAction;
     QAction *blockAction;
     QAction *showBackupsAction;
     QAction *editConfigAction;
@@ -184,6 +194,8 @@ private slots:
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
+    /** Switch to message page*/
+    void gotoMessagePage();
     /** Show configuration dialog */
     void optionsClicked();
     /** Show about dialog */
@@ -193,10 +205,13 @@ private slots:
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 #endif
     /** Show incoming transaction notification for new transactions.
-
         The new items are those between start and end inclusive, under the given parent item.
     */
     void incomingTransaction(const QModelIndex & parent, int start, int end);
+    /** Show incoming D-Note receipt notification for new secure messages.
+        The new items are those between start and end inclusive, under the given parent item.
+    */
+    void incomingMessage(const QModelIndex & parent, int start, int end);
     /** Encrypt the wallet */
     void encryptWallet();
     /** Backup the wallet */

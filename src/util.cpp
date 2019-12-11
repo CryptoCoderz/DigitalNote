@@ -1220,6 +1220,15 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
                fprintf(ConfFile, "rpcallowip=127.0.0.1\n");
                fprintf(ConfFile, "addnode=157.230.107.144\n");
                fprintf(ConfFile, "addnode=138.197.161.183\n");
+               fprintf(ConfFile, "addnode=188.166.123.46\n");
+               fprintf(ConfFile, "addnode=159.203.14.113\n");
+               //TODO: investigate node: fprintf(ConfFile, "addnode=199.175.54.187\n");
+               fprintf(ConfFile, "addnode=157.230.107.144\n");
+               fprintf(ConfFile, "addnode=138.197.161.183\n");
+               fprintf(ConfFile, "addnode=seed1n.digitalnote.biz\n");
+               fprintf(ConfFile, "addnode=seed2n.digitalnote.biz\n");
+               fprintf(ConfFile, "addnode=seed3n.digitalnote.biz\n");
+               fprintf(ConfFile, "addnode=seed4n.digitalnote.biz\n");
 
                fclose(ConfFile);
     }

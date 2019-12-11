@@ -19,6 +19,7 @@
 #include "wallet.h"
 #include "walletdb.h" // for BackupWallet
 #include "spork.h"
+#include "smessage.h"
 
 #include <stdint.h>
 
