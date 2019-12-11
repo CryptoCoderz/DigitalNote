@@ -677,7 +677,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
             // Include DevOps payments
             CAmount devopsSplit = devopsPayment;
             result.push_back(Pair("devops_payee", Params().DevOpsAddress()));
-            result.push_back(Pair("payee_amount", (int64_t)devopsSplit));
+            result.push_back(Pair("devops_amount", (int64_t)devopsSplit));
             result.push_back(Pair("devops_payments", true));
             result.push_back(Pair("enforce_devops_payments", true));
 
