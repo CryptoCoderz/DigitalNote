@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = DigitalNote-qt
-VERSION = 1.0.2.2
+VERSION = 1.0.2.4
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 QT += core gui widgets network printsupport
 DEFINES += ENABLE_WALLET
@@ -17,17 +17,17 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 win32{
-BOOST_LIB_SUFFIX=-mgw81-mt-s-x32-1_71
-BOOST_INCLUDE_PATH=C:/deps/boost_1_71_0
-BOOST_LIB_PATH=C:/deps/boost_1_71_0/stage/lib
+BOOST_LIB_SUFFIX=-mgw81-mt-s-x32-1_68
+BOOST_INCLUDE_PATH=C:/deps/boost_1_68_0
+BOOST_LIB_PATH=C:/deps/boost_1_68_0/stage/lib
 BDB_INCLUDE_PATH=C:/deps/db-6.2.32.NC/build_unix
 BDB_LIB_PATH=C:/deps/db-6.2.32.NC/build_unix
-OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2t/include
-OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2t
+OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2o/include
+OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2o
 MINIUPNPC_INCLUDE_PATH=C:/deps/
-MINIUPNPC_LIB_PATH=C:/deps/miniupnpc-2.1
-QRENCODE_INCLUDE_PATH=C:/deps/qrencode-4.0.2
-QRENCODE_LIB_PATH=C:/deps/qrencode-4.0.2/.libs
+MINIUPNPC_LIB_PATH=C:/deps/miniupnpc-1.9
+QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
+QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
 SECP256K1_INCLUDE_PATH=C:/deps/secp256k1/include
 SECP256K1_LIB_PATH=C:/deps/secp256k1
 }

@@ -673,10 +673,15 @@ Value getblocktemplate(const Array& params, bool fHelp)
             // Set Masternode / DevOps payments
             int64_t masternodePayment = GetMasternodePayment(pindexPrev->nHeight+1, networkPayment);
             int64_t devopsPayment = GetDevOpsPayment(pindexPrev->nHeight+1, networkPayment);
+            std::string devpayee2 = "dHy3LZvqX5B2rAAoLiA7Y7rpvkLXKTkD18";
+
+            if (pindexBest->GetBlockTime() < nPaymentUpdate_2) {
+                devpayee2 = Params().DevOpsAddress();
+            }
 
             // Include DevOps payments
             CAmount devopsSplit = devopsPayment;
-            result.push_back(Pair("devops_payee", Params().DevOpsAddress()));
+            result.push_back(Pair("devops_payee", devpayee2));
             result.push_back(Pair("devops_amount", (int64_t)devopsSplit));
             result.push_back(Pair("devops_payments", true));
             result.push_back(Pair("enforce_devops_payments", true));
@@ -691,7 +696,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
                 CBitcoinAddress address2(address1);
                 result.push_back(Pair("masternode_payee", address2.ToString().c_str()));
             } else {
-                result.push_back(Pair("masternode_payee", Params().DevOpsAddress().c_str()));
+                result.push_back(Pair("masternode_payee", devpayee2.c_str()));
             }
             result.push_back(Pair("payee_amount", (int64_t)masternodeSplit));
             result.push_back(Pair("masternode_payments", true));
