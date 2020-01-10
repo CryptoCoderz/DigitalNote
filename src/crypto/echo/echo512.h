@@ -16,9 +16,10 @@
 
 GLOBAL sph_echo512_context       z_echo;
 
+/* Removed to kill pointless Qt warnings
 #define fillz() do { \
     sph_echo512_init(&z_echo); \
-} while (0) 
+} while (0)*/
 
 template<typename T1>
 inline uint256 Hash_echo512(const T1 pbegin, const T1 pend)

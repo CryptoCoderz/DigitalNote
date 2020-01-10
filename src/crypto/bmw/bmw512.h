@@ -16,9 +16,10 @@
 
 GLOBAL sph_bmw512_context       z_bmw;
 
+/* Removed to kill pointless Qt warnings
 #define fillz() do { \
     sph_bmw512_init(&z_bmw); \
-} while (0) 
+} while (0)*/
 
 #define ZBMW (memcpy(&ctx_bmw, &z_bmw, sizeof(z_bmw)))
 
