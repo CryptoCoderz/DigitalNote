@@ -147,6 +147,8 @@ extern std::string strLiveForkToggle;
 extern int64_t nLiveForkToggle;
 //MasterNode recipient verification delay base time
 extern int64_t nMasterNodeChecksDelayBaseTime;
+//MasterNode peer IP advanced relay system toggle
+extern bool fMnAdvRelay;
 
 void RandAddSeed();
 void RandAddSeedPerfmon();
