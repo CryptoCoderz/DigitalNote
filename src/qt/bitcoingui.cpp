@@ -1026,14 +1026,14 @@ void DigitalNoteGUI::gotoVerifyMessageTab(QString addr)
 }
 
 void DigitalNoteGUI::gotoMessagePage()
-{
+{/*
     messageAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(messagePage);
 
     exportAction->setEnabled(true);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
     connect(exportAction, SIGNAL(triggered()), messagePage, SLOT(exportClicked()));
-}
+*/}
 
 void DigitalNoteGUI::dragEnterEvent(QDragEnterEvent *event)
 {
