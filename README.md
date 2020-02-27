@@ -72,7 +72,7 @@ cd ~; sudo apt-get install -y ntp git build-essential libssl-dev libdb-dev libdb
 
 ### Dependencies build and link
 ```
-cd ~; wget http://download.oracle.com/berkeley-db/db-6.2.32.NC.tar.gz; tar zxf db-6.2.32.NC.tar.gz; cd db-6.2.32.NC/build_unix; ../dist/configure --enable-cxx; make; sudo make install; sudo ln -s /usr/local/BerkeleyDB.6.2/lib/libdb-6.2.so /usr/lib/libdb-6.2.so; sudo ln -s /usr/local/BerkeleyDB.6.2/lib/libdb_cxx-6.2.so /usr/lib/libdb_cxx-6.2.so; export BDB_INCLUDE_PATH="/usr/local/BerkeleyDB.6.2/include"; export BDB_LIB_PATH="/usr/local/BerkeleyDB.6.2/lib"
+cd ~; wget http://download.oracle.com/berkeley-db/db-6.2.32.NC.tar.gz; tar zxf db-6.2.32.NC.tar.gz; cd db-6.2.32.NC/build_unix; ../dist/configure --enable-cxx --disable-shared; make; sudo make install; sudo ln -s /usr/local/BerkeleyDB.6.2/lib/libdb-6.2.so /usr/lib/libdb-6.2.so; sudo ln -s /usr/local/BerkeleyDB.6.2/lib/libdb_cxx-6.2.so /usr/lib/libdb_cxx-6.2.so; export BDB_INCLUDE_PATH="/usr/local/BerkeleyDB.6.2/include"; export BDB_LIB_PATH="/usr/local/BerkeleyDB.6.2/lib"
 ```
 
 ### GitHub pull (Source Download)
@@ -84,6 +84,29 @@ cd ~; git clone https://github.com/DigitalNoteXDN/DigitalNote-2 DigitalNote
 ```
 cd ~; cd ~/DigitalNote/src; chmod a+x obj; chmod a+x leveldb/build_detect_platform; chmod a+x secp256k1; chmod a+x leveldb; chmod a+x ~/DigitalNote/src; chmod a+x ~/DigitalNote; make -f makefile.unix USE_UPNP=-; cd ~; cp -r ~/DigitalNote/src/DigitalNoted /usr/local/bin/DigitalNoted;
 ```
+
+### (Optional) Build DigitalNote-QT (GUI wallet) on Linux 
+
+**All previous steps must be completed first.**
+
+If you recompiling some other time you don't have to repeat previous steps, but need to define those variables. Skip this command if this is your first build and previous steps were performed in current terminal session.
+```
+export BDB_INCLUDE_PATH="/usr/local/BerkeleyDB.6.2/include"; export BDB_LIB_PATH="/usr/local/BerkeleyDB.6.2/lib"
+```
+
+With UPNP:
+
+```
+cd ~; cd ~/DigitalNote; qmake -qt=qt5; make
+```
+
+**Recommended Without** UPNP:
+
+```
+cd ~; cd ~/DigitalNote; qmake -qt=qt5 USE_UPNP=-; make
+```
+
+
 
 ### Create config file for daemon
 ```
