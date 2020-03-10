@@ -2,7 +2,7 @@
  * Qt5 bitcoin GUI.
  *
  * W.J. van der Laan 2011-2012
- * The DigitalNote Developers 2018-2019
+ * The DigitalNote Developers 2018-2020
  */
 
 #include <QApplication>
