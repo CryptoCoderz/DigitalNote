@@ -107,7 +107,7 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
     setObjectName("DigitalNote");
-    setStyleSheet("#DigitalNote { background-color: #ffffff; color: #4c5259;}");
+    setStyleSheet("#DigitalNote { background-color: #ffffff; color: #614eb0;}");
 
     // Accept D&D of URIs
     setAcceptDrops(true);
@@ -234,7 +234,7 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
 
     if (!fUseDarkTheme)
     {
-        statusBar()->setStyleSheet("#statusBar { color: #ffffff; background-color: #026483; }");
+        statusBar()->setStyleSheet("#statusBar { color: #ffffff; background-color: #614eb0; }");
     }
 
     syncIconMovie = new QMovie(fUseDarkTheme ? ":/movies/update_spinner_black" : ":/movies/update_spinner", "mng", this);
@@ -461,7 +461,7 @@ void DigitalNoteGUI::createToolBars()
 
     if(!fUseDarkTheme)
     {
-        toolbar->setStyleSheet("QToolButton { color: #ffffff; font-weight:bold; } QToolButton:hover { background-color: #3098c6; } QToolButton:checked { background-color: #3bb2e7; } QToolButton:pressed { background-color: #25779c; } #tabs { color: #ffffff; background-color: #026483; }");
+        toolbar->setStyleSheet("QToolButton { color: #ffffff; font-weight:bold; } QToolButton:hover { background-color: #3098c6; } QToolButton:checked { background-color: #3bb2e7; } QToolButton:pressed { background-color: #25779c; } #tabs { color: #ffffff; background-color: #614eb0; }");
     }
 
     QLabel* header = new QLabel();
