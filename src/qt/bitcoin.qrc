@@ -54,6 +54,9 @@
         <file alias="bitcoin">res/icons/digitalnote.png</file>
         <file alias="toolbar_testnet">res/icons/digitalnote-16_testnet.png</file>
         <file alias="mnodes">res/icons/mnodes.png</file>
+        <file alias="message">res/icons/message.png</file>
+        <file alias="address-book-sidebar">res/icons/address-book-sidebar.png</file>
+        <file alias="send-sidebar">res/icons/send-sidebar.png</file>
     </qresource>
     <qresource prefix="/icons/dark">
         <file alias="connect_0">res/icons/dark/connect0_16.png</file>
@@ -128,4 +131,5 @@
         <file alias="zh_CN">locale/bitcoin_zh_CN.qm</file>
         <file alias="zh_TW">locale/bitcoin_zh_TW.qm</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>
