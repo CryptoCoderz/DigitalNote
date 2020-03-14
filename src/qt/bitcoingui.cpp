@@ -479,7 +479,7 @@ void DigitalNoteGUI::createToolBars()
     toolbar->addAction(addressBookAction);
     toolbar->addAction(masternodeManagerAction);
     if (!fLiteMode){
-            toolbar->addAction(messageAction);
+        toolbar->addAction(messageAction);
     }
     toolbar->addAction(blockAction);
     netLabel = new QLabel();
