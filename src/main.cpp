@@ -2693,14 +2693,12 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
                    } else {
                        if (nMasterNodeChecksEngageTime != 0) {
-                           if (nMasterNodeChecksEngageTime < GetTime()) {
+                           if (fMnAdvRelay) {
                                LogPrintf("CheckBlock() : PoS Recipient masternode address validity could not be verified\n");
                                fBlockHasPayments = false;
                            } else {
                                LogPrintf("CheckBlock() : PoS Recipient masternode address validity skipping, Checks delay still active!\n");
                            }
-                       } else {
-                           LogPrintf("CheckBlock() : PoS Recipient masternode address validity skipping, syncing in progress!\n");
                        }
                    }
                    if (nIndexedMasternodePayment == nMasternodePayment) {
@@ -2754,14 +2752,12 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
                    } else {
                       if (nMasterNodeChecksEngageTime != 0) {
-                          if (nMasterNodeChecksEngageTime < GetTime()) {
+                          if (fMnAdvRelay) {
                               LogPrintf("CheckBlock() : PoW Recipient masternode address validity could not be verified\n");
                               fBlockHasPayments = false;
                           } else {
                               LogPrintf("CheckBlock() : PoW Recipient masternode address validity skipping, Checks delay still active!\n");
                           }
-                      } else {
-                          LogPrintf("CheckBlock() : PoW Recipient masternode address validity skipping, syncing in progress!\n");
                       }
                    }
                    if (nAmount == nMasternodePayment) {

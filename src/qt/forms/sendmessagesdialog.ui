@@ -14,8 +14,7 @@
    <string>Send Messages</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">color: rgb(204, 155, 68);
-background-color: rgb(16, 16, 16);</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
    <property name="bottomMargin">
@@ -45,7 +44,7 @@ background-color: rgb(16, 16, 16);</string>
       <item>
        <widget class="QLabel" name="addressFromLabel">
         <property name="styleSheet">
-         <string notr="true">color: #ffffff;</string>
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>Address &amp;From:</string>
@@ -113,7 +112,7 @@ background-color: rgb(16, 16, 16);</string>
         <x>0</x>
         <y>0</y>
         <width>830</width>
-        <height>299</height>
+        <height>298</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">

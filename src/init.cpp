@@ -300,6 +300,7 @@ std::string HelpMessage()
         "  -smsgscanchain                           " + _("Scan the block chain for public key addresses on startup.") + "\n";
     strUsage += "  -stakethreshold=<n> " + _("This will set the output size of your stakes to never be below this number (default: 100)") + "\n";
     strUsage += "  -liveforktoggle=<n> " + _("Toggle experimental features via block height testing fork, (example: -command=<fork_height>)") + "\n";
+    strUsage += "  -mnadvrelay=<n> " + _("Toggle MasterNode Advanced Relay System via 1/0, (example: -command=<true/false>)") + "\n";
 
     return strUsage;
 }
@@ -1021,6 +1022,18 @@ bool AppInit2(boost::thread_group& threadGroup)
     else {
         nLiveForkToggle = 0;
         LogPrintf("No experimental testing feature fork toggle detected... skipping...\n");
+    }
+
+    // Check toggle switch for masternode advanced relay
+    uiInterface.InitMessage(_("Checking masternode advanced relay toggle..."));
+    fMnAdvRelay = GetBoolArg("-mnadvrelay", false);
+    LogPrintf("Checking for masternode advanced relay toggle...\n");
+    if(fMnAdvRelay){
+        LogPrintf("Continuing with toggle enabled | Happy relaying!\n");
+    }
+    else {
+        fMnAdvRelay = false;
+        LogPrintf("No masternode advanced relay toggle detected... skipping...\n");
     }
 
     uiInterface.InitMessage(_("Loading masternode cache..."));
