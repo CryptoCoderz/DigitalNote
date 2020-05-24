@@ -28,7 +28,7 @@ Ensuring Insane stays as secure and robust as possible the CryptoCoderz team hav
 Wish or bmw512 hashing algorithm is utilized for the Proof-of-Work function and also replaces much of the underlying codebase hashing functions as well that normally are SHA256. By doing so this codebase is able to be both exponentially lighter and more secure in comparison to reference implementations.
 
 ### Echo512 Proof-of-Stake Algorithm
-DigitnalNote's proof of stake system utilizes Echo512 which is a super lightweight and secure hashing algorithm.
+DigitalNote's proof of stake system utilizes Echo512 which is a super lightweight and secure hashing algorithm.
 
 Specifications and General info
 ------------------
