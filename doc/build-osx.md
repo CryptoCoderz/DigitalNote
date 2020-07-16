@@ -34,8 +34,8 @@ You can get the current version from http://developer.apple.com
     1. Install dependencies:
     ```
    brew install boost@1.59
-   brew install berkeley-db4           
-   brew install miniupnpc@2.1
+   brew install berkeley-db4
+   brew install miniupnpc
    brew install https://github.com/tebelorg/Tump/releases/download/v1.0.0/openssl.rb
    brew install automake
    brew install autoconf
