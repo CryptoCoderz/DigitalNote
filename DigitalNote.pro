@@ -530,7 +530,7 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db@6.2.32//lib
+    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db@6.2.32/lib
     windows:BDB_LIB_PATH=C:/dev/coindeps32/bdb-4.8/lib
 }
 
