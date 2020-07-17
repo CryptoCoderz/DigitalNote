@@ -34,8 +34,8 @@ You can get the current version from http://developer.apple.com
     1. Install dependencies:
     ```
    brew install boost@1.59
-   brew install berkeley-db4           
-   brew install miniupnpc@2.1
+   brew install berkeley-db4
+   brew install miniupnpc
    brew install https://github.com/tebelorg/Tump/releases/download/v1.0.0/openssl.rb
    brew install automake
    brew install autoconf
@@ -74,3 +74,27 @@ to start the DigitalNote daemon.
 Run
   `./DigitalNoted help`
 When the daemon is running, to get a list of RPC commands
+
+
+DigitalNote-qt: Qt5 GUI Release for DigitalNote
+-----------------------------------------
+
+1. Install dependencies:
+   ```
+   brew install qrencode
+   brew install qt5
+   brew install protobuf
+   brew install python2.7
+   sudo easy_install appscript
+   ```
+2. Link qt5:
+   ```
+   brew link qt5 --force
+   ```
+3. Run in the ./DigitalNote
+   ```
+   qmake RELEASE=1 USE_UPNP=1 USE_QRCODE=1 DigitalNote.pro
+   make
+   python2.7 contrib/macdeploy/macdeployqtplus DigitalNote-Qt.app -add-qt-tr da,de,es,hu,ru,uk,zh_CN,zh_TW -dmg -fancy contrib/macdeploy/fancy.plist
+   ```
+ 
