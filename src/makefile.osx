@@ -50,7 +50,7 @@ LIBS += \
  -l boost_thread-mt \
  -l ssl \
  -l crypto \
- -lsecp256k1 -lgmp \
+ -lgmp \
  -l z
 endif
 
