@@ -252,8 +252,8 @@ public:
         memset(&chIV, 0, sizeof chIV);
         fKeySet = false;
 
-        LockedPageManager::Instance().LockRange(&chKey[0], sizeof chKey);
-        LockedPageManager::Instance().LockRange(&chIV[0], sizeof chIV);
+        LockedPageManager::Instance().UnlockRange(&chKey[0], sizeof chKey);
+        LockedPageManager::Instance().UnlockRange(&chIV[0], sizeof chIV);
     }
 
     bool SetKey(const std::vector<uint8_t>& vchNewKey, uint8_t* chNewIV);
