@@ -45,8 +45,7 @@ private slots:
     void on_deleteButton_clicked();
     void on_addressBookButton_clicked();
     void on_pasteButton_clicked();
-    void on_PubkeyPasteButton_clicked();
-    void on_sendTo_textChanged(const QString &address);
+    void on_sendTo_textChanged(const QString &smsgInfo);
 
 private:
     Ui::SendMessagesEntry *ui;

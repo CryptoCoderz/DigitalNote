@@ -23,60 +23,16 @@
    <enum>QFrame::Sunken</enum>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_2">
+   <item row="2" column="0">
+    <widget class="QLabel" name="messageLabel">
      <property name="text">
-      <string>Send &amp;To:</string>
+      <string>&amp;Message:</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
      </property>
      <property name="buddy">
-      <cstring>sendTo</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <layout class="QHBoxLayout" name="sendToLayout">
-     <item>
-      <widget class="QValidatedLineEdit" name="sendTo">
-       <property name="toolTip">
-        <string>The address to send the payment to  (e.g. RYkuzHsrEvv6yVtXvuBHvdp6TZzRsv42Pr)</string>
-       </property>
-       <property name="maxLength">
-        <number>34</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="pasteButton">
-       <property name="toolTip">
-        <string>Paste address from clipboard</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../bitcoin.qrc">
-         <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
-       </property>
-       <property name="shortcut">
-        <string>Alt+P</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>&amp;Label:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>addAsLabel</cstring>
+      <cstring>messageText</cstring>
      </property>
     </widget>
    </item>
@@ -125,23 +81,46 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="publicKeyLabel">
-     <property name="text">
-      <string>&amp;Public Key:</string>
+   <item row="2" column="1">
+    <widget class="QValidatedTextEdit" name="messageText">
+     <property name="mouseTracking">
+      <bool>true</bool>
      </property>
-     <property name="buddy">
-      <cstring>publicKey</cstring>
+     <property name="focusPolicy">
+      <enum>Qt::WheelFocus</enum>
+     </property>
+     <property name="tabChangesFocus">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Send &amp;To:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>sendTo</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <layout class="QHBoxLayout" name="sendToLayout">
      <item>
-      <widget class="QValidatedLineEdit" name="publicKey"/>
+      <widget class="QValidatedLineEdit" name="sendTo">
+       <property name="toolTip">
+        <string>The address to send the payment to  (e.g. dZFKfe559tX7LA8BDMeiPH3C8DbpTJ92Y8:dZv7b41skzqG8cj2d5S56MG1hVQbcK8jMoorX8Wdmf5v)</string>
+       </property>
+       <property name="maxLength">
+        <number>79</number>
+       </property>
+      </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="PubkeyPasteButton">
+      <widget class="QToolButton" name="pasteButton">
        <property name="toolTip">
         <string>Paste address from clipboard</string>
        </property>
@@ -159,29 +138,16 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="messageLabel">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>&amp;Message:</string>
+      <string>&amp;Label:</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
      <property name="buddy">
-      <cstring>messageText</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QValidatedTextEdit" name="messageText">
-     <property name="mouseTracking">
-      <bool>true</bool>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::WheelFocus</enum>
-     </property>
-     <property name="tabChangesFocus">
-      <bool>false</bool>
+      <cstring>addAsLabel</cstring>
      </property>
     </widget>
    </item>
