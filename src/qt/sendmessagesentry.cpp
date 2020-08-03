@@ -58,13 +58,15 @@ void SendMessagesEntry::on_addressBookButton_clicked()
     {
         QString address = dlg.getReturnValue();
         QString pubkey;
+        QString smsgInfo = address + ":";
+        QMessageBox::warning(this, tr("debug"),address);
 
         if(model->getAddressOrPubkey(address, pubkey))
         {
-            ui->sendTo->setText(address + ":" + pubkey);
+            ui->sendTo->setText(smsgInfo + pubkey);
             ui->messageText->setFocus();
         } else {
-            ui->sendTo->setText(address + ":");
+            ui->sendTo->setText(smsgInfo);
             ui->sendTo->setFocus();
         }
     }
@@ -151,9 +153,11 @@ bool SendMessagesEntry::validate()
 SendMessagesRecipient SendMessagesEntry::getValue()
 {
     SendMessagesRecipient rv;
+    QStringList smsgInfo = ui->sendTo->text().split(":");
 
-    rv.address = ui->sendTo->text();
+    rv.address = smsgInfo[0];
     rv.label = ui->addAsLabel->text();
+    rv.pubkey = smsgInfo[1];
     rv.message = ui->messageText->toPlainText();
 
     return rv;
@@ -175,7 +179,7 @@ QWidget *SendMessagesEntry::setupTabChain(QWidget *prev)
 
 void SendMessagesEntry::setValue(const SendMessagesRecipient &value)
 {
-    ui->sendTo->setText(value.address);
+    ui->sendTo->setText(value.address + ":" + value.pubkey);
     ui->addAsLabel->setText(value.label);
     ui->messageText->setPlainText(value.message);
 }
