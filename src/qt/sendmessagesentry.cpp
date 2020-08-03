@@ -140,11 +140,6 @@ bool SendMessagesEntry::validate()
         ui->sendTo->setValid(false);
 
         retval = false;
-    } else if(!ui->sendTo->hasAcceptableInput() || (!model->getWalletModel()->validateAddress(smsgInfo[0])))
-    {
-        ui->sendTo->setValid(false);
-
-        retval = false;
     }
 
     return retval;
