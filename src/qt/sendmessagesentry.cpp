@@ -140,7 +140,12 @@ bool SendMessagesEntry::validate()
         ui->sendTo->setValid(false);
 
         retval = false;
-    } else if(!ui->sendTo->hasAcceptableInput() || (!model->getWalletModel()->validateAddress(smsgInfo[0])))
+    }
+    // Removed the below snippet from the "else if" check, caused ":" to be an unnacceptable
+    // character and throw an address invalid when in fact it's valid as it verifies it still
+    // with the remaining active check below.
+    // REMOVED:    !ui->sendTo->hasAcceptableInput() ||
+    else if((!model->getWalletModel()->validateAddress(smsgInfo[0])))
     {
         ui->sendTo->setValid(false);
 
