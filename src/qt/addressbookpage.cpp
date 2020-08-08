@@ -168,10 +168,15 @@ void AddressBookPage::on_copySmsgInfo_clicked()
 {
     QTableView *table = ui->tableView;
     QModelIndexList indexes = table->selectionModel()->selectedRows(AddressTableModel::Address);
-    std::string address = indexes[0].data().toString().toStdString();
-    std::string publicKey;
-    SecureMsgGetLocalPublicKey(address, publicKey);
-    GUIUtil::setClipboard(QString::fromStdString(address + ":" + publicKey));
+    if(indexes.empty()){
+        QMessageBox::information(this, tr("Nothing Selected"), tr("You must select an address from the list first."),
+                              QMessageBox::Ok, QMessageBox::Ok);
+    } else {
+        std::string address = indexes[0].data().toString().toStdString();
+        std::string publicKey;
+        SecureMsgGetLocalPublicKey(address, publicKey);
+        GUIUtil::setClipboard(QString::fromStdString(address + ":" + publicKey));
+    }
 }
 
 void AddressBookPage::onCopyLabelAction()
