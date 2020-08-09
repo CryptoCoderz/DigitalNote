@@ -59,6 +59,7 @@ void SendMessagesEntry::on_addressBookButton_clicked()
         QString address = dlg.getReturnValue();
         QString pubkey;
         QString smsgInfo = address + ":";
+        QMessageBox::warning(this, tr("debug"),address);
 
         if(model->getAddressOrPubkey(address, pubkey))
         {
