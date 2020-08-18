@@ -70,6 +70,7 @@
 #include <QScroller>
 #include <QTextDocument>
 #include <QInputDialog>
+#include <QFontDatabase>
 
 #include <iostream>
 
@@ -83,9 +84,9 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     clientModel(0),
     walletModel(0),
     toolbar(0),
-    progressBarLabel(0),
-    progressBar(0),
-    progressDialog(0),
+    //progressBarLabel(0),
+    //progressBar(0),
+    //progressDialog(0),
     encryptWalletAction(0),
     changePassphraseAction(0),
     unlockWalletAction(0),
@@ -97,7 +98,7 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     prevBlocks(0),
     nWeight(0)
 {
-    resize(900, 520);
+    setFixedSize(900, 635);
     setWindowTitle(tr("DigitalNote") + " - " + tr("Wallet"));
 #ifndef Q_OS_MAC
     qApp->setWindowIcon(QIcon(fUseDarkTheme ? ":/icons/dark/bitcoin-dark" : ":/icons/bitcoin"));
@@ -106,8 +107,11 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     //setUnifiedTitleAndToolBarOnMac(true);
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
+    QFontDatabase fontDB;
+    fontDB.addApplicationFont("/fonts/raleway");
+
     setObjectName("DigitalNote");
-    setStyleSheet("#DigitalNote { background-color: #ffffff; color: #614eb0;}");
+    setStyleSheet("#DigitalNote { background-color: #e6e6e6; color: #333333; }");
 
     // Accept D&D of URIs
     setAcceptDrops(true);
@@ -116,7 +120,7 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     createActions();
 
     // Create application menu bar
-    createMenuBar();
+    //createMenuBar();
 
     // Create the toolbars
     createToolBars();
@@ -167,77 +171,78 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     setCentralWidget(centralWidget);
 
     // Create status bar
-    statusBar();
+    //statusBar();
 
     // Disable size grip because it looks ugly and nobody needs it
-    statusBar()->setSizeGripEnabled(false);
+    //statusBar()->setSizeGripEnabled(false);
 
     // Status bar notification icons
     QWidget *frameBlocks = new QWidget();
     frameBlocks->setContentsMargins(0,0,0,0);
     frameBlocks->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    frameBlocks->setStyleSheet("QWidget { background: none; margin-bottom: 5px; }");
+    frameBlocks->setStyleSheet("QWidget { background: none; margin-bottom: 0px; }");
     QHBoxLayout *frameBlocksLayout = new QHBoxLayout(frameBlocks);
     frameBlocksLayout->setContentsMargins(3,0,3,0);
     frameBlocksLayout->setSpacing(3);
     frameBlocksLayout->setAlignment(Qt::AlignHCenter);
-    labelEncryptionIcon = new QLabel();
-    labelStakingIcon = new QLabel();
-    labelConnectionsIcon = new QLabel();
-    labelBlocksIcon = new QLabel();
-    frameBlocksLayout->addWidget(netLabel);
+    //labelEncryptionIcon = new QLabel();
+    //labelStakingIcon = new QLabel();
+    //labelConnectionsIcon = new QLabel();
+    //labelBlocksIcon = new QLabel();
+    //frameBlocksLayout->addWidget(netLabel);
     //frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelEncryptionIcon);
+    //frameBlocksLayout->addWidget(labelEncryptionIcon);
     //frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelStakingIcon);
+    //frameBlocksLayout->addWidget(labelStakingIcon);
     //frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelConnectionsIcon);
+    //frameBlocksLayout->addWidget(labelConnectionsIcon);
     //frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(labelBlocksIcon);
+    //frameBlocksLayout->addWidget(labelBlocksIcon);
     //frameBlocksLayout->addStretch();
-    frameBlocksLayout->addWidget(netLabel);
+    //frameBlocksLayout->addWidget(netLabel);
     //frameBlocksLayout->addStretch();
+     toolbar->addWidget(frameBlocks);
 
 
     if (GetBoolArg("-staking", true))
     {
-        QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
-        connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingIcon()));
-        timerStakingIcon->start(20 * 1000);
-        updateStakingIcon();
+        //QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
+        //connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingIcon()));
+        //timerStakingIcon->start(20 * 1000);
+        //updateStakingIcon();
     }
 
     // Progress bar and label for blocks download
-    progressBarLabel = new QLabel();
-    progressBarLabel->setVisible(false);
-    progressBar = new QProgressBar();
-    progressBar->setAlignment(Qt::AlignCenter);
-    progressBar->setVisible(false);
+    //progressBarLabel = new QLabel();
+    //progressBarLabel->setVisible(false);
+    //progressBar = new QProgressBar();
+    //progressBar->setAlignment(Qt::AlignCenter);
+    //progressBar->setVisible(false);
 
     if (!fUseDarkTheme)
     {
         // Override style sheet for progress bar for styles that have a segmented progress bar,
         // as they make the text unreadable (workaround for issue #1071)
         // See https://qt-project.org/doc/qt-4.8/gallery.html
-        QString curStyle = qApp->style()->metaObject()->className();
-        if(curStyle == "QWindowsStyle" || curStyle == "QWindowsXPStyle")
-        {
-            progressBar->setStyleSheet("QProgressBar { color: #ffffff;background-color: #e8e8e8; border: 1px solid grey; border-radius: 7px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #eb1f24, stop: 1 #4c5259); border-radius: 7px; margin: 0px; }");
-        }
+        //QString curStyle = qApp->style()->metaObject()->className();
+        //if(curStyle == "QWindowsStyle" || curStyle == "QWindowsXPStyle")
+        //{
+        //    progressBar->setStyleSheet("QProgressBar { color: #333333;background-color: #cccccc; border: 1px solid grey; border-radius: 7px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #eb1f24, stop: 1 #4c5259); border-radius: 7px; margin: 0px; }");
+        //}
     }
 
-    statusBar()->addWidget(progressBarLabel);
-    statusBar()->addWidget(progressBar);
-    statusBar()->addPermanentWidget(frameBlocks);
-    statusBar()->setObjectName("statusBar");
-    statusBar()->setStyleSheet("#statusBar { color: #3098c6; background-color: #1d1f22; }");
+    //statusBar()->addWidget(progressBarLabel);
+    //statusBar()->addWidget(progressBar);
+    //statusBar()->addPermanentWidget(frameBlocks);
+    //statusBar()->setObjectName("statusBar");
+    //statusBar()->setStyleSheet("#statusBar { color: #3098c6; background-color: #1d1f22; }");
 
     if (!fUseDarkTheme)
     {
-        statusBar()->setStyleSheet("#statusBar { color: #ffffff; background-color: #614eb0; }");
+        //statusBar()->setStyleSheet("#statusBar { color: #333333; background-color: #cccccc; }");
     }
 
-    syncIconMovie = new QMovie(fUseDarkTheme ? ":/movies/update_spinner_black" : ":/movies/update_spinner", "mng", this);
+    //syncIconMovie = new QMovie(fUseDarkTheme ? ":/movies/update_spinner_black" : ":/movies/update_spinner", "mng", this);
 
     // Clicking on a transaction on the overview page simply sends you to transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), this, SLOT(gotoHistoryPage()));
@@ -403,52 +408,48 @@ void DigitalNoteGUI::createActions()
     connect(openDataDirAction, SIGNAL(triggered()), this, SLOT(openDataDir()));
 }
 
-void DigitalNoteGUI::createMenuBar()
-{
-#ifdef Q_OS_MAC
-    appMenuBar = new QMenuBar();
-#else
-    appMenuBar = menuBar();
-#endif
+//void DigitalNoteGUI::createMenuBar()
+//{
+//#ifdef Q_OS_MAC
+    //appMenuBar = new QMenuBar();
+//#else
+    //appMenuBar = menuBar();
+//#endif
 
     // Configure the menus
-    QMenu *file = appMenuBar->addMenu(tr("&File"));
-    file->addAction(backupWalletAction);
-    file->addAction(importPrivateKeyAction);
-    file->addAction(exportAction);
-    file->addAction(signMessageAction);
-    file->addAction(verifyMessageAction);
-    file->addSeparator();
-    file->addAction(quitAction);
+    //QMenu *file = appMenuBar->addMenu(tr("&File"));
+    //file->addAction(backupWalletAction);
+    //file->addAction(importPrivateKeyAction);
+    //file->addAction(exportAction);
+    //file->addAction(signMessageAction);
+    //file->addAction(verifyMessageAction);
+    //file->addSeparator();
+    //file->addAction(quitAction);
 
-    QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
-    settings->addAction(encryptWalletAction);
-    settings->addAction(changePassphraseAction);
-    settings->addAction(unlockWalletAction);
-    settings->addAction(lockWalletAction);
-    settings->addSeparator();
-    settings->addAction(optionsAction);
-    settings->addAction(showBackupsAction);
+    //QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
+    //settings->addAction(encryptWalletAction);
+    //settings->addAction(changePassphraseAction);
+    //settings->addAction(unlockWalletAction);
+    //settings->addAction(lockWalletAction);
+    //settings->addSeparator();
+    //settings->addAction(optionsAction);
+    //settings->addAction(showBackupsAction);
 
-    QMenu *help = appMenuBar->addMenu(tr("&Help"));
-    help->addAction(openRPCConsoleAction);
-    help->addAction(openDataDirAction);
-    help->addAction(editConfigAction);
-    help->addAction(editConfigExtAction);
-    help->addSeparator();
-    help->addAction(aboutAction);
-    help->addAction(aboutQtAction);
-}
+    //QMenu *help = appMenuBar->addMenu(tr("&Help"));
+    //help->addAction(openRPCConsoleAction);
+    //help->addAction(openDataDirAction);
+    //help->addAction(editConfigAction);
+    //help->addAction(editConfigExtAction);
+    //help->addSeparator();
+    //help->addAction(aboutAction);
+    //help->addAction(aboutQtAction);
+//}
 
 static QWidget* makeToolBarSpacer()
 {
     QWidget* spacer = new QWidget();
-    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    spacer->setStyleSheet("QWidget { background: #121418; }");
-    if(!fUseDarkTheme)
-    {
-        spacer->setStyleSheet("QWidget { background: #614eb0; }");
-    }
+    spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    spacer->setStyleSheet("QWidget { background: none; }");
     return spacer;
 }
 
@@ -456,24 +457,28 @@ void DigitalNoteGUI::createToolBars()
 {
     fLiteMode = GetBoolArg("-litemode", false);
 
+    //QFontDatabase fontDB;
+    //fontDB.addApplicationFont("/fonts/raleway");
+
     toolbar = new QToolBar(tr("Tabs toolbar"));
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
     toolbar->setObjectName("tabs");
-    toolbar->setStyleSheet("QToolBar { spacing: 0px; } QWidget { background:#121418; } QToolButton { color: #ffffff; font-weight:bold; background-color: #121418;} QToolButton:hover { background-color: #2f1d4b; } QToolButton:checked { background-color: #2f1d4b } QToolButton:pressed { background-color: #2f1d4b; } #tabs { color: #ffffff; background-color: #121418; }");
-    toolbar->setIconSize(QSize(24,24));
+    toolbar->setStyleSheet("QToolBar { spacing: 15px; } QWidget { background:#cccccc; } QToolButton { color: #333333; background-color: #cccccc; } QToolButton:hover { background-color: #b2b2b2; } QToolButton:checked { background-color: #b2b2b2; } QToolButton:pressed { background-color: #b2b2b2; } #tabs { color: #333333; background-color: #cccccc; }");
+    toolbar->setIconSize(QSize(40,24));
 
     if(!fUseDarkTheme)
     {
-        toolbar->setStyleSheet("QToolBar { spacing: 0px; } QWidget { background:#614eb0; } QToolButton { color: #ffffff; font-weight:bold; } QToolButton:hover { background-color: #3098c6; } QToolButton:checked { background-color: #3bb2e7; } QToolButton:pressed { background-color: #25779c; } #tabs { color: #ffffff; background-color: #614eb0; }");
+        toolbar->setStyleSheet("QToolBar { spacing: 15px; } QWidget { background:#cccccc; } QToolButton { color: #333333; background-color: #cccccc; } QToolButton:hover { background-color: #b2b2b2; } QToolButton:checked { background-color: #b2b2b2; } QToolButton:pressed { background-color: #b2b2b2; } #tabs { color: #333333; background-color: #cccccc; }");
     }
 
     QLabel* header = new QLabel();
-    header->setMinimumSize(142, 142);
+    header->setMinimumSize(200, 175);
     header->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     header->setPixmap(QPixmap(fUseDarkTheme ? ":/images/header-dark" : ":/images/header"));
-    header->setMaximumSize(142,142);
-    header->setScaledContents(true);
+    header->setStyleSheet("QLabel { margin-left: 26px; margin-bottom: 10px; }");
+    header->setMaximumSize(200,150);
+    header->setScaledContents(false);
     toolbar->addWidget(header);
 
     toolbar->addAction(overviewAction);
@@ -486,31 +491,44 @@ void DigitalNoteGUI::createToolBars()
         toolbar->addAction(messageAction);
     }
     toolbar->addAction(blockAction);
-    netLabel = new QLabel();
+    //netLabel = new QLabel();
 
-    QWidget *spacer = makeToolBarSpacer();
-    netLabel->setObjectName("netLabel");
-    netLabel->setStyleSheet("#netLabel { color: #ffffff; }");
-    toolbar->addWidget(spacer);
+    //QWidget *spacer = makeToolBarSpacer();
+    //netLabel->setObjectName("netLabel");
+    //netLabel->setStyleSheet("#netLabel { color: #ffffff; }");
+    //toolbar->addWidget(spacer);
+
+    QLabel* footer = new QLabel();
+    footer->setMinimumSize(168, 31);
+    footer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    footer->setPixmap(QPixmap(fUseDarkTheme ? ":/icons/footer" : ":/icons/footer"));
+    footer->setMaximumSize(168, 31);
+    footer->setScaledContents(true);
+    toolbar->addWidget(footer);
+
+    toolbar->addWidget(makeToolBarSpacer());
+
     toolbar->setOrientation(Qt::Vertical);
     toolbar->setMovable(false);
 
     addToolBar(Qt::LeftToolBarArea, toolbar);
 
     foreach(QAction *action, toolbar->actions()) {
-        toolbar->widgetForAction(action)->setFixedWidth(142);
+        toolbar->widgetForAction(action)->setFixedWidth(200);
     }
 }
 
 void DigitalNoteGUI::setClientModel(ClientModel *clientModel)
 {
     if(!fOnlyTor)
-    netLabel->setText("CLEARNET");
+    {
+    //netLabel->setText("CLEARNET");
+    }
     else
     {
     if(!IsLimited(NET_TOR))
     {
-    netLabel->setText("TOR");
+    //netLabel->setText("TOR");
     }
     }
 
@@ -546,8 +564,8 @@ void DigitalNoteGUI::setClientModel(ClientModel *clientModel)
         connect(clientModel, SIGNAL(message(QString,QString,bool,unsigned int)), this, SLOT(message(QString,QString,bool,unsigned int)));
 
         // Show progress dialog
-        connect(clientModel, SIGNAL(showProgress(QString,int)), this, SLOT(showProgress(QString,int)));
-        connect(walletModel, SIGNAL(showProgress(QString,int)), this, SLOT(showProgress(QString,int)));
+        //connect(clientModel, SIGNAL(showProgress(QString,int)), this, SLOT(showProgress(QString,int)));
+        //connect(walletModel, SIGNAL(showProgress(QString,int)), this, SLOT(showProgress(QString,int)));
 
         overviewPage->setClientModel(clientModel);
         rpcConsole->setClientModel(clientModel);
@@ -680,8 +698,8 @@ void DigitalNoteGUI::setNumConnections(int count)
     case 7: case 8: case 9: icon = fUseDarkTheme ? ":/icons/dark/connect_3" : ":/icons/connect_3"; break;
     default: icon = fUseDarkTheme ? ":/icons/dark/connect_4" : ":/icons/connect_4"; break;
     }
-    labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-    labelConnectionsIcon->setToolTip(tr("%n active connection(s) to DigitalNote network", "", count));
+    //labelConnectionsIcon->setPixmap(QIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    //labelConnectionsIcon->setToolTip(tr("%n active connection(s) to DigitalNote network", "", count));
 }
 
 void DigitalNoteGUI::setNumBlocks(int count)
@@ -699,12 +717,12 @@ void DigitalNoteGUI::setNumBlocks(int count)
     if(secs < 90*60)
     {
         tooltip = tr("Up to date") + QString(".<br>") + tooltip;
-        labelBlocksIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/synced" : ":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        //labelBlocksIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/synced" : ":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
 
         overviewPage->showOutOfSyncWarning(false);
 
-        progressBarLabel->setVisible(false);
-        progressBar->setVisible(false);
+        //progressBarLabel->setVisible(false);
+        //progressBar->setVisible(false);
     }
     else
     {
@@ -733,18 +751,18 @@ void DigitalNoteGUI::setNumBlocks(int count)
             timeBehindText = tr("%1 and %2").arg(tr("%n year(s)", "", years)).arg(tr("%n week(s)","", remainder/WEEK_IN_SECONDS));
         }
 
-        progressBarLabel->setText(tr(clientModel->isImporting() ? "Importing blocks..." : "Synchronizing with network..."));
-        progressBarLabel->setVisible(true);
-        progressBarLabel->setStyleSheet("QLabel { color: #ffffff; }");
-        progressBar->setFormat(tr("%1 behind").arg(timeBehindText));
-        progressBar->setMaximum(totalSecs);
-        progressBar->setValue(totalSecs - secs);
-        progressBar->setVisible(true);
+        //progressBarLabel->setText(tr(clientModel->isImporting() ? "Importing blocks..." : "Synchronizing with network..."));
+        //progressBarLabel->setVisible(true);
+        //progressBarLabel->setStyleSheet("QLabel { color: #ffffff; }");
+        //progressBar->setFormat(tr("%1 behind").arg(timeBehindText));
+        //progressBar->setMaximum(totalSecs);
+        //progressBar->setValue(totalSecs - secs);
+        //progressBar->setVisible(true);
 
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
-        labelBlocksIcon->setMovie(syncIconMovie);
-        if(count != prevBlocks)
-            syncIconMovie->jumpToNextFrame();
+        //labelBlocksIcon->setMovie(syncIconMovie);
+        //if(count != prevBlocks)
+            //syncIconMovie->jumpToNextFrame();
         prevBlocks = count;
 
         overviewPage->showOutOfSyncWarning(true);
@@ -758,11 +776,11 @@ void DigitalNoteGUI::setNumBlocks(int count)
     // Don't word-wrap this (fixed-width) tooltip
     tooltip = QString("<nobr>") + tooltip + QString("</nobr>");
 
-    labelBlocksIcon->setToolTip(tooltip);
-    progressBarLabel->setToolTip(tooltip);
-    progressBar->setToolTip(tooltip);
+    //labelBlocksIcon->setToolTip(tooltip);
+    //progressBarLabel->setToolTip(tooltip);
+    //progressBar->setToolTip(tooltip);
 
-    statusBar()->setVisible(true);
+    //statusBar()->setVisible(true);
 }
 
 void DigitalNoteGUI::message(const QString &title, const QString &message, bool modal, unsigned int style)
@@ -1084,8 +1102,8 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
 {
     if(fWalletUnlockStakingOnly)
     {
-    labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_open" : ":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-        labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
+    //labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_open" : ":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        //labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked for staking only</b>"));
         changePassphraseAction->setEnabled(false);
         unlockWalletAction->setVisible(true);
         lockWalletAction->setVisible(true);
@@ -1098,24 +1116,24 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
     switch(status)
     {
     case WalletModel::Unencrypted:
-        labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_open" : ":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-        labelEncryptionIcon->setToolTip(tr("Wallet is <b>not encrypted</b>"));
+        //labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_open" : ":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        //labelEncryptionIcon->setToolTip(tr("Wallet is <b>not encrypted</b>"));
         changePassphraseAction->setEnabled(false);
         unlockWalletAction->setVisible(false);
         lockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(true);
         break;
     case WalletModel::Unlocked:
-        labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_open" : ":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-        labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
+        //labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_open" : ":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        //labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
         changePassphraseAction->setEnabled(true);
         unlockWalletAction->setVisible(false);
         lockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
         break;
     case WalletModel::Locked:
-        labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_closed" : ":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
-        labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
+        //labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_closed" : ":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        //labelEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
         changePassphraseAction->setEnabled(true);
         unlockWalletAction->setVisible(true);
         lockWalletAction->setVisible(false);
@@ -1229,7 +1247,7 @@ void DigitalNoteGUI::updateWeight()
     nWeight = pwalletMain->GetStakeWeight();
 }
 
-void DigitalNoteGUI::updateStakingIcon()
+/*void DigitalNoteGUI::updateStakingIcon()
 {
     updateWeight();
 
@@ -1278,7 +1296,7 @@ void DigitalNoteGUI::updateStakingIcon()
         else
             labelStakingIcon->setToolTip(tr("Not staking"));
     }
-}
+}*/
 
 void DigitalNoteGUI::detectShutdown()
 {
@@ -1286,7 +1304,7 @@ void DigitalNoteGUI::detectShutdown()
         QMetaObject::invokeMethod(QCoreApplication::instance(), "quit", Qt::QueuedConnection);
 }
 
-void DigitalNoteGUI::showProgress(const QString &title, int nProgress)
+/*void DigitalNoteGUI::showProgress(const QString &title, int nProgress)
 {
     if (nProgress == 0)
     {
@@ -1307,7 +1325,7 @@ void DigitalNoteGUI::showProgress(const QString &title, int nProgress)
     }
     else if (progressDialog)
         progressDialog->setValue(nProgress);
-}
+}*/
 
 void DigitalNoteGUI::editConfig()
 {

@@ -24,8 +24,8 @@ class BlockBrowser;
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QModelIndex;
-class QProgressBar;
-class QProgressDialog;
+//class QProgressBar;
+//class QProgressDialog;
 class QStackedWidget;
 class QScrollArea;
 QT_END_NAMESPACE
@@ -82,15 +82,15 @@ private:
     SignVerifyMessageDialog *signVerifyMessageDialog;
     MasternodeManager *masternodeManagerPage;
     MessagePage *messagePage;
-    QLabel* netLabel;
+    //QLabel* netLabel;
     BlockBrowser *blockBrowser;
-    QLabel *labelEncryptionIcon;
-    QLabel *labelStakingIcon;
-    QLabel *labelConnectionsIcon;
-    QLabel *labelBlocksIcon;
-    QLabel *progressBarLabel;
-    QProgressBar *progressBar;
-    QProgressDialog *progressDialog;
+    //QLabel *labelEncryptionIcon;
+    //QLabel *labelStakingIcon;
+    //QLabel *labelConnectionsIcon;
+    //QLabel *labelBlocksIcon;
+    //QLabel *progressBarLabel;
+    //QProgressBar *progressBar;
+    //QProgressDialog *progressDialog;
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
@@ -126,7 +126,7 @@ private:
     TransactionView *transactionView;
     RPCConsole *rpcConsole;
 
-    QMovie *syncIconMovie;
+    //QMovie *syncIconMovie;
     /** Keep track of previous number of blocks, to detect progress */
     int prevBlocks;
 
@@ -135,7 +135,7 @@ private:
     /** Create the main UI actions. */
     void createActions();
     /** Create the menu bar and sub-menus. */
-    void createMenuBar();
+    //void createMenuBar();
     /** Create the toolbars */
     void createToolBars();
     /** Create system tray (notification) icon */
@@ -231,13 +231,13 @@ private slots:
     void toggleHidden();
 
     void updateWeight();
-    void updateStakingIcon();
+    //void updateStakingIcon();
 
     /** called by a timer to check if fRequestShutdown has been set **/
     void detectShutdown();
 
     /** Show progress dialog e.g. for verifychain */
-    void showProgress(const QString &title, int nProgress);
+    //void showProgress(const QString &title, int nProgress);
 
     /** Edit the DigitalNote.conf file */
     void editConfig();
