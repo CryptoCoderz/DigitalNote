@@ -9,6 +9,7 @@
 #include "transactionfilterproxy.h"
 #include "guiutil.h"
 #include "guiconstants.h"
+#include "bitcoingui.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
@@ -16,6 +17,7 @@
 #include <QScroller>
 #include <QSettings>
 #include <QTimer>
+#include <QMovie>
 
 #define DECORATION_SIZE 64
 #define ICON_OFFSET 16
@@ -123,22 +125,30 @@ OverviewPage::OverviewPage(QWidget *parent) :
     ui->setupUi(this);
 
     // Recent transactions
-    ui->listTransactions->setItemDelegate(txdelegate);
-    ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
-    ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
-    ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->listTransactions->setMinimumWidth(300);
+    // TODO: Remove this
+    //ui->listTransactions->setItemDelegate(txdelegate);
+    //ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
+    //ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
+    //ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
+    //ui->listTransactions->setMinimumWidth(300);
 
-    connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
+    //connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
 
     // init "out of sync" warning labels
-    ui->labelWalletStatus->setText("(" + tr("out of sync") + ")");
-    ui->labelTransactionsStatus->setText("(" + tr("out of sync") + ")");
+    ui->labelTransactionsStatus->setText(tr("Synchronizing... Please wait."));
+    QMovie *SYNCmovie = new QMovie(":/gifs/syncgif");
+    ui->syncstatusGIF->setMovie(SYNCmovie);
+    SYNCmovie->stop();// Initially set stopped
+    ui->syncstatusGIF->setVisible(true);
 
     fLiteMode = GetBoolArg("-litemode", false);
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
+
+    // Always show these labels (Sync Status)
+    ui->labelTransactionsStatus->setVisible(true);
+    ui->syncstatusGIF->setVisible(true);
 
     if (fUseDarkTheme)
     {
@@ -197,7 +207,7 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& stake, cons
 
     if(cachedTxLocks != nCompleteTXLocks){
         cachedTxLocks = nCompleteTXLocks;
-        ui->listTransactions->update();
+        //ui->listTransactions->update();
     }
 }
 
@@ -249,8 +259,8 @@ void OverviewPage::setWalletModel(WalletModel *model)
         filter->setShowInactive(false);
         filter->sort(TransactionTableModel::Status, Qt::DescendingOrder);
 
-        ui->listTransactions->setModel(filter);
-        ui->listTransactions->setModelColumn(TransactionTableModel::ToAddress);
+        //ui->listTransactions->setModel(filter);
+        //ui->listTransactions->setModelColumn(TransactionTableModel::ToAddress);
 
         // Keep up to date with wallet
         setBalance(model->getBalance(), model->getStake(), model->getUnconfirmedBalance(), model->getImmatureBalance(),
@@ -280,7 +290,7 @@ void OverviewPage::updateDisplayUnit()
         // Update txdelegate->unit with the current unit
         txdelegate->unit = nDisplayUnit;
 
-        ui->listTransactions->update();
+        //ui->listTransactions->update();
     }
 }
 
@@ -292,6 +302,21 @@ void OverviewPage::updateAlerts(const QString &warnings)
 
 void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
+    fShow = false;
     ui->labelWalletStatus->setVisible(fShow);
-    ui->labelTransactionsStatus->setVisible(fShow);
+}
+
+void OverviewPage::ShowSynchronizedMessage(bool fSyncFinish)
+{
+    if(fSyncFinish) {
+        ui->labelTransactionsStatus->setText(tr("Synchronized"));
+        QMovie *SYNCmovie = new QMovie(":/gifs/syncdonegif");
+        ui->syncstatusGIF->setMovie(SYNCmovie);
+        SYNCmovie->start();// Set finished sync animation
+    } else {
+        ui->labelTransactionsStatus->setText(tr("Synchronizing... Please wait"));
+        QMovie *SYNCmovie = new QMovie(":/gifs/syncgif");
+        ui->syncstatusGIF->setMovie(SYNCmovie);
+        SYNCmovie->start();// Set syncing animation
+    }
 }

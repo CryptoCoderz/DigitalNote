@@ -90,10 +90,6 @@
         <file alias="about-dark">res/images/about_dark.png</file>
         <file alias="header-dark">res/images/header_dark.png</file>
     </qresource>
-    <qresource prefix="/movies">
-        <file alias="update_spinner">res/movies/update_spinner.mng</file>
-        <file alias="update_spinner_black">res/movies/update_spinner_black.mng</file>
-    </qresource>
     <qresource prefix="/translations">
         <file alias="ar">locale/bitcoin_ar.qm</file>
         <file alias="ca_ES">locale/bitcoin_ca_ES.qm</file>
@@ -138,5 +134,9 @@
     <qresource prefix="/"/>
     <qresource prefix="/fonts">
         <file alias="raleway">res/fonts/Raleway-Light.ttf</file>
+    </qresource>
+    <qresource prefix="/gifs">
+        <file alias="syncgif">res/gifs/SyncArrows_L.gif</file>
+        <file alias="syncdonegif">res/gifs/Synced_L.gif</file>
     </qresource>
 </RCC>

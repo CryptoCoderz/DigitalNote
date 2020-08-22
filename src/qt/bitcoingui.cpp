@@ -720,6 +720,7 @@ void DigitalNoteGUI::setNumBlocks(int count)
         //labelBlocksIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/synced" : ":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
 
         overviewPage->showOutOfSyncWarning(false);
+        overviewPage->ShowSynchronizedMessage(true);
 
         //progressBarLabel->setVisible(false);
         //progressBar->setVisible(false);
@@ -766,6 +767,7 @@ void DigitalNoteGUI::setNumBlocks(int count)
         prevBlocks = count;
 
         overviewPage->showOutOfSyncWarning(true);
+        overviewPage->ShowSynchronizedMessage(false);
 
         tooltip += QString("<br>");
         tooltip += tr("Last received block was generated %1 ago.").arg(timeBehindText);
