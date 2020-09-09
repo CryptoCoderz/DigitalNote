@@ -33,9 +33,9 @@ You can get the current version from http://developer.apple.com
 2. Install dependencies using Homebrew
    1. Install dependencies:
        ```
-       brew install boost@1.59
+       brew install boost
        brew install miniupnpc
-       brew install https://github.com/tebelorg/Tump/releases/download/v1.0.0/openssl.rb
+       brew install openssl
        brew install automake
        brew install autoconf
        brew install libtool
