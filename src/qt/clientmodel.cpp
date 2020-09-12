@@ -17,6 +17,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <QFile>
+#include <boost/bind.hpp>
 
 static const int64_t nClientStartupTime = GetTime();
 

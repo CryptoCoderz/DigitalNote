@@ -14,15 +14,15 @@ INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"$(CURDIR)"/obj \
  -I"$(DEPSDIR)/include" \
- -I"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/include" \
+ -I"$(DEPSDIR)/Cellar/boost/1.73.0/include" \
  -I"$(DEPSDIR)/Cellar/berkeley-db@6.2.32/include" \
- -I"$(DEPSDIR)/Cellar/openssl/1.0.2t/lib"
+ -I"$(DEPSDIR)/Cellar/openssl@1.1/1.1.1g/lib"
 
 LIBPATHS= \
  -L"$(DEPSDIR)/lib" \
- -L"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/lib" \
+ -L"$(DEPSDIR)/Cellar/boost/1.73.0/lib" \
  -L"$(DEPSDIR)/Cellar/berkeley-db@6.2.32/lib" \
- -L"$(DEPSDIR)/Cellar/openssl/1.0.2t/lib"
+ -L"$(DEPSDIR)/Cellar/openssl@1.1/1.1.1g/lib"
 
 USE_UPNP:=1
 USE_WALLET:=1
@@ -48,6 +48,7 @@ LIBS += \
  -l boost_filesystem \
  -l boost_program_options \
  -l boost_thread-mt \
+ -l boost_chrono-mt \
  -l ssl \
  -l crypto \
  -lgmp \

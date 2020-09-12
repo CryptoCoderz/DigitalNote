@@ -19,6 +19,7 @@
 #include <QMenu>
 #include <QFont>
 #include <QColor>
+#include <boost/bind.hpp>
 
 Q_DECLARE_METATYPE(std::vector<unsigned char>);
 

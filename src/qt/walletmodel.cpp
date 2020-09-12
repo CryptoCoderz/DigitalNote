@@ -26,6 +26,7 @@
 #include <QDebug>
 #include <QSet>
 #include <QTimer>
+#include <boost/bind.hpp>
 
 using namespace std;
 
