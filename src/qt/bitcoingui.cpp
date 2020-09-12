@@ -111,7 +111,7 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     fontDB.addApplicationFont("/fonts/raleway");
 
     setObjectName("DigitalNote");
-    setStyleSheet("#DigitalNote { background-color: #e6e6e6; color: #333333; }");
+    setStyleSheet("#DigitalNote { background-color: #e6e6e6; color: #333333; background-image: url(:/images/background_light); }");
 
     // Accept D&D of URIs
     setAcceptDrops(true);
