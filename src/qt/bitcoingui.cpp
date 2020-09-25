@@ -1090,7 +1090,7 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
         unlockWalletAction->setVisible(true);
         lockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false);
-
+        sendCoinsAction->setEnabled(false);
     }
     else
     {

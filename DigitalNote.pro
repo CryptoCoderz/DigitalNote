@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = DigitalNote-qt
-VERSION = 1.0.3.1
+VERSION = 1.0.3.2
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 QT += core gui widgets network printsupport
 DEFINES += ENABLE_WALLET
@@ -17,9 +17,9 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 win32{
-BOOST_LIB_SUFFIX=-mgw81-mt-s-x32-1_72
-BOOST_INCLUDE_PATH=C:/deps/boost_1_72_0
-BOOST_LIB_PATH=C:/deps/boost_1_72_0/stage/lib
+BOOST_LIB_SUFFIX=-mgw8-mt-s-x32-1_74
+BOOST_INCLUDE_PATH=C:/deps/boost_1_74_0
+BOOST_LIB_PATH=C:/deps/boost_1_74_0/stage/lib
 BDB_INCLUDE_PATH=C:/deps/db-6.2.32.NC/build_unix
 BDB_LIB_PATH=C:/deps/db-6.2.32.NC/build_unix
 OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2u/include
@@ -544,12 +544,12 @@ isEmpty(BDB_INCLUDE_PATH) {
 }
 
 isEmpty(BOOST_LIB_PATH) {
-    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.73.0/lib
+    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost@1.59/1.59.0/lib
     windows:BOOST_LIB_PATH=C:/dev/coindeps32/boost_1_57_0/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
-    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.73.0/include
+    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost@1.59/1.59.0/include
     windows:BOOST_INCLUDE_PATH=C:/dev/coindeps32/boost_1_57_0/include
 }
 
@@ -578,12 +578,12 @@ isEmpty(MINIUPNPC_LIB_PATH) {
 }
 
 isEmpty(OPENSSL_INCLUDE_PATH) {
-    macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/include
+    macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl/1.0.2t/include
     windows:OPENSSL_INCLUDE_PATH=C:/dev/coindeps32/openssl-1.0.1p/include
 }
 
 isEmpty(OPENSSL_LIB_PATH) {
-    macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/lib
+    macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl/1.0.2t/lib
     windows:OPENSSL_LIB_PATH=C:/dev/coindeps32/openssl-1.0.1p/lib
 }
 

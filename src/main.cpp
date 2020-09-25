@@ -2546,7 +2546,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
 
                     CScript payee;
                     CTxIn vin;
-                    if(!masternodePayments.GetBlockPayee(pindexBest->nHeight+1, payee, vin) || payee == CScript()){
+                    if(!masternodePayments.GetWinningMasternode(pindexBest->nHeight+1, payee, vin) || payee == CScript()){
                         foundPayee = true; //doesn't require a specific payee
                         foundPaymentAmount = true;
                         foundPaymentAndPayee = true;
@@ -2689,7 +2689,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             if (isProofOfStake) {
                 // Check for PoS masternode payment
                 if (i == nProofOfIndexMasternode) {
-                   if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
+                   if (mnodeman.IsPayeeAValidMasternode(rawPayee) && fMNselect(pindexBest->nHeight)) {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
                    } else if (addressOut.ToString() == strVfyDevopsAddress) {
                        LogPrintf("CheckBlock() : PoS Recipient masternode address validity succesfully verified\n");
@@ -2748,7 +2748,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             else if (!isProofOfStake) {
                 // Check for PoW masternode payment
                 if (i == nProofOfIndexMasternode) {
-                   if (mnodeman.IsPayeeAValidMasternode(rawPayee)) {
+                   if (mnodeman.IsPayeeAValidMasternode(rawPayee) && fMNselect(pindexBest->nHeight)) {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
                    } else if (addressOut.ToString() == strVfyDevopsAddress) {
                       LogPrintf("CheckBlock() : PoW Recipient masternode address validity succesfully verified\n");
@@ -3123,7 +3123,10 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
         mapOrphanBlocksByPrev.erase(hashPrev);
     }
 
-    if(!IsInitialBlockDownload()){
+    // Try to get frist masternode in our list
+    CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
+    // If initial sync or we can't find a masternode in our list
+    if(!IsInitialBlockDownload() || winningNode){
 
         CScript payee;
         CTxIn vin;
@@ -3131,7 +3134,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
         // If we're in LiteMode disable mnengine features without disabling masternodes
         if (!fLiteMode && !fImporting && !fReindex && pindexBest->nHeight > Checkpoints::GetTotalBlocksEstimate()){
 
-            if(masternodePayments.GetBlockPayee(pindexBest->nHeight, payee, vin)){
+            if(masternodePayments.GetWinningMasternode(pindexBest->nHeight, payee, vin)){
                 //UPDATE MASTERNODE LAST PAID TIME
                 CMasternode* pmn = mnodeman.Find(vin);
                 if(pmn != NULL) {
@@ -3143,11 +3146,10 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 
             mnEnginePool.CheckTimeout();
             mnEnginePool.NewBlock();
-            masternodePayments.ProcessBlock(GetHeight()+10);
 
         } else if (fLiteMode && !fImporting && !fReindex && pindexBest->nHeight > Checkpoints::GetTotalBlocksEstimate())
         {
-            if(masternodePayments.GetBlockPayee(pindexBest->nHeight, payee, vin)){
+            if(masternodePayments.GetWinningMasternode(pindexBest->nHeight, payee, vin)){
                 //UPDATE MASTERNODE LAST PAID TIME
                 CMasternode* pmn = mnodeman.Find(vin);
                 if(pmn != NULL) {
@@ -3156,10 +3158,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 
                 LogPrintf("ProcessBlock() : Update Masternode Last Paid Time - %d\n", pindexBest->nHeight);
             }
-
-            masternodePayments.ProcessBlock(GetHeight()+10);
         }
-
     }
 
     LogPrintf("ProcessBlock: ACCEPTED\n");
@@ -4416,10 +4415,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         if (fSecMsgEnabled) {
             SecureMsgReceiveData(pfrom, strCommand, vRecv);
         }
-        mnodeman.ProcessMessage(pfrom, strCommand, vRecv);
-        ProcessMessageMasternodePayments(pfrom, strCommand, vRecv);
-        ProcessMessageInstantX(pfrom, strCommand, vRecv);
-        ProcessSpork(pfrom, strCommand, vRecv);
+        if (pfrom->nVersion >= MIN_MASTERNODE_BSC_RELAY) {
+            mnodeman.ProcessMessage(pfrom, strCommand, vRecv);
+            ProcessMessageMasternodePayments(pfrom, strCommand, vRecv);
+            ProcessMessageInstantX(pfrom, strCommand, vRecv);
+            ProcessSpork(pfrom, strCommand, vRecv);
+        }
         // Ignore unknown commands for extensibility
     }
 
