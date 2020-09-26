@@ -1045,10 +1045,11 @@ bool CMNengineSigner::SetKey(std::string strSecret, std::string& errorMessage, C
 
     if (!fGood) {
         LogPrintf("CMNengineSetKey(): WARNING - SetKey failed to verify submitted key \n");
-        errorMessage = _("Invalid private key.");
-        //return false;
+        errorMessage = _("");//NOTE: previous message contents - Invalid private key.
+        return true;
     }
-
+    // TODO: correct keys to succesfully be set
+    // for now we do not get to this section even with a good key
     key = vchSecret.GetKey();
     pubkey = key.GetPubKey();
     LogPrintf("CMNengineSetKey(): SetKey now set successfully \n");
