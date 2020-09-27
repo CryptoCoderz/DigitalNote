@@ -1117,12 +1117,8 @@ bool SecureMsgStart(bool fDontStart, bool fScanChain)
     if (SecureMsgReadIni() != 0)
         LogPrint("smessage", "Failed to read smsg.ini\n");
 
-    if (smsgAddresses.size() < 1)
-    {
-        LogPrint("smessage", "No address keys loaded.\n");
-        if (SecureMsgAddWalletAddresses() != 0)
-            LogPrint("smessage", "Failed to load addresses from wallet.\n");
-    };
+    if (SecureMsgAddWalletAddresses() != 0)
+        LogPrint("smessage", "Failed to load addresses from wallet.\n");
 
     if (fScanChain)
     {
@@ -1185,12 +1181,8 @@ bool SecureMsgEnable()
         if (SecureMsgReadIni() != 0)
             LogPrint("smessage", "Failed to read smsg.ini\n");
 
-        if (smsgAddresses.size() < 1)
-        {
-            LogPrint("smessage", "No address keys loaded.\n");
-            if (SecureMsgAddWalletAddresses() != 0)
-                LogPrint("smessage", "Failed to load addresses from wallet.\n");
-        };
+        if (SecureMsgAddWalletAddresses() != 0)
+            LogPrint("smessage", "Failed to load addresses from wallet.\n");
 
         smsgBuckets.clear(); // should be empty already
 
