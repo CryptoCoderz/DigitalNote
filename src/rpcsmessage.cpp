@@ -914,8 +914,9 @@ Value smsggetmessagesforaccount(const Array& params, bool fHelp)
         throw runtime_error("Account is required.");
     }
 
-    uint32_t nMessages = 0;
     Object result;
+    uint32_t nMessages = 0;
+    Array resMessages;
     std::vector<std::string> accountAddresses;
     char cbuf[256];
 
@@ -969,9 +970,11 @@ Value smsggetmessagesforaccount(const Array& params, bool fHelp)
                 objM.push_back(Pair("to", smsgStored.sAddrTo));
                 objM.push_back(Pair("text", std::string((char *) &msg.vchMessage[0]))); // ugh
 
-                result.push_back(Pair("message", objM));
+                resMessages.push_back(objM);
             } else {
-                result.push_back(Pair("message", "Could not decrypt."));
+                Object objM;
+                objM.push_back(Pair("message", "Could not decrypt."));
+                resMessages.push_back(objM);
             };
 
             nMessages++;
@@ -1018,15 +1021,19 @@ Value smsggetmessagesforaccount(const Array& params, bool fHelp)
                 objM.push_back(Pair("to", smsgStored.sAddrTo));
                 objM.push_back(Pair("text", std::string((char *) &msg.vchMessage[0])));
 
-                result.push_back(Pair("message", objM));
+                resMessages.push_back(objM);
             } else {
-                result.push_back(Pair("message", "Could not decrypt."));
+                Object objM;
+                objM.push_back(Pair("message", "Could not decrypt."));
+                resMessages.push_back(objM);
             };
             nMessages++;
         };
         delete it;
     }
 
+
+    result.push_back(Pair("messages", resMessages));
     snprintf(cbuf, sizeof(cbuf), "%u messages shown.", nMessages);
     result.push_back(Pair("result", std::string(cbuf)));
 
