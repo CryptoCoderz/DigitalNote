@@ -13,7 +13,9 @@
 #include "wallet.h"
 #include "base58.h"
 #include "lz4/lz4.h"
+#include "json/json_spirit_value.h"
 
+using namespace json_spirit;
 
 const unsigned int SMSG_HDR_LEN         = 104;               // length of unencrypted header, 4 + 2 + 1 + 8 + 16 + 33 + 32 + 4 +4
 const unsigned int SMSG_PL_HDR_LEN      = 1+20+65+4;         // length of encrypted header in payload
@@ -45,9 +47,11 @@ class SecMsgStored;
 
 // Inbox db changed, called with lock cs_smsgDB held.
 extern boost::signals2::signal<void (SecMsgStored& inboxHdr)> NotifySecMsgInboxChanged;
+extern boost::signals2::signal<void (json_spirit::Object& inboxHdr)> NotifySecMsgInboxChangedJson;
 
 // Outbox db changed, called with lock cs_smsgDB held.
 extern boost::signals2::signal<void (SecMsgStored& outboxHdr)> NotifySecMsgOutboxChanged;
+extern boost::signals2::signal<void (json_spirit::Object& outboxHdr)> NotifySecMsgOutboxChangedJson;
 
 // Wallet Unlocked, called after all messages received while locked have been processed.
 extern boost::signals2::signal<void ()> NotifySecMsgWalletUnlocked;

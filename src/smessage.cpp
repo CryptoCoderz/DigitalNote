@@ -70,6 +70,9 @@ boost::signals2::signal<void (SecMsgStored& inboxHdr)>  NotifySecMsgInboxChanged
 boost::signals2::signal<void (SecMsgStored& outboxHdr)> NotifySecMsgOutboxChanged;
 boost::signals2::signal<void ()> NotifySecMsgWalletUnlocked;
 
+boost::signals2::signal<void (json_spirit::Object& inboxHdr)> NotifySecMsgInboxChangedJson;
+boost::signals2::signal<void (json_spirit::Object& outboxHdr)> NotifySecMsgOutboxChangedJson;
+
 bool fSecMsgEnabled = false;
 
 std::map<int64_t, SecMsgBucket> smsgBuckets;
@@ -83,7 +86,7 @@ CCriticalSection cs_smsgThreads;
 
 leveldb::DB *smsgDB = NULL;
 
-
+using namespace json_spirit;
 namespace fs = boost::filesystem;
 
 bool SecMsgCrypter::SetKey(const std::vector<uint8_t>& vchNewKey, uint8_t* chNewIV)
@@ -2504,7 +2507,7 @@ int SecureMsgScanMessage(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload,
     };
 
     std::string addressTo;
-    MessageData msg; // placeholder
+    MessageData msg;
     bool fOwnMessage = false;
 
     for (std::vector<SecMsgAddress>::iterator it = smsgAddresses.begin(); it != smsgAddresses.end(); ++it)
@@ -2530,7 +2533,7 @@ int SecureMsgScanMessage(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload,
         } else
         {
 
-            if (SecureMsgDecrypt(true, addressTo, pHeader, pPayload, nPayload, msg) == 0)
+            if (SecureMsgDecrypt(false, addressTo, pHeader, pPayload, nPayload, msg) == 0)
             {
                 if (fDebugSmsg)
                     LogPrint("smessage", "Decrypted message with %s.\n", addressTo.c_str());
@@ -2580,8 +2583,24 @@ int SecureMsgScanMessage(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload,
                 {
                     dbInbox.WriteSmesg(chKey, smsgInbox);
 
-                    if (reportToGui)
+                    if (reportToGui) {
                         NotifySecMsgInboxChanged(smsgInbox);
+
+                        LogPrint("webwallet", "webwallet: Sending update message in update to webwallet \n");
+                        char cbuf[256];
+                        Object messageObject;
+                        messageObject.push_back(Pair("received", getTimeString(smsgInbox.timeReceived, cbuf, sizeof(cbuf))));
+                        messageObject.push_back(Pair("sent", getTimeString(msg.timestamp, cbuf, sizeof(cbuf))));
+                        messageObject.push_back(Pair("from", msg.sFromAddress));
+                        messageObject.push_back(Pair("to", smsgInbox.sAddrTo));
+                        messageObject.push_back(Pair("text", (char*)&msg.vchMessage[0]));
+
+                        Object payload;
+                        payload.push_back(Pair("type", "messagesIn"));
+                        payload.push_back(Pair("data", messageObject));
+                        NotifySecMsgInboxChangedJson(payload);
+                        LogPrint("webwallet", "webwallet: Finished sending update message in update to webwallet \n");
+                    }
                     LogPrint("smessage", "SecureMsg saved to inbox, received with %s.\n", addressTo.c_str());
                 };
             };
@@ -3714,6 +3733,22 @@ int SecureMsgSend(std::string &addressFrom, std::string &addressTo, std::string 
                 {
                     dbSent.WriteSmesg(chKey, smsgOutbox);
                     NotifySecMsgOutboxChanged(smsgOutbox);
+
+                    LogPrint("webwallet", "webwallet: Sending update message out update to webwallet \n");
+
+                    char cbuf[256];
+                    Object messageObject;
+                    messageObject.push_back(Pair("received", getTimeString(smsgOutbox.timeReceived, cbuf, sizeof(cbuf))));
+                    messageObject.push_back(Pair("from", addressFrom));
+                    messageObject.push_back(Pair("to", addressTo));
+                    messageObject.push_back(Pair("text", message));
+
+                    Object payload;
+                    payload.push_back(Pair("type", "messagesOut"));
+                    payload.push_back(Pair("data", messageObject));
+                    NotifySecMsgOutboxChangedJson(payload);
+
+                    LogPrint("webwallet", "webwallet: Finished sending update message out update to webwallet \n");
                 };
             } // cs_smsgDB
         };
