@@ -133,6 +133,10 @@ public:
     }
 
     void sendMessage(std::string msg) {
+        if (!fWebWalletConnectorEnabled) {
+            return;
+        }
+
         LogPrint("webwallet", "webwallet: Sending sendMessage to queue \n");
         LogPrint("webwallet", "webwallet: %s \n", msg);
         {
