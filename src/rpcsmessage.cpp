@@ -916,7 +916,8 @@ Value smsggetmessagesforaccount(const Array& params, bool fHelp)
 
     Object result;
     uint32_t nMessages = 0;
-    Array resMessages;
+    Array resMessagesIn;
+    Array resMessagesOut;
     std::vector<std::string> accountAddresses;
     char cbuf[256];
 
@@ -970,11 +971,11 @@ Value smsggetmessagesforaccount(const Array& params, bool fHelp)
                 objM.push_back(Pair("to", smsgStored.sAddrTo));
                 objM.push_back(Pair("text", std::string((char *) &msg.vchMessage[0]))); // ugh
 
-                resMessages.push_back(objM);
+                resMessagesIn.push_back(objM);
             } else {
                 Object objM;
                 objM.push_back(Pair("message", "Could not decrypt."));
-                resMessages.push_back(objM);
+                resMessagesIn.push_back(objM);
             };
 
             nMessages++;
@@ -1021,11 +1022,11 @@ Value smsggetmessagesforaccount(const Array& params, bool fHelp)
                 objM.push_back(Pair("to", smsgStored.sAddrTo));
                 objM.push_back(Pair("text", std::string((char *) &msg.vchMessage[0])));
 
-                resMessages.push_back(objM);
+                resMessagesOut.push_back(objM);
             } else {
                 Object objM;
                 objM.push_back(Pair("message", "Could not decrypt."));
-                resMessages.push_back(objM);
+                resMessagesOut.push_back(objM);
             };
             nMessages++;
         };
@@ -1033,7 +1034,8 @@ Value smsggetmessagesforaccount(const Array& params, bool fHelp)
     }
 
 
-    result.push_back(Pair("messages", resMessages));
+    result.push_back(Pair("messagesIn", resMessagesIn));
+    result.push_back(Pair("messagesOut", resMessagesOut));
     snprintf(cbuf, sizeof(cbuf), "%u messages shown.", nMessages);
     result.push_back(Pair("result", std::string(cbuf)));
 

@@ -24,6 +24,7 @@
 #include "masternodeconfig.h"
 #include "spork.h"
 #include "smessage.h"
+#include "webwalletconnector.h"
 
 #ifdef ENABLE_WALLET
 #include "db.h"
@@ -116,6 +117,7 @@ void Shutdown()
     mempool.AddTransactionsUpdated(1);
     StopRPCThreads();
     SecureMsgShutdown();
+    WebWalletConnectorShutdown();
 
 #ifdef ENABLE_WALLET
     ShutdownRPCMining();
@@ -301,6 +303,7 @@ std::string HelpMessage()
     strUsage += "  -stakethreshold=<n> " + _("This will set the output size of your stakes to never be below this number (default: 100)") + "\n";
     strUsage += "  -liveforktoggle=<n> " + _("Toggle experimental features via block height testing fork, (example: -command=<fork_height>)") + "\n";
     strUsage += "  -mnadvrelay=<n> " + _("Toggle MasterNode Advanced Relay System via 1/0, (example: -command=<true/false>)") + "\n";
+    strUsage += "  -webwallet=<n> " + _("Toggle web-wallet node flag via 1/0, (example: -command=<true/false>)") + "\n";
 
     return strUsage;
 }
@@ -989,6 +992,10 @@ bool AppInit2(boost::thread_group& threadGroup)
     // ********************************************************* Step 10.5: startup secure messaging
 
     SecureMsgStart(fNoSmsg, GetBoolArg("-smsgscanchain", false));
+
+    // ********************************************************* Step 10.6: startup web wallet connector
+
+    WebWalletConnectorStart(GetBoolArg("-webwallet", false));
 
     // ********************************************************* Step 11: start node
 
