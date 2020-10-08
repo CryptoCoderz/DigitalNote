@@ -4415,12 +4415,16 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         if (fSecMsgEnabled) {
             SecureMsgReceiveData(pfrom, strCommand, vRecv);
         }
-        if (pfrom->nVersion >= MIN_MASTERNODE_BSC_RELAY) {
-            mnodeman.ProcessMessage(pfrom, strCommand, vRecv);
-            ProcessMessageMasternodePayments(pfrom, strCommand, vRecv);
-            ProcessMessageInstantX(pfrom, strCommand, vRecv);
-            ProcessSpork(pfrom, strCommand, vRecv);
-        }
+        // Relay and Request MasterNode peer data
+        //
+        // We already have checks to ensure we relay
+        // only the data that our peers can accept
+        // so this has to be enabled for basic reference
+        // relays such as masternode lists to occur.
+        mnodeman.ProcessMessage(pfrom, strCommand, vRecv);
+        ProcessMessageMasternodePayments(pfrom, strCommand, vRecv);
+        ProcessMessageInstantX(pfrom, strCommand, vRecv);
+        ProcessSpork(pfrom, strCommand, vRecv);
         // Ignore unknown commands for extensibility
     }
 
