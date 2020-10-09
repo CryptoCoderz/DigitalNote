@@ -64,9 +64,9 @@ typedef std::set<connection_hdl,std::owner_less<connection_hdl> > con_list;
 
 bool fWebWalletConnectorEnabled = false;
 
-mutex m_action_lock;
-mutex m_connection_lock;
-condition_variable m_action_cond;
+std::mutex m_action_lock;
+std::mutex m_connection_lock;
+std::condition_variable m_action_cond;
 std::queue<action> m_actions;
 server m_server;
 con_list m_connections;
@@ -110,7 +110,7 @@ public:
     void stop() {
         LogPrint("webwallet", "webwallet: Requesting websocket to stop.\n");
         {
-            lock_guard<mutex> guard(m_action_lock);
+            std::lock_guard<std::mutex> guard(m_action_lock);
             m_actions.push(action(STOP_COMMAND));
         }
         m_action_cond.notify_all();
@@ -118,7 +118,7 @@ public:
 
     void on_open(connection_hdl hdl) {
         {
-            lock_guard<mutex> guard(m_action_lock);
+            std::lock_guard<std::mutex> guard(m_action_lock);
             m_actions.push(action(SUBSCRIBE,hdl));
         }
         m_action_cond.notify_all();
@@ -126,7 +126,7 @@ public:
 
     void on_close(connection_hdl hdl) {
         {
-            lock_guard<mutex> guard(m_action_lock);
+            std::lock_guard<std::mutex> guard(m_action_lock);
             m_actions.push(action(UNSUBSCRIBE,hdl));
         }
         m_action_cond.notify_all();
@@ -140,7 +140,7 @@ public:
         LogPrint("webwallet", "webwallet: Sending sendMessage to queue \n");
         LogPrint("webwallet", "webwallet: %s \n", msg);
         {
-            lock_guard<mutex> guard(m_action_lock);
+            std::lock_guard<std::mutex> guard(m_action_lock);
             m_actions.push(action(MESSAGE, msg));
             LogPrint("webwallet", "webwallet: m_actions size %d .\n", m_actions.size());
         }
@@ -151,7 +151,7 @@ public:
     static void process_messages() {
         while(true) {
             LogPrint("webwallet", "webwallet: Locked m_action_lock.\n");
-            unique_lock<mutex> lock(m_action_lock);
+            std::unique_lock<std::mutex> lock(m_action_lock);
 
             while(m_actions.empty()) {
                 LogPrint("webwallet", "webwallet: Waiting for new actions.\n");
@@ -165,15 +165,15 @@ public:
 
             if (a.type == SUBSCRIBE) {
                 LogPrint("webwallet", "webwallet: Connection SUBSCRIBE.\n");
-                lock_guard<mutex> guard(m_connection_lock);
+                std::lock_guard<std::mutex> guard(m_connection_lock);
                 m_connections.insert(a.hdl);
             } else if (a.type == UNSUBSCRIBE) {
                 LogPrint("webwallet", "webwallet: Connection SUBSCRIBE.\n");
-                lock_guard<mutex> guard(m_connection_lock);
+                std::lock_guard<std::mutex> guard(m_connection_lock);
                 m_connections.erase(a.hdl);
             } else if (a.type == MESSAGE) {
                 LogPrint("webwallet", "webwallet: Connection MESSAGE.\n");
-                lock_guard<mutex> guard(m_connection_lock);
+                std::lock_guard<std::mutex> guard(m_connection_lock);
 
                 con_list::iterator it;
                 for (it = m_connections.begin(); it != m_connections.end(); ++it) {
@@ -190,7 +190,7 @@ public:
                     LogPrint("webwallet", e.what());
                 }
 
-                lock_guard<mutex> guard(m_connection_lock);
+                std::lock_guard<std::mutex> guard(m_connection_lock);
                 {
                     con_list::iterator it;
                     for (it = m_connections.begin(); it != m_connections.end(); ++it) {
