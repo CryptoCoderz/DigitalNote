@@ -77,6 +77,7 @@ extern bool fOnlyTor;
 extern CWallet* pwalletMain;
 extern int64_t nLastCoinStakeSearchInterval;
 double GetPoSKernelPS();
+bool fGUIunlock;
 
 DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     QMainWindow(parent),
@@ -974,6 +975,12 @@ void DigitalNoteGUI::gotoOverviewPage()
 
 void DigitalNoteGUI::gotoHistoryPage()
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     historyAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(transactionsPage);
 
@@ -984,6 +991,12 @@ void DigitalNoteGUI::gotoHistoryPage()
 
 void DigitalNoteGUI::gotoAddressBookPage()
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     addressBookAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(addressBookPage);
 
@@ -994,6 +1007,12 @@ void DigitalNoteGUI::gotoAddressBookPage()
 
 void DigitalNoteGUI::gotoReceiveCoinsPage()
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     receiveCoinsAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(receiveCoinsPage);
 
@@ -1004,6 +1023,12 @@ void DigitalNoteGUI::gotoReceiveCoinsPage()
 
 void DigitalNoteGUI::gotoSendCoinsPage()
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     sendCoinsAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(sendCoinsPage);
 
@@ -1013,6 +1038,12 @@ void DigitalNoteGUI::gotoSendCoinsPage()
 
 void DigitalNoteGUI::gotoSignMessageTab(QString addr)
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     // call show() in showTab_SM()
     signVerifyMessageDialog->showTab_SM(true);
 
@@ -1022,6 +1053,12 @@ void DigitalNoteGUI::gotoSignMessageTab(QString addr)
 
 void DigitalNoteGUI::gotoVerifyMessageTab(QString addr)
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     // call show() in showTab_VM()
     signVerifyMessageDialog->showTab_VM(true);
 
@@ -1031,6 +1068,12 @@ void DigitalNoteGUI::gotoVerifyMessageTab(QString addr)
 
 void DigitalNoteGUI::gotoMessagePage()
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     messageAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(messagePage);
 
@@ -1090,8 +1133,7 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
         unlockWalletAction->setVisible(true);
         lockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false);
-        sendCoinsAction->setEnabled(false);
-        messageAction->setEnabled(false);
+        fGUIunlock = false;
     }
     else
     {
@@ -1105,8 +1147,7 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
         unlockWalletAction->setVisible(false);
         lockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(true);
-        sendCoinsAction->setEnabled(true);
-        messageAction->setEnabled(true);
+        fGUIunlock = true;
         break;
     case WalletModel::Unlocked:
         labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_open" : ":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
@@ -1115,8 +1156,7 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
         unlockWalletAction->setVisible(false);
         lockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-        sendCoinsAction->setEnabled(true);
-        messageAction->setEnabled(true);
+        fGUIunlock = true;
         break;
     case WalletModel::Locked:
         labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_closed" : ":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
@@ -1125,8 +1165,7 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
         unlockWalletAction->setVisible(true);
         lockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
-        sendCoinsAction->setEnabled(false);
-        messageAction->setEnabled(false);
+        fGUIunlock = false;
         break;
     }
 
