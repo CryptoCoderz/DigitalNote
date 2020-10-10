@@ -404,7 +404,7 @@ Value dumpwalletjson(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-                "dumpwallet <filename>\n"
+                "dumpwallet <filename> [prettyPrint=false]\n"
                 "Dumps all wallet keys in a JSON format.");
 
     EnsureWalletIsUnlocked();
@@ -413,6 +413,10 @@ Value dumpwalletjson(const Array& params, bool fHelp)
     file.open(params[0].get_str().c_str());
     if (!file.is_open())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot open wallet dump file");
+
+    bool prettyPrint = false;
+    if (params.size() > 2)
+        prettyPrint = params[2].get_bool();
 
     std::map<CKeyID, int64_t> mapKeyBirth;
 
@@ -443,7 +447,7 @@ Value dumpwalletjson(const Array& params, bool fHelp)
         }
     }
     payload.push_back(Pair("privateKeys", privateKeys));
-    file << write_string(Value(payload), true);
+    file << write_string(Value(payload), prettyPrint);
     file.close();
     return Value::null;
 }
