@@ -434,13 +434,11 @@ Value dumpwalletjson(const Array& params, bool fHelp)
     Array privateKeys;
     for (std::vector<std::pair<int64_t, CKeyID> >::const_iterator it = vKeyBirth.begin(); it != vKeyBirth.end(); it++) {
         const CKeyID &keyid = it->second;
-        std::string strAddr = CDigitalNoteAddress(keyid).ToString();
 
         CKey key;
         if (pwalletMain->GetKey(keyid, key)) {
             Object privateKeyAndAddress;
             privateKeyAndAddress.push_back(Pair("privateKey", CDigitalNoteSecret(key).ToString()));
-            privateKeyAndAddress.push_back(Pair("address", strAddr));
             privateKeys.push_back(privateKeyAndAddress);
         }
     }
