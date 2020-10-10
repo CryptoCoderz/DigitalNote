@@ -404,7 +404,7 @@ Value dumpwalletjson(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-                "dumpwallet <filename>\n"
+                "dumpwallet <filename> [prettyPrint=false]\n"
                 "Dumps all wallet keys in a JSON format.");
 
     EnsureWalletIsUnlocked();
@@ -413,6 +413,10 @@ Value dumpwalletjson(const Array& params, bool fHelp)
     file.open(params[0].get_str().c_str());
     if (!file.is_open())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot open wallet dump file");
+
+    bool prettyPrint = false;
+    if (params.size() > 2)
+        prettyPrint = params[2].get_bool();
 
     std::map<CKeyID, int64_t> mapKeyBirth;
 
@@ -434,18 +438,14 @@ Value dumpwalletjson(const Array& params, bool fHelp)
     Array privateKeys;
     for (std::vector<std::pair<int64_t, CKeyID> >::const_iterator it = vKeyBirth.begin(); it != vKeyBirth.end(); it++) {
         const CKeyID &keyid = it->second;
-        std::string strAddr = CDigitalNoteAddress(keyid).ToString();
 
         CKey key;
         if (pwalletMain->GetKey(keyid, key)) {
-            Object privateKeyAndAddress;
-            privateKeyAndAddress.push_back(Pair("privateKey", CDigitalNoteSecret(key).ToString()));
-            privateKeyAndAddress.push_back(Pair("address", strAddr));
-            privateKeys.push_back(privateKeyAndAddress);
+            privateKeys.push_back(CDigitalNoteSecret(key).ToString());
         }
     }
     payload.push_back(Pair("privateKeys", privateKeys));
-    file << write_string(Value(payload), true);
+    file << write_string(Value(payload), prettyPrint);
     file.close();
     return Value::null;
 }
