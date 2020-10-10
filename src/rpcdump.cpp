@@ -441,9 +441,7 @@ Value dumpwalletjson(const Array& params, bool fHelp)
 
         CKey key;
         if (pwalletMain->GetKey(keyid, key)) {
-            Object privateKeyAndAddress;
-            privateKeyAndAddress.push_back(Pair("privateKey", CDigitalNoteSecret(key).ToString()));
-            privateKeys.push_back(privateKeyAndAddress);
+            privateKeys.push_back(CDigitalNoteSecret(key).ToString());
         }
     }
     payload.push_back(Pair("privateKeys", privateKeys));
