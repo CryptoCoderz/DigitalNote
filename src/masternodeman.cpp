@@ -357,7 +357,7 @@ CMasternode* CMasternodeMan::FindOldestNotInVec(const std::vector<CTxIn> &vVins,
     CMasternode *pOldestMasternode = NULL;
 
     BOOST_FOREACH(CMasternode &mn, vMasternodes)
-    {   
+    {
         mn.Check();
         if(!mn.IsEnabled()) continue;
 
@@ -366,7 +366,7 @@ CMasternode* CMasternodeMan::FindOldestNotInVec(const std::vector<CTxIn> &vVins,
         bool found = false;
         BOOST_FOREACH(const CTxIn& vin, vVins)
             if(mn.vin.prevout == vin.prevout)
-            {   
+            {
                 found = true;
                 break;
             }
@@ -591,7 +591,7 @@ void CMasternodeMan::ProcessMasternodeConnections()
     LOCK(cs_vNodes);
 
     if(!mnEnginePool.pSubmittedToMasternode) return;
-    
+
     BOOST_FOREACH(CNode* pnode, vNodes)
     {
         if(mnEnginePool.pSubmittedToMasternode->addr == pnode->addr) continue;
@@ -648,7 +648,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
 
         if(donationPercentage < 0 || donationPercentage > 100){
             LogPrintf("dsee - donation percentage out of range %d\n", donationPercentage);
-            return;     
+            return;
         }
         if(protocolVersion < MIN_POOL_PEER_PROTO_VERSION) {
             LogPrintf("dsee - ignoring outdated masternode %s protocol version %d\n", vin.ToString().c_str(), protocolVersion);
@@ -686,7 +686,8 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         }
 
         //search existing masternode list, this is where we update existing masternodes with new dsee broadcasts
-        CMasternode* pmn = this->Find(vin);
+        // if we are masternode but with undefined vin and this dsee is ours (matches our Masternode privkey) then just skip this part
+        if(pmn != NULL && !(fMasterNode && activeMasternode.vin == CTxIn() && pubkey2 == activeMasternode.pubKeyMasternode))
         // if we are a masternode but with undefined vin and this dsee is ours (matches our Masternode privkey) then just skip this part
         if(pmn != NULL && !(fMasterNode && activeMasternode.vin == CTxIn() && pubkey2 == activeMasternode.pubKeyMasternode))
         {
