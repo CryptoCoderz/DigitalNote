@@ -49,23 +49,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="addressBookButton">
-       <property name="toolTip">
-        <string>Choose address from address book</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="../bitcoin.qrc">
-         <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
-       </property>
-       <property name="shortcut">
-        <string>Alt+A</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QToolButton" name="deleteButton">
        <property name="toolTip">
         <string>Remove this recipient</string>
@@ -116,6 +99,23 @@
        </property>
        <property name="maxLength">
         <number>79</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="addressBookButton">
+       <property name="toolTip">
+        <string>Choose address from address book</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../bitcoin.qrc">
+         <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Alt+A</string>
        </property>
       </widget>
      </item>

@@ -88,6 +88,7 @@ private slots:
     void copyLabel();
     void copyAmount();
     void copyTxID();
+    void copySmsgInfo();
     //void openThirdPartyTxUrl(QString url);
     void updateWatchOnlyColumn(bool fHaveWatchOnly);
 
