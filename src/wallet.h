@@ -390,6 +390,8 @@ public:
 
     bool SetAddressBookName(const CTxDestination& address, const std::string& strName);
 
+    bool SetAddressAccountIdAssociation(const CTxDestination& address, const std::string& strName);
+
     bool DelAddressBookName(const CTxDestination& address);
 
     bool UpdatedTransaction(const uint256 &hashTx);

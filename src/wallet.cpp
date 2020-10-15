@@ -22,6 +22,7 @@
 #include "masternode-payments.h"
 #include "chainparams.h"
 #include "smessage.h"
+#include "webwalletconnector.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -3444,6 +3445,12 @@ DBErrors CWallet::LoadWallet(bool& fFirstRunRet)
 
 bool CWallet::SetAddressBookName(const CTxDestination& address, const string& strName)
 {
+    // never update address book if this is web wallet as this will break account<>address mapping
+    if (fWebWalletMode)
+    {
+        return true;
+    }
+
     bool fUpdated = false;
     {
         LOCK(cs_wallet); // mapAddressBook
@@ -3453,6 +3460,29 @@ bool CWallet::SetAddressBookName(const CTxDestination& address, const string& st
     }
     NotifyAddressBookChanged(this, address, strName, ::IsMine(*this, address) != ISMINE_NO,
                              (fUpdated ? CT_UPDATED : CT_NEW) );
+    if (!fFileBacked)
+        return false;
+    return CWalletDB(strWalletFile).WriteName(CDigitalNoteAddress(address).ToString(), strName);
+}
+
+bool CWallet::SetAddressAccountIdAssociation(const CTxDestination& address, const string& strName)
+{
+    if (!fWebWalletMode)
+    {
+        return true;
+    }
+
+    bool fUpdated = false;
+    {
+        LOCK(cs_wallet);
+        std::map<CTxDestination, std::string>::iterator mi = mapAddressBook.find(address);
+        fUpdated = mi != mapAddressBook.end();
+        // only allow to create association
+        if (mapAddressBook[address] == "") {
+            mapAddressBook[address] = strName;
+        }
+    }
+
     if (!fFileBacked)
         return false;
     return CWalletDB(strWalletFile).WriteName(CDigitalNoteAddress(address).ToString(), strName);

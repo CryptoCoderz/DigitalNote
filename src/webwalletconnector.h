@@ -9,6 +9,7 @@
 
 #include "smessage.h"
 
+extern bool fWebWalletMode;
 extern bool fWebWalletConnectorEnabled;
 
 bool WebWalletConnectorStart(bool fDontStart);
