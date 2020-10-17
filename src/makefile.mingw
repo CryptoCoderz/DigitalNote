@@ -139,13 +139,14 @@ endif
 
 all: DigitalNoted.exe
 
-LIBS += $(CURDIR)/leveldb/libleveldb.a $(CURDIR)/leveldb/libmemenv.a
+# For insctructions on how to compile for Win refer to src/leveldb/README.md
+LIBS += $(CURDIR)/leveldb/build/libleveldb.a
 DEFS += $(addprefix -I,$(CURDIR)/leveldb/include)
 DEFS += $(addprefix -I,$(CURDIR)/leveldb/helpers)
 OBJS += obj/txdb-leveldb.o
-leveldb/libleveldb.a:
-	@echo "Building LevelDB ..."; cd leveldb; chmod 755 *;make libleveldb.a libmemenv.a; cd ..;
-obj/txdb-leveldb.o: leveldb/libleveldb.a
+leveldb/build/libleveldb.a:
+	@echo "Building LevelDB ..."; cd leveldb; chmod 755 *;make libleveldb.a; cd ..;
+obj/txdb-leveldb.o: leveldb/build/libleveldb.a
 
 obj/%.o: %.cpp $(HEADERS)
 	g++ -c $(CFLAGS) -o $@ $<

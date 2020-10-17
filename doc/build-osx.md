@@ -1,30 +1,9 @@
-Copyright (c) 2009-2012 Bitcoin Developers
-Distributed under the MIT/X11 software license, see the accompanying file
-license.txt or http://www.opensource.org/licenses/mit-license.php.  This
-product includes software developed by the OpenSSL Project for use in the
-OpenSSL Toolkit (http://www.openssl.org/).  This product includes cryptographic
-software written by Eric Young (eay@cryptsoft.com) and UPnP software written by
-Thomas Bernard.
-
-
-Mac OS X DigitalNoted build instructions
-Laszlo Hanyecz <solar@heliacal.net>
-Douglas Huff <dhuff@jrbobdobbs.org>
-
-
-See readme-qt.rst for instructions on building DigitalNote QT, the
-graphical user interface.
-
-- Tested on 10.5 and 10.6 intel and 10.15.2.  
+- Tested on 10.15.2.  
 - PPC is not supported because it's big-endian.
-
-All of the commands should be executed in Terminal.app.. it's in
-/Applications/Utilities
 
 You need to install XCode with all the options checked so that the compiler and
 everything is available in /usr not just /Developer 
 You can get the current version from http://developer.apple.com
-
 
 1. Clone the github tree to get the source code
 
@@ -92,8 +71,7 @@ You can get the current version from http://developer.apple.com
 3.  Now you should be able to build DigitalNoted:
 
     ```
-    cd DigitalNote-2/src
-    make -f makefile.osx
+    See step 3 below
     ```
 
 Run:
