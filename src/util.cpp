@@ -108,6 +108,8 @@ volatile bool fReopenDebugLog = false;
 //Live fork toggle
 string strLiveForkToggle = "";
 int64_t nLiveForkToggle = 0;
+//Roll back to block
+string strRollbackToBlock = "";
 //MasterNode recipient verification delay base time
 int64_t nMasterNodeChecksDelayBaseTime = 0;
 //MasterNode peer IP advanced relay system toggle

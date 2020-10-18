@@ -145,6 +145,8 @@ extern volatile bool fReopenDebugLog;
 //Live fork toggle
 extern std::string strLiveForkToggle;
 extern int64_t nLiveForkToggle;
+//Roll back to block
+extern std::string strRollbackToBlock;
 //MasterNode recipient verification delay base time
 extern int64_t nMasterNodeChecksDelayBaseTime;
 //MasterNode peer IP advanced relay system toggle

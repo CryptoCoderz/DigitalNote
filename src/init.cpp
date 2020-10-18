@@ -40,6 +40,7 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
+#include <string>
 
 #ifndef WIN32
 #include <signal.h>
@@ -52,6 +53,7 @@ using namespace boost;
 #ifdef ENABLE_WALLET
 CWallet* pwalletMain = NULL;
 int nWalletBackups = 10;
+int nNewHeight;
 #endif
 CClientUIInterface uiInterface;
 bool fConfChange;
@@ -849,23 +851,33 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     if (mapArgs.count("-backtoblock"))
     {
-        int nNewHeight = GetArg("-backtoblock", 5000);
-        CBlockIndex* pindex = pindexBest;
-        while (pindex != NULL && pindex->nHeight > nNewHeight)
-        {
-            pindex = pindex->pprev;
-        }
+        strRollbackToBlock = GetArg("-backtoblock", "");
+        LogPrintf("Rolling blocks back...\n");
+        if(!strRollbackToBlock.empty()){
+            nNewHeight = GetArg("-backtoblock", (int)"");
 
-        if (pindex != NULL)
-        {
-            LogPrintf("Back to block index %d\n", nNewHeight);
-	        CTxDB txdbAddr("rw");
-            CBlock block;
-            block.ReadFromDisk(pindex);
-            block.SetBestChain(txdbAddr, pindex);
+            CBlockIndex* pindex = pindexBest;
+            while (pindex != NULL && pindex->nHeight > nNewHeight)
+            {
+                ostringstream osHeight;
+                osHeight << pindex->nHeight;
+                string strHeight = osHeight.str();
+                uiInterface.InitMessage(strprintf("Rolling blocks back... %s to %i \n", strHeight, nNewHeight));
+                pindex = pindex->pprev;
+            }
+
+            if (pindex != NULL)
+            {
+                LogPrintf("Back to block index %d\n", nNewHeight);
+                CTxDB txdbAddr("rw");
+                CBlock block;
+                block.ReadFromDisk(pindex);
+                block.SetBestChain(txdbAddr, pindex);
+            }
         }
-        else
+        else {
             LogPrintf("Block %d not found\n", nNewHeight);
+        }
     }
 
     // ********************************************************* Step 8: load wallet
