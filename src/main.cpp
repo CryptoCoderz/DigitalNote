@@ -3017,7 +3017,6 @@ void Misbehaving(NodeId pnode, int howmuch)
 bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 {
     AssertLockHeld(cs_main);
-
     // Check for duplicate
     uint256 hash = pblock->GetHash();
     if (mapBlockIndex.count(hash))
@@ -3766,6 +3765,10 @@ void static ProcessGetData(CNode* pfrom)
 
 bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 {
+    // this is a snapshot node. will only sync until certain block
+    if (maxBlockHeight != -1 && pindexBest->nHeight >= maxBlockHeight) {
+        return;
+    }
     RandAddSeedPerfmon();
     LogPrint("net", "received: %s (%u bytes)\n", strCommand, vRecv.size());
     if (mapArgs.count("-dropmessagestest") && GetRand(atoi(mapArgs["-dropmessagestest"])) == 0)

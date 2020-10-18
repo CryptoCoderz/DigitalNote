@@ -273,7 +273,8 @@ std::string HelpMessage()
     strUsage += "  -checklevel=<n>        " + _("How thorough the block verification is (0-6, default: 1)") + "\n";
     strUsage += "  -loadblock=<file>      " + _("Imports blocks from external blk000?.dat file") + "\n";
     strUsage += "  -maxorphanblocks=<n>   " + strprintf(_("Keep at most <n> unconnectable blocks in memory (default: %u)"), DEFAULT_MAX_ORPHAN_BLOCKS) + "\n";
-    strUsage += "  -backtoblock=<n>      " + _("Rollback local block chain to block height <n>") + "\n";
+    strUsage += "  -backtoblock=<n>       " + _("Rollback local block chain to block height <n>") + "\n";
+    strUsage += "  -maxblockheight=<n>    " + _("Stop sync when block height reaches <n>") + "\n";
 
     strUsage += "\n" + _("Block creation options:") + "\n";
     strUsage += "  -blockminsize=<n>      "   + _("Set minimum block size in bytes (default: 0)") + "\n";
@@ -466,9 +467,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     // Check for -debugnet (deprecated)
     if (GetBoolArg("-debugnet", false))
         InitWarning(_("Warning: Deprecated argument -debugnet ignored, use -debug=net"));
-    // Check for -socks - as this is a privacy risk to continue, exit here
-    if (mapArgs.count("-socks"))
-        return InitError(_("Error: Unsupported argument -socks found. Setting SOCKS version isn't possible anymore, only SOCKS5 proxies are supported."));
     if (fDaemon)
         fServer = true;
     else
@@ -797,14 +795,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     // ********************************************************* Step 7: load blockchain
 
-    if (GetBoolArg("-loadblockindextest", false))
-    {
-        CTxDB txdb("r");
-        txdb.LoadBlockIndex();
-        PrintBlockTree();
-        return false;
-    }
-
+    maxBlockHeight = GetArg("-maxblockheight", -1);
     uiInterface.InitMessage(_("Loading block index..."));
 
     nStart = GetTimeMillis();

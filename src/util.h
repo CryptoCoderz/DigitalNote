@@ -151,6 +151,8 @@ extern std::string strRollbackToBlock;
 extern int64_t nMasterNodeChecksDelayBaseTime;
 //MasterNode peer IP advanced relay system toggle
 extern bool fMnAdvRelay;
+//will sync until this block height. default -1 which represents disabled
+extern int maxBlockHeight;
 
 void RandAddSeed();
 void RandAddSeedPerfmon();
