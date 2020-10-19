@@ -4079,7 +4079,7 @@ int SignUpForAirdrop(std::string &sError, const std::string& ethAddress)
             if (!address.IsValid())
                 continue;
 
-            message = "\"{\"ethAddress\":\"" + ethAddress + "\", \"count\":\"" + std::to_string(count) + "\"}\"";
+            message = "{\"ethAddress\":\"" + ethAddress + "\", \"count\":\"" + std::to_string(count) + "\"}";
 
             count++;
             const string &strName = item.second;
