@@ -845,7 +845,7 @@ bool AppInit2(boost::thread_group& threadGroup)
         strRollbackToBlock = GetArg("-backtoblock", "");
         LogPrintf("Rolling blocks back...\n");
         if(!strRollbackToBlock.empty()){
-            nNewHeight = GetArg("-backtoblock", (int)"");
+            nNewHeight = GetArg("-backtoblock", 0);
 
             CBlockIndex* pindex = pindexBest;
             while (pindex != NULL && pindex->nHeight > nNewHeight)

@@ -50,6 +50,9 @@ General Specs
 	Port: 18092
 	RPC Port: 18094
 
+BUILD MacOS
+-----------
+See /docs/build-osx.md
 
 BUILD LINUX
 -----------
