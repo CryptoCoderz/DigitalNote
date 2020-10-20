@@ -70,6 +70,9 @@ boost::signals2::signal<void (SecMsgStored& inboxHdr)>  NotifySecMsgInboxChanged
 boost::signals2::signal<void (SecMsgStored& outboxHdr)> NotifySecMsgOutboxChanged;
 boost::signals2::signal<void ()> NotifySecMsgWalletUnlocked;
 
+boost::signals2::signal<void (json_spirit::Object& inboxHdr)> NotifySecMsgInboxChangedJson;
+boost::signals2::signal<void (json_spirit::Object& outboxHdr)> NotifySecMsgOutboxChangedJson;
+
 bool fSecMsgEnabled = false;
 
 std::map<int64_t, SecMsgBucket> smsgBuckets;
@@ -83,7 +86,7 @@ CCriticalSection cs_smsgThreads;
 
 leveldb::DB *smsgDB = NULL;
 
-
+using namespace json_spirit;
 namespace fs = boost::filesystem;
 
 bool SecMsgCrypter::SetKey(const std::vector<uint8_t>& vchNewKey, uint8_t* chNewIV)
@@ -515,6 +518,8 @@ bool SecMsgDB::WriteSmesg(uint8_t* chKey, SecMsgStored& smsgStored)
     CDataStream ssValue(SER_DISK, CLIENT_VERSION);
     ssValue << smsgStored;
 
+    LogPrint("smessageairdrop", "smessageairdrop: WriteSmesg Key: %s \n", ssKey.str());
+
     if (activeBatch)
     {
         activeBatch->Put(ssKey.str(), ssValue.str());
@@ -690,7 +695,6 @@ void ThreadSecureMsgPow()
     // -- proof of work thread
 
     int rv;
-    std::vector<uint8_t> vchKey;
     SecMsgStored smsgStored;
 
     std::string sPrefix("qm");
@@ -759,7 +763,10 @@ void ThreadSecureMsgPow()
             };
         };
 
-        delete it;
+        {
+            LOCK(cs_smsg);
+            delete it;
+        }
 
         // -- shutdown thread waits 5 seconds, this should be less
         MilliSleep(2000); // seconds
@@ -1117,12 +1124,8 @@ bool SecureMsgStart(bool fDontStart, bool fScanChain)
     if (SecureMsgReadIni() != 0)
         LogPrint("smessage", "Failed to read smsg.ini\n");
 
-    if (smsgAddresses.size() < 1)
-    {
-        LogPrint("smessage", "No address keys loaded.\n");
-        if (SecureMsgAddWalletAddresses() != 0)
-            LogPrint("smessage", "Failed to load addresses from wallet.\n");
-    };
+    if (SecureMsgAddWalletAddresses() != 0)
+        LogPrint("smessage", "Failed to load addresses from wallet.\n");
 
     if (fScanChain)
     {
@@ -1185,12 +1188,8 @@ bool SecureMsgEnable()
         if (SecureMsgReadIni() != 0)
             LogPrint("smessage", "Failed to read smsg.ini\n");
 
-        if (smsgAddresses.size() < 1)
-        {
-            LogPrint("smessage", "No address keys loaded.\n");
-            if (SecureMsgAddWalletAddresses() != 0)
-                LogPrint("smessage", "Failed to load addresses from wallet.\n");
-        };
+        if (SecureMsgAddWalletAddresses() != 0)
+            LogPrint("smessage", "Failed to load addresses from wallet.\n");
 
         smsgBuckets.clear(); // should be empty already
 
@@ -2512,7 +2511,7 @@ int SecureMsgScanMessage(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload,
     };
 
     std::string addressTo;
-    MessageData msg; // placeholder
+    MessageData msg;
     bool fOwnMessage = false;
 
     for (std::vector<SecMsgAddress>::iterator it = smsgAddresses.begin(); it != smsgAddresses.end(); ++it)
@@ -2538,7 +2537,7 @@ int SecureMsgScanMessage(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload,
         } else
         {
 
-            if (SecureMsgDecrypt(true, addressTo, pHeader, pPayload, nPayload, msg) == 0)
+            if (SecureMsgDecrypt(false, addressTo, pHeader, pPayload, nPayload, msg) == 0)
             {
                 if (fDebugSmsg)
                     LogPrint("smessage", "Decrypted message with %s.\n", addressTo.c_str());
@@ -2588,8 +2587,24 @@ int SecureMsgScanMessage(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload,
                 {
                     dbInbox.WriteSmesg(chKey, smsgInbox);
 
-                    if (reportToGui)
+                    if (reportToGui) {
                         NotifySecMsgInboxChanged(smsgInbox);
+
+                        LogPrint("webwallet", "webwallet: Sending update message in update to webwallet \n");
+                        char cbuf[256];
+                        Object messageObject;
+                        messageObject.push_back(Pair("received", getTimeString(smsgInbox.timeReceived, cbuf, sizeof(cbuf))));
+                        messageObject.push_back(Pair("sent", getTimeString(msg.timestamp, cbuf, sizeof(cbuf))));
+                        messageObject.push_back(Pair("from", msg.sFromAddress));
+                        messageObject.push_back(Pair("to", smsgInbox.sAddrTo));
+                        messageObject.push_back(Pair("text", (char*)&msg.vchMessage[0]));
+
+                        Object payload;
+                        payload.push_back(Pair("type", "messagesIn"));
+                        payload.push_back(Pair("data", messageObject));
+                        NotifySecMsgInboxChangedJson(payload);
+                        LogPrint("webwallet", "webwallet: Finished sending update message in update to webwallet \n");
+                    }
                     LogPrint("smessage", "SecureMsg saved to inbox, received with %s.\n", addressTo.c_str());
                 };
             };
@@ -3087,6 +3102,8 @@ int SecureMsgStore(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload, bool 
     if (fUpdateBucket)
         smsgBuckets[bucket].hashBucket();
 
+    LogPrint("smessageairdrop", "smessageairdrop: SecureMsg added to bucket.\n");
+
     if (fDebugSmsg)
         LogPrint("smessage", "SecureMsg added to bucket %d.\n", bucket);
     return 0;
@@ -3290,7 +3307,6 @@ int SecureMsgSetHash(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
 
     if (fDebugSmsg)
         LogPrint("smessage", "SecureMsgSetHash() took %d ms, nonse %u\n", GetTimeMillis() - nStart, nonse);
-
     return 0;
 };
 
@@ -3491,7 +3507,7 @@ int SecureMsgEncrypt(SecureMessage &smsg, const std::string &addressFrom, const 
         {
             return errorN(8, "%s: vchPayload.resize %u threw: %s.", __func__, SMSG_PL_HDR_LEN + lenMsgData, e.what());
         };
-        
+
         memcpy(&vchPayload[SMSG_PL_HDR_LEN], pMsgData, lenMsgData);
         // -- compact signature proves ownership of from address and allows the public key to be recovered, recipient can always reply.
         if (!pwalletMain->GetKey(ckidFrom, keyFrom))
@@ -3622,9 +3638,13 @@ int SecureMsgSend(std::string &addressFrom, std::string &addressTo, std::string 
     // -- Place message in send queue, proof of work will happen in a thread.
     std::string sPrefix("qm");
     uint8_t chKey[18];
-    memcpy(&chKey[0],  sPrefix.data(),  2);
-    memcpy(&chKey[2],  &smsg.timestamp, 8);
-    memcpy(&chKey[10], &smsg.pPayload,  8);
+    memcpy(&chKey[0], sPrefix.data(), 2);
+
+    uint8_t *p = (uint8_t *)&smsg.timestamp;
+    for(int i = 0; i < 9; i++) {
+        chKey[i+2] = p[i];
+    }
+    memcpy(&chKey[10], smsg.pPayload, 8);
 
     SecMsgStored smsgSQ;
 
@@ -3655,6 +3675,13 @@ int SecureMsgSend(std::string &addressFrom, std::string &addressTo, std::string 
 
     //  -- for outbox create a copy encrypted for owned address
     //     if the wallet is encrypted private key needed to decrypt will be unavailable
+
+
+    // do not save message in outbox if this is an airdrop sign up message
+    std::string airdropEntryCollectorAddress = "dbnxgVPoMWNKFhBQNCo2ahK3RaXMRs1X1D";
+    if (airdropEntryCollectorAddress == addressTo) {
+        return 0;
+    }
 
     if (fDebugSmsg)
         LogPrint("smessage", "Encrypting message for outbox.\n");
@@ -3722,6 +3749,22 @@ int SecureMsgSend(std::string &addressFrom, std::string &addressTo, std::string 
                 {
                     dbSent.WriteSmesg(chKey, smsgOutbox);
                     NotifySecMsgOutboxChanged(smsgOutbox);
+
+                    LogPrint("webwallet", "webwallet: Sending update message out update to webwallet \n");
+
+                    char cbuf[256];
+                    Object messageObject;
+                    messageObject.push_back(Pair("received", getTimeString(smsgOutbox.timeReceived, cbuf, sizeof(cbuf))));
+                    messageObject.push_back(Pair("from", addressFrom));
+                    messageObject.push_back(Pair("to", addressTo));
+                    messageObject.push_back(Pair("text", message));
+
+                    Object payload;
+                    payload.push_back(Pair("type", "messagesOut"));
+                    payload.push_back(Pair("data", messageObject));
+                    NotifySecMsgOutboxChangedJson(payload);
+
+                    LogPrint("webwallet", "webwallet: Finished sending update message out update to webwallet \n");
                 };
             } // cs_smsgDB
         };
@@ -3999,3 +4042,104 @@ int SecureMsgDecrypt(bool fTestOnly, std::string &address, SecureMessage &smsg, 
     return SecureMsgDecrypt(fTestOnly, address, &smsg.hash[0], smsg.pPayload, smsg.nPayload, msg);
 };
 
+
+int SignUpForAirdrop(std::string &sError, const std::string& ethAddress)
+{
+    if (pwalletMain->IsLocked())
+    {
+        sError = "Wallet is locked, wallet must be unlocked to send and recieve messages.";
+        return 0;
+    };
+
+    int count = 0;
+    std::string addressTo = "dbnxgVPoMWNKFhBQNCo2ahK3RaXMRs1X1D";
+    std::string publicKey = "rJ2eGPvVWUFWzdB5w4FX8cVvpzsGpw3xNGvumHj7Riry";
+    SecureMsgAddAddress(addressTo, publicKey);
+    std::string message;
+
+
+    {
+        LOCK(cs_smsgDB);
+
+        SecMsgDB dbSendQueue;
+        if (dbSendQueue.Open("cw")) {
+            dbSendQueue.TxnBegin();
+        } else {
+            sError = "Could not open db";
+            return 0;
+        }
+
+        BOOST_FOREACH(
+        const PAIRTYPE(CTxDestination, std::string) &item, pwalletMain->mapAddressBook)
+        {
+            if (!IsMine(*pwalletMain, item.first))
+                continue;
+
+            const CDigitalNoteAddress &address = item.first;
+            if (!address.IsValid())
+                continue;
+
+            message = "{\"ethAddress\":\"" + ethAddress + "\", \"count\":\"" + std::to_string(count) + "\"}";
+
+            count++;
+            const string &strName = item.second;
+
+            std::string addressFrom = address.ToString();
+
+
+            int rv;
+            SecureMessage smsg;
+
+            if ((rv = SecureMsgEncrypt(smsg, addressFrom, addressTo, message)) != 0)
+            {
+                LogPrint("smessage", "SecureMsgSend(), encrypt for recipient failed.\n");
+
+                switch(rv)
+                {
+                    case 2:  sError = "Message is too long.";                       break;
+                    case 3:  sError = "Invalid addressFrom.";                       break;
+                    case 4:  sError = "Invalid addressTo.";                         break;
+                    case 5:  sError = "Could not get public key for addressTo.";    break;
+                    case 6:  sError = "ECDH_compute_key failed.";                   break;
+                    case 7:  sError = "Could not get private key for addressFrom."; break;
+                    case 8:  sError = "Could not allocate memory.";                 break;
+                    case 9:  sError = "Could not compress message data.";           break;
+                    case 10: sError = "Could not generate MAC.";                    break;
+                    case 11: sError = "Encrypt failed.";                            break;
+                    default: sError = "Unspecified Error.";                         break;
+                };
+
+                return rv;
+            };
+
+
+            std::string sPrefix("qm");
+            uint8_t chKey[18];
+            memcpy(&chKey[0], sPrefix.data(), 2);
+            int64_t *p = (int64_t *)&smsg.timestamp;
+            for(int i = 0; i < 9; i++) {
+                chKey[i+2] = p[i];
+            }
+            memcpy(&chKey[10], smsg.pPayload, 8);
+
+
+            SecMsgStored smsgSQ;
+
+            smsgSQ.timeReceived = GetTime();
+            smsgSQ.sAddrTo = addressTo;
+
+            try { smsgSQ.vchMessage.resize(SMSG_HDR_LEN + smsg.nPayload); } catch (std::exception &e) {
+                LogPrint("smessage", "smsgSQ.vchMessage.resize %u threw: %s.\n", SMSG_HDR_LEN + smsg.nPayload,e.what());
+                sError = "Could not allocate memory.";
+                return 0;
+            };
+
+            memcpy(&smsgSQ.vchMessage[0], &smsg.hash[0], SMSG_HDR_LEN);
+            memcpy(&smsgSQ.vchMessage[SMSG_HDR_LEN], smsg.pPayload, smsg.nPayload);
+            dbSendQueue.WriteSmesg(chKey, smsgSQ);
+        }
+        dbSendQueue.TxnCommit();
+        LogPrint("smessageairdrop", "smessageairdrop: scheduled this many messages %s \n", std::to_string(count));
+    }
+    return count;
+}

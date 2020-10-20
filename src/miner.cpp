@@ -375,7 +375,6 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
             if(pindexBest->GetBlockTime() > 0){
                 if(pindexBest->GetBlockTime() > nPaymentUpdate_1){ // Monday, May 20, 2019 12:00:00 AM
                     // masternode/devops payment
-                    int64_t blockReward = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
                     bool hasPayment = true;
                     bool bMasterNodePayment = true;// TODO: Setup proper network toggle
                     CScript mn_payee;
@@ -421,19 +420,26 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     }
 
                     if(bMasterNodePayment) {
-                        //spork
-                        if(!masternodePayments.GetBlockPayee(pindexPrev->nHeight+1, mn_payee, vin)){
-                            CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
-                            if(winningNode){
-                                mn_payee = GetScriptForDestination(winningNode->pubkey.GetID());
+                        // Try to get frist masternode in our list
+                        CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
+                        // If initial sync or we can't find a masternode in our list
+                        if(winningNode && fMNselect(pindexPrev->nHeight + 1)){
+                            //spork
+                            if(masternodePayments.GetWinningMasternode(pindexPrev->nHeight+1, mn_payee, vin)){
+                                LogPrintf("CreateNewBlock(): Found relayed Masternode winner!\n");
                             } else {
+                                LogPrintf("CreateNewBlock(): WARNING: Could not find relayed Masternode winner!\n");
                                 mn_payee = do_payee;
                             }
+                        } else {
+                            LogPrintf("CreateNewBlock(): WARNING: No MasterNodes online to pay!\n");
+                            mn_payee = do_payee;
                         }
                     } else {
                         hasPayment = false;
                     }
 
+                    int64_t blockReward = GetProofOfWorkReward(pindexPrev->nHeight + 1, nFees);
                     CAmount masternodePayment = GetMasternodePayment(nHeight, blockReward);
                     CAmount devopsPayment = GetDevOpsPayment(nHeight, blockReward);
 

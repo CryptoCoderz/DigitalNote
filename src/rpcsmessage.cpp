@@ -584,11 +584,6 @@ Value smsginbox(const Array& params, bool fHelp)
     
     
     Object result;
-    
-    std::vector<unsigned char> vchKey;
-    vchKey.resize(16);
-    memset(&vchKey[0], 0, 16);
-    
     {
         LOCK(cs_smsgDB);
         
@@ -893,3 +888,224 @@ Value smsgbuckets(const Array& params, bool fHelp)
 
     return result;
 };
+
+Value smsggetmessagesforaccount(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+                "smsggetmessagesforaccount \"account\" [all|unread]\n"
+                "Decrypt and display all messages for an account."
+                "smsggetmessagesforaccount \"account\"\n"
+                "\nReturns decrypted and display all messages for an account.\n"
+                "\nArguments:\n"
+                "1. \"account\"  (string, required) The account name.\n");
+
+    if (!fSecMsgEnabled)
+        throw runtime_error("Secure messaging is disabled.");
+
+    if (pwalletMain->IsLocked())
+        throw runtime_error("Wallet is locked.");
+
+    std::string strAccount;
+    if (params.size() > 0)
+    {
+        strAccount = params[0].get_str();
+    } else {
+        throw runtime_error("Account is required.");
+    }
+
+    Object result;
+    uint32_t nMessages = 0;
+    Array resMessagesIn;
+    Array resMessagesOut;
+    std::vector<std::string> accountAddresses;
+    char cbuf[256];
+
+    // Find all addresses that have the given account
+    BOOST_FOREACH(const PAIRTYPE(CDigitalNoteAddress, string)& item, pwalletMain->mapAddressBook)
+    {
+        const CDigitalNoteAddress& address = item.first;
+        const string& strName = item.second;
+        if (strName == strAccount)
+            accountAddresses.push_back(address.ToString());
+    }
+
+
+    // get 'in' messages
+    {
+        LOCK(cs_smsgDB);
+
+        SecMsgDB dbInbox;
+
+        if (!dbInbox.Open("cr+"))
+            throw runtime_error("Could not open DB.");
+
+        std::string sPrefix("im");
+        unsigned char chKey[18];
+
+        SecMsgStored smsgStored;
+        MessageData msg;
+
+        dbInbox.TxnBegin();
+
+        leveldb::Iterator *it = dbInbox.pdb->NewIterator(leveldb::ReadOptions());
+        while (dbInbox.NextSmesg(it, sPrefix, chKey, smsgStored)) {
+            uint32_t nPayload = smsgStored.vchMessage.size() - SMSG_HDR_LEN;
+            if (SecureMsgDecrypt(false, smsgStored.sAddrTo, &smsgStored.vchMessage[0], &smsgStored.vchMessage[SMSG_HDR_LEN], nPayload, msg) == 0) {
+                bool oneOfTheAccountMessages = false;
+                for (std::string accountAddress : accountAddresses) {
+                    if (smsgStored.sAddrTo == accountAddress) {
+                        oneOfTheAccountMessages = true;
+                        break;
+                    }
+                };
+
+                if (oneOfTheAccountMessages == false) {
+                    continue;
+                }
+
+                Object objM;
+                objM.push_back(Pair("received", getTimeString(smsgStored.timeReceived, cbuf, sizeof(cbuf))));
+                objM.push_back(Pair("sent", getTimeString(msg.timestamp, cbuf, sizeof(cbuf))));
+                objM.push_back(Pair("from", msg.sFromAddress));
+                objM.push_back(Pair("to", smsgStored.sAddrTo));
+                objM.push_back(Pair("text", std::string((char *) &msg.vchMessage[0]))); // ugh
+
+                resMessagesIn.push_back(objM);
+            } else {
+                Object objM;
+                objM.push_back(Pair("message", "Could not decrypt."));
+                resMessagesIn.push_back(objM);
+            };
+
+            nMessages++;
+        };
+        delete it;
+        dbInbox.TxnCommit();
+    }
+
+    // get 'out' messages
+    {
+        LOCK(cs_smsgDB);
+
+        SecMsgDB dbOutbox;
+        std::string sPrefix("sm");
+        unsigned char chKey[18];
+        memset(&chKey[0], 0, 18);
+
+        if (!dbOutbox.Open("cr+"))
+            throw runtime_error("Could not open DB.");
+
+        SecMsgStored smsgStored;
+        MessageData msg;
+        leveldb::Iterator *it = dbOutbox.pdb->NewIterator(leveldb::ReadOptions());
+        while (dbOutbox.NextSmesg(it, sPrefix, chKey, smsgStored)) {
+            uint32_t nPayload = smsgStored.vchMessage.size() - SMSG_HDR_LEN;
+            if (SecureMsgDecrypt(false, smsgStored.sAddrOutbox, &smsgStored.vchMessage[0], &smsgStored.vchMessage[SMSG_HDR_LEN], nPayload, msg) == 0) {
+                bool oneOfTheAccountMessages = false;
+                for (std::string accountAddress : accountAddresses) {
+                    if (fDebugSmsg)
+                        LogPrint("smessage", "Comparing from address with account addresses %s vs %s \n", accountAddress, msg.sFromAddress);
+
+                    if (msg.sFromAddress == accountAddress) {
+                        oneOfTheAccountMessages = true;
+                        break;
+                    }
+                };
+                if (oneOfTheAccountMessages == false) {
+                    continue;
+                }
+
+                Object objM;
+                objM.push_back(Pair("sent", getTimeString(msg.timestamp, cbuf, sizeof(cbuf))));
+                objM.push_back(Pair("from", msg.sFromAddress));
+                objM.push_back(Pair("to", smsgStored.sAddrTo));
+                objM.push_back(Pair("text", std::string((char *) &msg.vchMessage[0])));
+
+                resMessagesOut.push_back(objM);
+            } else {
+                Object objM;
+                objM.push_back(Pair("message", "Could not decrypt."));
+                resMessagesOut.push_back(objM);
+            };
+            nMessages++;
+        };
+        delete it;
+    }
+
+
+    result.push_back(Pair("messagesIn", resMessagesIn));
+    result.push_back(Pair("messagesOut", resMessagesOut));
+    snprintf(cbuf, sizeof(cbuf), "%u messages shown.", nMessages);
+    result.push_back(Pair("result", std::string(cbuf)));
+
+    return result;
+};
+
+Value smsggetairdropentries(const json_spirit::Array& params, bool fHelp) {
+    if (fHelp || params.size() > 1)
+        throw runtime_error(
+                "smsggetairdropentries \"ethAddress\"\n"
+                "Returns number of XDN addresses signed up for airdrop to the ETH address"
+                "\nArguments:\n"
+                "1. \"ethAddress\"  (string, required) The ETH address.\n");
+
+    if (!fSecMsgEnabled)
+        throw runtime_error("Secure messaging is disabled.");
+
+    if (pwalletMain->IsLocked())
+        throw runtime_error("Wallet is locked.");
+
+    std::string ethAddress;
+    if (params.size() > 0)
+    {
+        ethAddress = params[0].get_str();
+    } else {
+        throw runtime_error("ETH Address is required.");
+    }
+
+    uint32_t nMessages = 0;
+    char cbuf[256];
+
+    {
+        LOCK(cs_smsgDB);
+
+        SecMsgDB dbInbox;
+
+        if (!dbInbox.Open("cr+"))
+            throw runtime_error("Could not open DB.");
+
+        std::string sPrefix("im");
+        unsigned char chKey[18];
+
+        SecMsgStored smsgStored;
+        MessageData msg;
+
+        leveldb::Iterator *it = dbInbox.pdb->NewIterator(leveldb::ReadOptions());
+        while (dbInbox.NextSmesg(it, sPrefix, chKey, smsgStored)) {
+            uint32_t nPayload = smsgStored.vchMessage.size() - SMSG_HDR_LEN;
+            if (SecureMsgDecrypt(false, smsgStored.sAddrTo, &smsgStored.vchMessage[0], &smsgStored.vchMessage[SMSG_HDR_LEN], nPayload, msg) == 0) {
+
+                std::string message = std::string((char *) &msg.vchMessage[0]);
+                json_spirit::mValue jsonMessage;
+                LogPrintf("JSON parse: %s \n", message);
+
+                if (json_spirit::read_string(message, jsonMessage)) {
+                    json_spirit::mObject obj = jsonMessage.get_obj();
+
+                    LogPrintf("JSON parse: %s", obj["ethAddress"].get_str());
+                    if (obj["ethAddress"].get_str() == ethAddress)
+                    {
+                        nMessages++;
+                    }
+                }
+            }
+        };
+        delete it;
+    }
+
+    Object result;
+    result.push_back(Pair("result", std::to_string(nMessages)));
+
+    return result;
+}

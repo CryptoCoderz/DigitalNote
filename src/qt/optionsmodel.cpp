@@ -14,7 +14,7 @@
 #include "walletdb.h"
 #endif
 
-#include <QNetworkProxy>
+
 #include <QSettings>
 #include <QStringList>
 
@@ -107,19 +107,6 @@ void OptionsModel::Init()
     if (!SoftSetBoolArg("-upnp", settings.value("fUseUPnP").toBool()))
         addOverriddenOption("-upnp");
 
-    if (!settings.contains("fUseProxy"))
-        settings.setValue("fUseProxy", false);
-    if (!settings.contains("addrProxy"))
-        settings.setValue("addrProxy", "127.0.0.1:9050");
-    // Only try to set -proxy, if user has enabled fUseProxy
-    if (settings.value("fUseProxy").toBool() && !SoftSetArg("-proxy", settings.value("addrProxy").toString().toStdString()))
-        addOverriddenOption("-proxy");
-    if (!settings.contains("nSocksVersion"))
-        settings.setValue("nSocksVersion", 5);
-    // Only try to set -socks, if user has enabled fUseProxy
-    if (settings.value("fUseProxy").toBool() && !SoftSetArg("-socks", settings.value("nSocksVersion").toString().toStdString()))
-        addOverriddenOption("-socks");
-
     // Display
     if (!settings.contains("language"))
         settings.setValue("language", "");
@@ -168,22 +155,6 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
 #endif
         case MinimizeOnClose:
             return fMinimizeOnClose;
-
-        // default proxy
-        case ProxyUse:
-            return settings.value("fUseProxy", false);
-        case ProxyIP: {
-            // contains IP at index 0 and port at index 1
-            QStringList strlIpPort = settings.value("addrProxy").toString().split(":", QString::SkipEmptyParts);
-            return strlIpPort.at(0);
-        }
-        case ProxyPort: {
-            // contains IP at index 0 and port at index 1
-            QStringList strlIpPort = settings.value("addrProxy").toString().split(":", QString::SkipEmptyParts);
-            return strlIpPort.at(1);
-        }
-        case ProxySocksVersion:
-            return settings.value("nSocksVersion", 5);
 
 #ifdef ENABLE_WALLET
         case Fee:
@@ -242,44 +213,6 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             settings.setValue("fMinimizeOnClose", fMinimizeOnClose);
             break;
 
-        // default proxy
-        case ProxyUse:
-            if (settings.value("fUseProxy") != value) {
-                settings.setValue("fUseProxy", value.toBool());
-                setRestartRequired(true);
-            }
-            break;
-        case ProxyIP: {
-            // contains current IP at index 0 and current port at index 1
-            QStringList strlIpPort = settings.value("addrProxy").toString().split(":", QString::SkipEmptyParts);
-            // if that key doesn't exist or has a changed IP
-            if (!settings.contains("addrProxy") || strlIpPort.at(0) != value.toString()) {
-                // construct new value from new IP and current port
-                QString strNewValue = value.toString() + ":" + strlIpPort.at(1);
-                settings.setValue("addrProxy", strNewValue);
-                setRestartRequired(true);
-            }
-        }
-        break;
-        case ProxyPort: {
-            // contains current IP at index 0 and current port at index 1
-            QStringList strlIpPort = settings.value("addrProxy").toString().split(":", QString::SkipEmptyParts);
-            // if that key doesn't exist or has a changed port
-            if (!settings.contains("addrProxy") || strlIpPort.at(1) != value.toString()) {
-                // construct new value from current IP and new port
-                QString strNewValue = strlIpPort.at(0) + ":" + value.toString();
-                settings.setValue("addrProxy", strNewValue);
-                setRestartRequired(true);
-            }
-        }
-        break;
-        case ProxySocksVersion: {
-            if (settings.value("nSocksVersion") != value) {
-                settings.setValue("nSocksVersion", value.toInt());
-                setRestartRequired(true);
-            }
-        }
-        break;
 #ifdef ENABLE_WALLET
         case Fee: // core option - can be changed on-the-fly
             // Todo: Add is valid check  and warn via message, if not
@@ -330,33 +263,6 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
     emit dataChanged(index, index);
 
     return successful;
-}
-
-bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const
-{
-    // Directly query current base proxy, because
-    // GUI settings can be overridden with -proxy.
-    proxyType curProxy;
-    if (GetProxy(NET_IPV4, curProxy)) {
-        if (curProxy.second == 5) {
-            proxy.setType(QNetworkProxy::Socks5Proxy);
-            proxy.setHostName(QString::fromStdString(curProxy.first.ToStringIP()));
-            proxy.setPort(curProxy.first.GetPort());
-
-            return true;
-        }
-        else
-            return false;
-    }
-    else
-        proxy.setType(QNetworkProxy::NoProxy);
-
-
-
-
-
-
-    return true;
 }
 
 void OptionsModel::setRestartRequired(bool fRequired)

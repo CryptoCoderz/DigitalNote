@@ -39,6 +39,7 @@
         <file alias="lock_open">res/icons/lock_open.png</file>
         <file alias="key">res/icons/key.png</file>
         <file alias="block">res/icons/block.png</file>
+        <file alias="airdrop">res/icons/airdrop.png</file>
         <file alias="filesave">res/icons/filesave.png</file>
         <file alias="qrcode">res/icons/qrcode.png</file>
         <file alias="debugwindow">res/icons/debugwindow.png</file>
@@ -54,6 +55,11 @@
         <file alias="bitcoin">res/icons/digitalnote.png</file>
         <file alias="toolbar_testnet">res/icons/digitalnote-16_testnet.png</file>
         <file alias="mnodes">res/icons/mnodes.png</file>
+        <file alias="message">res/icons/message.png</file>
+        <file alias="address-book-sidebar">res/icons/address-book-sidebar.png</file>
+        <file alias="send-sidebar">res/icons/send-sidebar.png</file>
+        <file alias="lock_closed_toolbar">res/icons/lock_closed_toolbar.png</file>
+        <file alias="lock_open_toolbar">res/icons/lock_open_toolbar .png</file>
     </qresource>
     <qresource prefix="/icons/dark">
         <file alias="connect_0">res/icons/dark/connect0_16.png</file>
@@ -128,4 +134,5 @@
         <file alias="zh_CN">locale/bitcoin_zh_CN.qm</file>
         <file alias="zh_TW">locale/bitcoin_zh_TW.qm</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

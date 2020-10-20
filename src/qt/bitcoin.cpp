@@ -8,6 +8,7 @@
 #include "clientmodel.h"
 #include "walletmodel.h"
 #include "optionsmodel.h"
+#include "messagemodel.h"
 #include "guiutil.h"
 #include "guiconstants.h"
 #include "init.h"
@@ -86,7 +87,7 @@ static void InitMessage(const std::string &message)
 
         if(!fUseDarkTheme)
         {
-            splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(255,255,255));
+            splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(97,78,176));
         }
 
         QApplication::instance()->processEvents();
@@ -283,9 +284,11 @@ int main(int argc, char *argv[])
 
                 ClientModel clientModel(&optionsModel);
                 WalletModel walletModel(pwalletMain, &optionsModel);
+                MessageModel messageModel(pwalletMain, &walletModel);
 
                 window.setClientModel(&clientModel);
                 window.setWalletModel(&walletModel);
+                window.setMessageModel(&messageModel);
 
                 // If -min option passed, start window minimized.
                 if(GetBoolArg("-min", false))

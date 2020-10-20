@@ -606,6 +606,10 @@ void CMasternodeMan::ProcessMasternodeConnections()
 void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 {
 
+    // this is a snapshot node. will only sync until certain block
+    if (maxBlockHeight != -1 && pindexBest->nHeight >= maxBlockHeight) {
+        return;
+    }
     //Normally would disable functionality, NEED this enabled for staking.
     //if(fLiteMode) return;
 
@@ -680,9 +684,9 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
 
         std::string errorMessage = "";
         if(!mnEngineSigner.VerifyMessage(pubkey, vchSig, strMessage, errorMessage)){
-            LogPrintf("dsee - Got bad masternode address signature\n");
-            Misbehaving(pfrom->GetId(), 100);
-            return;
+            LogPrintf("dsee - WARNING - Could not verify masternode address signature\n");
+            //Misbehaving(pfrom->GetId(), 100);
+            //return;
         }
 
         //search existing masternode list, this is where we update existing masternodes with new dsee broadcasts
@@ -841,9 +845,9 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 std::string errorMessage = "";
                 if(!mnEngineSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage))
                 {
-                    LogPrintf("dseep - Got bad masternode address signature %s \n", vin.ToString().c_str());
+                    LogPrintf("dseep - WARNING - Could not verify masternode address signature %s \n", vin.ToString().c_str());
                     //Misbehaving(pfrom->GetId(), 100);
-                    return;
+                    //return;
                 }
 
                 pmn->lastDseep = sigTime;
@@ -897,8 +901,9 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 std::string errorMessage = "";
                 if(!mnEngineSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage))
                 {
-                    LogPrintf("mvote - Got bad Masternode address signature %s \n", vin.ToString().c_str());
-                    return;
+                    LogPrintf("mvote - WARNING - Could not verify masternode address signature %s \n", vin.ToString().c_str());
+                    //Misbehaving(pfrom->GetId(), 100);
+                    //return;
                 }
 
                 pmn->nVote = nVote;

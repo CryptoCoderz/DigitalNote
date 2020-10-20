@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>760</width>
+    <width>852</width>
     <height>380</height>
    </rect>
   </property>
@@ -77,6 +77,16 @@
        </property>
        <property name="text">
         <string>&amp;Copy Address</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="copySmsgInfo">
+       <property name="toolTip">
+        <string>Copy the currently selected address smsg info to the system clipboard</string>
+       </property>
+       <property name="text">
+        <string>Copy SmsgInfo</string>
        </property>
       </widget>
      </item>

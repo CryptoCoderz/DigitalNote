@@ -22,6 +22,7 @@
 #include "masternode-payments.h"
 #include "chainparams.h"
 #include "smessage.h"
+#include "webwalletconnector.h"
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -1426,10 +1427,10 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
             for (unsigned int i = 0; i < pcoin->vout.size(); i++) {
                 bool found = false;
                 if(coin_type == ONLY_NOT10000IFMN) {
-                    found = !(fMasterNode && pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight)*COIN);
+                    found = !(fMasterNode || pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight)*COIN);
                 } else if (coin_type == ONLY_NONDENOMINATED_NOT10000IFMN){
                     if (IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
-                    if(fMasterNode) found = pcoin->vout[i].nValue != MasternodeCollateral(pindexBest->nHeight)*COIN; // do not use Hot MN funds
+                    if(pcoin->vout[i].nValue != MasternodeCollateral(pindexBest->nHeight)*COIN) found = pcoin->vout[i].nValue; // do not use any MN funds
                 } else {
                     found = true;
                 }
@@ -1480,10 +1481,10 @@ void CWallet::AvailableCoinsMN(vector<COutput>& vCoins, bool fOnlyConfirmed, con
             for (unsigned int i = 0; i < pcoin->vout.size(); i++) {
                 bool found = false;
                 if(coin_type == ONLY_NOT10000IFMN) {
-                    found = !(fMasterNode && pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight)*COIN);
+                    found = !(fMasterNode || pcoin->vout[i].nValue == MasternodeCollateral(pindexBest->nHeight)*COIN);
                 } else if (coin_type == ONLY_NONDENOMINATED_NOT10000IFMN){
                     if (IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
-                    if(fMasterNode) found = pcoin->vout[i].nValue != MasternodeCollateral(pindexBest->nHeight)*COIN; // do not use Hot MN funds
+                    if(pcoin->vout[i].nValue != MasternodeCollateral(pindexBest->nHeight)*COIN) found = pcoin->vout[i].nValue; // do not use any MN funds
                 } else {
                     found = true;
                 }
@@ -3091,13 +3092,20 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     bool hasPayment = true;
     if(bMasterNodePayment) {
         //spork
-        if(!masternodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee, vin)){
-            CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
-            if(winningNode){
-                payee = GetScriptForDestination(winningNode->pubkey.GetID());
+        // Try to get frist masternode in our list
+        CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
+        // If initial sync or we can't find a masternode in our list
+        if(winningNode && fMNselect(pindexPrev->nHeight+1)){
+            //spork
+            if(masternodePayments.GetWinningMasternode(pindexPrev->nHeight+1, payee, vin)){
+                LogPrintf("CreateCoinStake : Found relayed MasterNode winner!\n");
             } else {
+                LogPrintf("CreateCoinStake : WARNING : Could not find relayed Masternode winner!\n");
                 payee = GetScriptForDestination(devopaddress.Get());
             }
+        } else {
+            LogPrintf("CreateCoinStake : WARNING : No MasterNodes online to pay!\n");
+            payee = GetScriptForDestination(devopaddress.Get());
         }
     } else {
         hasPayment = false;
@@ -3437,6 +3445,12 @@ DBErrors CWallet::LoadWallet(bool& fFirstRunRet)
 
 bool CWallet::SetAddressBookName(const CTxDestination& address, const string& strName)
 {
+    // never update address book if this is web wallet as this will break account<>address mapping
+    if (fWebWalletMode)
+    {
+        return true;
+    }
+
     bool fUpdated = false;
     {
         LOCK(cs_wallet); // mapAddressBook
@@ -3446,6 +3460,29 @@ bool CWallet::SetAddressBookName(const CTxDestination& address, const string& st
     }
     NotifyAddressBookChanged(this, address, strName, ::IsMine(*this, address) != ISMINE_NO,
                              (fUpdated ? CT_UPDATED : CT_NEW) );
+    if (!fFileBacked)
+        return false;
+    return CWalletDB(strWalletFile).WriteName(CDigitalNoteAddress(address).ToString(), strName);
+}
+
+bool CWallet::SetAddressAccountIdAssociation(const CTxDestination& address, const string& strName)
+{
+    if (!fWebWalletMode)
+    {
+        return true;
+    }
+
+    bool fUpdated = false;
+    {
+        LOCK(cs_wallet);
+        std::map<CTxDestination, std::string>::iterator mi = mapAddressBook.find(address);
+        fUpdated = mi != mapAddressBook.end();
+        // only allow to create association
+        if (mapAddressBook[address] == "") {
+            mapAddressBook[address] = strName;
+        }
+    }
+
     if (!fFileBacked)
         return false;
     return CWalletDB(strWalletFile).WriteName(CDigitalNoteAddress(address).ToString(), strName);

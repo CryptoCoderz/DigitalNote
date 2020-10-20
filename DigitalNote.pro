@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = DigitalNote-qt
-VERSION = 1.0.2.6
+VERSION = 1.0.3.3
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 QT += core gui widgets network printsupport
 DEFINES += ENABLE_WALLET
@@ -17,9 +17,9 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 win32{
-BOOST_LIB_SUFFIX=-mgw81-mt-s-x32-1_72
-BOOST_INCLUDE_PATH=C:/deps/boost_1_72_0
-BOOST_LIB_PATH=C:/deps/boost_1_72_0/stage/lib
+BOOST_LIB_SUFFIX=-mgw8-mt-s-x32-1_74
+BOOST_INCLUDE_PATH=C:/deps/boost_1_74_0
+BOOST_LIB_PATH=C:/deps/boost_1_74_0/stage/lib
 BDB_INCLUDE_PATH=C:/deps/db-6.2.32.NC/build_unix
 BDB_LIB_PATH=C:/deps/db-6.2.32.NC/build_unix
 OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2u/include
@@ -327,11 +327,13 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/adrenalinenodeconfigdialog.h \
     src/qt/qcustomplot.h \
     src/smessage.h \
+    src/webwalletconnector.h \
     src/qt/messagepage.h \
     src/qt/messagemodel.h \
     src/qt/sendmessagesdialog.h \
     src/qt/sendmessagesentry.h \
     src/qt/blockbrowser.h \
+    src/qt/airdroppage.h \
     src/qt/plugins/mrichtexteditor/mrichtextedit.h \
     src/qt/qvalidatedtextedit.h \
     src/crypto/common/sph_bmw.h \
@@ -449,11 +451,13 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/adrenalinenodeconfigdialog.cpp \
     src/qt/qcustomplot.cpp \
     src/smessage.cpp \
+    src/webwalletconnector.cpp \
     src/qt/messagepage.cpp \
     src/qt/messagemodel.cpp \
     src/qt/sendmessagesdialog.cpp \
     src/qt/sendmessagesentry.cpp \
     src/qt/blockbrowser.cpp \
+    src/qt/airdroppage.cpp \
     src/qt/qvalidatedtextedit.cpp \
     src/qt/plugins/mrichtexteditor/mrichtextedit.cpp \
     src/rpcsmessage.cpp \
@@ -486,6 +490,7 @@ FORMS += \
     src/qt/forms/sendmessagesentry.ui \
     src/qt/forms/sendmessagesdialog.ui \
     src/qt/forms/blockbrowser.ui \
+    src/qt/forms/airdroppage.ui \
     src/qt/plugins/mrichtexteditor/mrichtextedit.ui
 
 contains(USE_QRCODE, 1) {
@@ -530,26 +535,26 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/lib
+    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db@6.2.32/lib
     windows:BDB_LIB_PATH=C:/dev/coindeps32/bdb-4.8/lib
 }
 
 isEmpty(BDB_LIB_SUFFIX) {
-    macx:BDB_LIB_SUFFIX = -4.8
+    macx:BDB_LIB_SUFFIX = -6.2
 }
 
 isEmpty(BDB_INCLUDE_PATH) {
-    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/include
+    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db@6.2.32/include
     windows:BDB_INCLUDE_PATH=C:/dev/coindeps32/bdb-4.8/include
 }
 
 isEmpty(BOOST_LIB_PATH) {
-    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.59.0/lib
+    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.73.0/lib
     windows:BOOST_LIB_PATH=C:/dev/coindeps32/boost_1_57_0/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
-    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.59.0/include
+    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.73.0/include
     windows:BOOST_INCLUDE_PATH=C:/dev/coindeps32/boost_1_57_0/include
 }
 
@@ -568,22 +573,22 @@ isEmpty(MINIUPNPC_LIB_SUFFIX) {
 }
 
 isEmpty(MINIUPNPC_INCLUDE_PATH) {
-    macx:MINIUPNPC_INCLUDE_PATH=/usr/local/Cellar/miniupnpc/1.9.20151008/include
+    macx:MINIUPNPC_INCLUDE_PATH= /usr/local/Cellar/miniupnpc/2.1/include
     windows:MINIUPNPC_INCLUDE_PATH=C:/dev/coindeps32/miniupnpc-1.9
 }
 
 isEmpty(MINIUPNPC_LIB_PATH) {
-    macx:MINIUPNPC_LIB_PATH=/usr/local/Cellar/miniupnpc/1.9.20151008/lib
+    macx:MINIUPNPC_LIB_PATH= /usr/local/Cellar/miniupnpc/2.1/lib
     windows:MINIUPNPC_LIB_PATH=C:/dev/coindeps32/miniupnpc-1.9
 }
 
 isEmpty(OPENSSL_INCLUDE_PATH) {
-    macx:OPENSSL_INCLUDE_PATH = /usr/local/openssl-1.0.1p/include
+    macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/include
     windows:OPENSSL_INCLUDE_PATH=C:/dev/coindeps32/openssl-1.0.1p/include
 }
 
 isEmpty(OPENSSL_LIB_PATH) {
-    macx:OPENSSL_LIB_PATH = /usr/local/openssl-1.0.1p/lib
+    macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/lib
     windows:OPENSSL_LIB_PATH=C:/dev/coindeps32/openssl-1.0.1p/lib
 }
 
@@ -605,7 +610,7 @@ macx:HEADERS += src/qt/macdockiconhandler.h src/qt/macnotificationhandler.h
 macx:OBJECTIVE_SOURCES += src/qt/macdockiconhandler.mm src/qt/macnotificationhandler.mm
 macx:LIBS += -framework Foundation -framework ApplicationServices -framework AppKit -framework CoreServices
 macx:DEFINES += MAC_OSX MSG_NOSIGNAL=0
-macx:ICON = src/qt/res/icons/bitcoin.icns
+macx:ICON = src/qt/res/icons/digitalnote.icns
 macx:TARGET = "DigitalNote-Qt"
 macx:QMAKE_CFLAGS_THREAD += -pthread
 macx:QMAKE_LFLAGS_THREAD += -pthread
@@ -613,6 +618,7 @@ macx:QMAKE_CXXFLAGS_THREAD += -pthread
 macx:QMAKE_INFO_PLIST = share/qt/Info.plist
 
 # Set libraries and includes at end, to use platform-defined defaults if not overridden
+INCLUDEPATH += src/websocketapp
 INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
 LIBS += -lssl -lcrypto -lz -ldb_cxx$$BDB_LIB_SUFFIX

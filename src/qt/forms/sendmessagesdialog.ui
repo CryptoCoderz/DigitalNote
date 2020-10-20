@@ -44,7 +44,7 @@
       <item>
        <widget class="QLabel" name="addressFromLabel">
         <property name="styleSheet">
-         <string notr="true">color: #ffffff;</string>
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>Address &amp;From:</string>
