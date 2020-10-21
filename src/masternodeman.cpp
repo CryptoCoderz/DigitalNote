@@ -606,6 +606,10 @@ void CMasternodeMan::ProcessMasternodeConnections()
 void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 {
 
+    // this is a snapshot node. will only sync until certain block
+    if (maxBlockHeight != -1 && pindexBest->nHeight >= maxBlockHeight) {
+        return;
+    }
     //Normally would disable functionality, NEED this enabled for staking.
     //if(fLiteMode) return;
 

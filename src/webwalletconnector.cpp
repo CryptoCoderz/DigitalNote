@@ -63,6 +63,7 @@ typedef websocketpp::server<websocketpp::config::asio> server;
 typedef std::set<connection_hdl,std::owner_less<connection_hdl> > con_list;
 
 bool fWebWalletConnectorEnabled = false;
+bool fWebWalletMode = false;
 
 std::mutex m_action_lock;
 std::mutex m_connection_lock;
@@ -231,6 +232,7 @@ bool WebWalletConnectorStart(bool fDontStart)
         LogPrint("webwallet", "webwallet: Web wallet connector not started.\n");
         return false;
     }
+    fWebWalletMode = true;
     fWebWalletConnectorEnabled = true;
 
     threadGroupWebWalletConnector.create_thread(boost::bind(&TraceThread<void (*)()>, "webwallet", &ThreadWebsocketServer));
