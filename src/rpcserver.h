@@ -216,6 +216,7 @@ extern json_spirit::Value smsgoutbox(const json_spirit::Array& params, bool fHel
 extern json_spirit::Value smsgbuckets(const json_spirit::Array& params, bool fHelp);
 // for airdrop
 extern json_spirit::Value smsggetairdropentries(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value smsgdumpairdropentries(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value smsggetmessagesforaccount(const json_spirit::Array& params, bool fHelp);
 

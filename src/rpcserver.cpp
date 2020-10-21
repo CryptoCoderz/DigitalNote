@@ -345,6 +345,7 @@ static const CRPCCommand vRPCCommands[] =
     { "smsgbuckets",            &smsgbuckets,            false,     false,     false },
     { "smsggetmessagesforaccount", &smsggetmessagesforaccount,            false,     false,     false },
     { "smsggetairdropentries", &smsggetairdropentries,   false,     false,     false },
+    { "smsgdumpairdropentries", &smsgdumpairdropentries, false,     false,     false },
 #endif
 };
 
