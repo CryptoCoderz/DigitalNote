@@ -1136,7 +1136,7 @@ Value smsgdumpairdropentries(const json_spirit::Array& params, bool fHelp) {
     fs::path fullpath = GetDataDir() / fileName;
     FILE *fp;
     errno = 0;
-    if (!(fp = fopen(fullpath.c_str(), "w")))
+    if (!(fp = fopen(fullpath.string().c_str(), "w")))
     {
         throw runtime_error("Could not open the file.");
     };
