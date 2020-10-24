@@ -1133,7 +1133,7 @@ Value smsgdumpairdropentries(const json_spirit::Array& params, bool fHelp) {
         throw runtime_error("File name is required.");
     }
 
-    fs::path fullpath = GetDataDir() / fileName;
+    fs::path fullpath = GetDataDir() / fileName.c_str();
     FILE *fp;
     errno = 0;
     if (!(fp = fopen(fullpath.string().c_str(), "w")))
