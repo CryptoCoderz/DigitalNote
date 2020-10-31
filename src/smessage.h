@@ -382,7 +382,5 @@ int SecureMsgEncrypt(SecureMessage &smsg, const std::string &addressFrom, const 
 int SecureMsgDecrypt(bool fTestOnly, std::string &address, uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload, MessageData &msg);
 int SecureMsgDecrypt(bool fTestOnly, std::string &address, SecureMessage &smsg, MessageData &msg);
 
-int SignUpForAirdrop(std::string &sError, const std::string& ethAddress);
-
 #endif // SEC_MESSAGE_H
 
