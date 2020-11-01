@@ -18,7 +18,6 @@ class Notificator;
 class RPCConsole;
 class MasternodeManager;
 class MessagePage;
-class AirdropPage;
 class MessageModel;
 class BlockBrowser;
 
@@ -83,7 +82,6 @@ private:
     SignVerifyMessageDialog *signVerifyMessageDialog;
     MasternodeManager *masternodeManagerPage;
     MessagePage *messagePage;
-    AirdropPage *airdropPage;
     QLabel* netLabel;
     BlockBrowser *blockBrowser;
     QLabel *labelEncryptionIcon;
@@ -117,7 +115,6 @@ private:
     QAction *openRPCConsoleAction;
     QAction *masternodeManagerAction;
     QAction *messageAction;
-    QAction *airdropAction;
     QAction *blockAction;
     QAction *showBackupsAction;
     QAction *editConfigAction;
@@ -199,8 +196,6 @@ private slots:
     void gotoVerifyMessageTab(QString addr = "");
     /** Switch to message page*/
     void gotoMessagePage();
-    /** Switch to airdrop page*/
-    void gotoAirdropPage();
     /** Show configuration dialog */
     void optionsClicked();
     /** Show about dialog */

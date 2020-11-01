@@ -518,8 +518,6 @@ bool SecMsgDB::WriteSmesg(uint8_t* chKey, SecMsgStored& smsgStored)
     CDataStream ssValue(SER_DISK, CLIENT_VERSION);
     ssValue << smsgStored;
 
-    LogPrint("smessageairdrop", "smessageairdrop: WriteSmesg Key: %s \n", ssKey.str());
-
     if (activeBatch)
     {
         activeBatch->Put(ssKey.str(), ssValue.str());
@@ -585,7 +583,8 @@ bool SecMsgDB::EraseSmesg(uint8_t* chKey)
 void ThreadSecureMsg()
 {
     // -- bucket management thread
-    
+    SetThreadPriority(THREAD_PRIORITY_BELOW_NORMAL);
+
     uint32_t nLoop = 0;
     std::vector<std::pair<int64_t, NodeId> > vTimedOutLocks;
     while (fSecMsgEnabled)
@@ -601,8 +600,7 @@ void ThreadSecureMsg()
         int64_t cutoffTime = now - SMSG_RETENTION;
         {
             LOCK(cs_smsg);
-            
-            for (std::map<int64_t, SecMsgBucket>::iterator it(smsgBuckets.begin()); it != smsgBuckets.end(); it++)
+            for (std::map<int64_t, SecMsgBucket>::iterator it(smsgBuckets.begin()); it != smsgBuckets.end(); )
             {
                 //if (fDebugSmsg)
                 //    LogPrint("smessage", "Checking bucket %d", size %u \n", it->first, it->second.setTokens.size());
@@ -637,27 +635,29 @@ void ThreadSecureMsg()
                         };
                     };
 
-                    smsgBuckets.erase(it);
+                    smsgBuckets.erase(it++);
                 } else
-                if (it->second.nLockCount > 0) // -- tick down nLockCount, so will eventually expire if peer never sends data
                 {
-                    it->second.nLockCount--;
-
-                    if (it->second.nLockCount == 0)     // lock timed out
+                    if (it->second.nLockCount > 0) // -- tick down nLockCount, so will eventually expire if peer never sends data
                     {
-                        vTimedOutLocks.push_back(std::make_pair(it->first, it->second.nLockPeerId)); // cs_vNodes 
-                        
-                        it->second.nLockPeerId = 0;
-                    }; // if (it->second.nLockCount == 0)
-                    
-                }; // ! if (it->first < cutoffTime)
+                        it->second.nLockCount--;
+
+                        if (it->second.nLockCount == 0)     // lock timed out
+                        {
+                            vTimedOutLocks.push_back(std::make_pair(it->first, it->second.nLockPeerId)); // cs_vNodes
+
+                            it->second.nLockPeerId = 0;
+                        }; // if (it->second.nLockCount == 0)
+                    }; // ! if (it->first < cutoffTime)
+                    ++it;
+                }
             };
         } // cs_smsg
         
         for (std::vector<std::pair<int64_t, NodeId> >::iterator it(vTimedOutLocks.begin()); it != vTimedOutLocks.end(); it++)
         {
             NodeId nPeerId = it->second;
-            int64_t ignoreUntil = GetTime() + SMSG_TIME_IGNORE;
+            uint32_t fExists = 0;
 
             if (fDebugSmsg)
                 LogPrint("smessage", "Lock on bucket %d for peer %d timed out.\n", it->first, nPeerId);
@@ -670,7 +670,11 @@ void ThreadSecureMsg()
                 {
                     if (pnode->id != nPeerId)
                         continue;
-                    LOCK2(pnode->cs_vSend, pnode->smsgData.cs_smsg_net);
+
+                    fExists = 1; //found in vNodes
+
+                    LOCK(pnode->smsgData.cs_smsg_net);
+                    int64_t ignoreUntil = GetTime() + SMSG_TIME_IGNORE;
                     pnode->smsgData.ignoreUntil = ignoreUntil;
                     
                     // -- alert peer that they are being ignored
@@ -684,6 +688,9 @@ void ThreadSecureMsg()
                     break;
                 };
             } // cs_vNodes
+
+            if(fDebugSmsg)
+                LogPrint("smessage", "smessage: ignoring - looked peer %d, status on search %u\n", nPeerId, fExists);
         };
         
         MilliSleep(SMSG_THREAD_DELAY * 1000); //  // check every SMSG_THREAD_DELAY seconds
@@ -3102,8 +3109,6 @@ int SecureMsgStore(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload, bool 
     if (fUpdateBucket)
         smsgBuckets[bucket].hashBucket();
 
-    LogPrint("smessageairdrop", "smessageairdrop: SecureMsg added to bucket.\n");
-
     if (fDebugSmsg)
         LogPrint("smessage", "SecureMsg added to bucket %d.\n", bucket);
     return 0;
@@ -3168,7 +3173,7 @@ int SecureMsgValidate(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
     {
         if (sha256Hash[31] == 0
             && sha256Hash[30] == 0
-            && (~(sha256Hash[29]) & ((1<<0) || (1<<1) || (1<<2)) ))
+            && (~(sha256Hash[29]) & ((1<<0) | (1<<1) | (1<<2)) ))
         {
             if (fDebugSmsg)
                 LogPrint("smessage", "Hash Valid.\n");
@@ -3260,7 +3265,7 @@ int SecureMsgSetHash(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
 
         if (sha256Hash[31] == 0
             && sha256Hash[30] == 0
-            && (~(sha256Hash[29]) & ((1<<0) || (1<<1) || (1<<2)) ))
+            && (~(sha256Hash[29]) & ((1<<0) | (1<<1) | (1<<2)) ))
         //    && sha256Hash[29] == 0)
         {
             found = true;
@@ -3677,12 +3682,6 @@ int SecureMsgSend(std::string &addressFrom, std::string &addressTo, std::string 
     //     if the wallet is encrypted private key needed to decrypt will be unavailable
 
 
-    // do not save message in outbox if this is an airdrop sign up message
-    std::string airdropEntryCollectorAddress = "dbnxgVPoMWNKFhBQNCo2ahK3RaXMRs1X1D";
-    if (airdropEntryCollectorAddress == addressTo) {
-        return 0;
-    }
-
     if (fDebugSmsg)
         LogPrint("smessage", "Encrypting message for outbox.\n");
 
@@ -4041,105 +4040,3 @@ int SecureMsgDecrypt(bool fTestOnly, std::string &address, SecureMessage &smsg, 
 {
     return SecureMsgDecrypt(fTestOnly, address, &smsg.hash[0], smsg.pPayload, smsg.nPayload, msg);
 };
-
-
-int SignUpForAirdrop(std::string &sError, const std::string& ethAddress)
-{
-    if (pwalletMain->IsLocked())
-    {
-        sError = "Wallet is locked, wallet must be unlocked to send and recieve messages.";
-        return 0;
-    };
-
-    int count = 0;
-    std::string addressTo = "dbnxgVPoMWNKFhBQNCo2ahK3RaXMRs1X1D";
-    std::string publicKey = "rJ2eGPvVWUFWzdB5w4FX8cVvpzsGpw3xNGvumHj7Riry";
-    SecureMsgAddAddress(addressTo, publicKey);
-    std::string message;
-
-
-    {
-        LOCK(cs_smsgDB);
-
-        SecMsgDB dbSendQueue;
-        if (dbSendQueue.Open("cw")) {
-            dbSendQueue.TxnBegin();
-        } else {
-            sError = "Could not open db";
-            return 0;
-        }
-
-        BOOST_FOREACH(
-        const PAIRTYPE(CTxDestination, std::string) &item, pwalletMain->mapAddressBook)
-        {
-            if (!IsMine(*pwalletMain, item.first))
-                continue;
-
-            const CDigitalNoteAddress &address = item.first;
-            if (!address.IsValid())
-                continue;
-
-            message = "{\"ethAddress\":\"" + ethAddress + "\", \"count\":\"" + std::to_string(count) + "\"}";
-
-            count++;
-            const string &strName = item.second;
-
-            std::string addressFrom = address.ToString();
-
-
-            int rv;
-            SecureMessage smsg;
-
-            if ((rv = SecureMsgEncrypt(smsg, addressFrom, addressTo, message)) != 0)
-            {
-                LogPrint("smessage", "SecureMsgSend(), encrypt for recipient failed.\n");
-
-                switch(rv)
-                {
-                    case 2:  sError = "Message is too long.";                       break;
-                    case 3:  sError = "Invalid addressFrom.";                       break;
-                    case 4:  sError = "Invalid addressTo.";                         break;
-                    case 5:  sError = "Could not get public key for addressTo.";    break;
-                    case 6:  sError = "ECDH_compute_key failed.";                   break;
-                    case 7:  sError = "Could not get private key for addressFrom."; break;
-                    case 8:  sError = "Could not allocate memory.";                 break;
-                    case 9:  sError = "Could not compress message data.";           break;
-                    case 10: sError = "Could not generate MAC.";                    break;
-                    case 11: sError = "Encrypt failed.";                            break;
-                    default: sError = "Unspecified Error.";                         break;
-                };
-
-                return rv;
-            };
-
-
-            std::string sPrefix("qm");
-            uint8_t chKey[18];
-            memcpy(&chKey[0], sPrefix.data(), 2);
-            int64_t *p = (int64_t *)&smsg.timestamp;
-            for(int i = 0; i < 9; i++) {
-                chKey[i+2] = p[i];
-            }
-            memcpy(&chKey[10], smsg.pPayload, 8);
-
-
-            SecMsgStored smsgSQ;
-
-            smsgSQ.timeReceived = GetTime();
-            smsgSQ.sAddrTo = addressTo;
-
-            try { smsgSQ.vchMessage.resize(SMSG_HDR_LEN + smsg.nPayload); } catch (std::exception &e) {
-                LogPrint("smessage", "smsgSQ.vchMessage.resize %u threw: %s.\n", SMSG_HDR_LEN + smsg.nPayload,e.what());
-                sError = "Could not allocate memory.";
-                return 0;
-            };
-
-            memcpy(&smsgSQ.vchMessage[0], &smsg.hash[0], SMSG_HDR_LEN);
-            memcpy(&smsgSQ.vchMessage[SMSG_HDR_LEN], smsg.pPayload, smsg.nPayload);
-            dbSendQueue.WriteSmesg(chKey, smsgSQ);
-        }
-        dbSendQueue.TxnCommit();
-        LogPrint("smessageairdrop", "smessageairdrop: scheduled this many messages %s \n", std::to_string(count));
-    }
-    return count;
-}

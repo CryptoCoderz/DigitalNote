@@ -37,7 +37,6 @@
 #include "masternodemanager.h"
 #include "messagemodel.h"
 #include "messagepage.h"
-#include "airdroppage.h"
 #include "blockbrowser.h"
 #include "importprivatekeydialog.h"
 
@@ -149,8 +148,6 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
 
     messagePage = new MessagePage(this);
 
-    airdropPage = new AirdropPage(this);
-
     centralStackedWidget = new QStackedWidget(this);
     centralStackedWidget->setContentsMargins(0, 0, 0, 0);
     centralStackedWidget->addWidget(overviewPage);
@@ -161,7 +158,6 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     centralStackedWidget->addWidget(masternodeManagerPage);
     centralStackedWidget->addWidget(messagePage);
     centralStackedWidget->addWidget(blockBrowser);
-    centralStackedWidget->addWidget(airdropPage);
 
     QWidget *centralWidget = new QWidget();
     QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
@@ -330,12 +326,6 @@ void DigitalNoteGUI::createActions()
     blockAction->setCheckable(true);
     tabGroup->addAction(blockAction);
 
-    airdropAction = new QAction(QIcon(":/icons/airdrop"), tr("&Airdrop"), this);
-    airdropAction->setToolTip(tr("Enroll for Airdrop"));
-    airdropAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_8));
-    airdropAction->setCheckable(true);
-    tabGroup->addAction(airdropAction);
-
     showBackupsAction = new QAction(QIcon(":/icons/browse"), tr("Show Auto&Backups"), this);
     showBackupsAction->setStatusTip(tr("S"));
 
@@ -354,8 +344,6 @@ void DigitalNoteGUI::createActions()
     connect(masternodeManagerAction, SIGNAL(triggered()), this, SLOT(gotoMasternodeManagerPage()));
     connect(messageAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(messageAction, SIGNAL(triggered()), this, SLOT(gotoMessagePage()));
-    connect(airdropAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(airdropAction, SIGNAL(triggered()), this, SLOT(gotoAirdropPage()));
 
     quitAction = new QAction(QIcon(":icons/quit"), tr("E&xit"), this);
     quitAction->setToolTip(tr("Quit application"));
@@ -499,7 +487,6 @@ void DigitalNoteGUI::createToolBars()
         toolbar->addAction(messageAction);
     }
     toolbar->addAction(blockAction);
-    toolbar->addAction(airdropAction);
     netLabel = new QLabel();
 
     QWidget *spacer = makeToolBarSpacer();
@@ -587,7 +574,6 @@ void DigitalNoteGUI::setWalletModel(WalletModel *walletModel)
         sendCoinsPage->setModel(walletModel);
         signVerifyMessageDialog->setModel(walletModel);
         blockBrowser->setModel(walletModel);
-        airdropPage->setModel(walletModel);
 
         setEncryptionStatus(walletModel->getEncryptionStatus());
         connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SLOT(setEncryptionStatus(int)));
@@ -1094,22 +1080,6 @@ void DigitalNoteGUI::gotoMessagePage()
     exportAction->setEnabled(true);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
     connect(exportAction, SIGNAL(triggered()), messagePage, SLOT(exportClicked()));
-}
-
-void DigitalNoteGUI::gotoAirdropPage()
-{
-    if(!fGUIunlock) {
-        QMessageBox::information(this, tr("Wallet is locked"),
-                                 tr("Please unlock your wallet to use this feature."));
-        return;
-    }
-
-    airdropAction->setChecked(true);
-    centralStackedWidget->setCurrentWidget(airdropPage);
-
-    exportAction->setEnabled(true);
-    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
-    connect(exportAction, SIGNAL(triggered()), airdropPage, SLOT(exportClicked()));
 }
 
 void DigitalNoteGUI::dragEnterEvent(QDragEnterEvent *event)

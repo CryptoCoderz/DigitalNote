@@ -1,34 +1,14 @@
-Copyright (c) 2009-2012 Bitcoin Developers
-Distributed under the MIT/X11 software license, see the accompanying file
-license.txt or http://www.opensource.org/licenses/mit-license.php.  This
-product includes software developed by the OpenSSL Project for use in the
-OpenSSL Toolkit (http://www.openssl.org/).  This product includes cryptographic
-software written by Eric Young (eay@cryptsoft.com) and UPnP software written by
-Thomas Bernard.
+Mac OS X DigitalNoted build instructions vgulkevic. Find me on Discord if you have any issues - https://discordapp.com/invite/4dUquty
 
-
-Mac OS X DigitalNoted build instructions
-Laszlo Hanyecz <solar@heliacal.net>
-Douglas Huff <dhuff@jrbobdobbs.org>
-
-
-See readme-qt.rst for instructions on building DigitalNote QT, the
-graphical user interface.
-
-- Tested on 10.5 and 10.6 intel and 10.15.2.  
-- PPC is not supported because it's big-endian.
-
-All of the commands should be executed in Terminal.app.. it's in
-/Applications/Utilities
+- Tested on 10.15.7.  
 
 You need to install XCode with all the options checked so that the compiler and
 everything is available in /usr not just /Developer 
 You can get the current version from http://developer.apple.com
 
-
 1. Clone the github tree to get the source code
 
-    ```git clone http://github.com/DigitalNotedev/DigitalNote DigitalNote``` 
+    ```git clone https://github.com/CryptoCoderz/DigitalNote DigitalNote``` 
 
 2. Install dependencies using Homebrew
    1. Install dependencies:
@@ -89,10 +69,10 @@ You can get the current version from http://developer.apple.com
        ``` 
    5. Check the versions of dependencies in src/makefile.osx and amend to match yours if required 
         
-3.  Now you should be able to build DigitalNoted:
+3.  Now you should be able to build DigitalNoted. Either use makefile to build daemon only or see the Step 3 of the section below (DigitalNote-qt: Qt5 GUI Release for DigitalNote) that uses .pro file:
 
     ```
-    cd DigitalNote-2/src
+    cd DigitalNote/src
     make -f makefile.osx
     ```
 
