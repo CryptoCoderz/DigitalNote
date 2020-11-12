@@ -19,6 +19,7 @@
 #include <QMenu>
 #include <QFont>
 #include <QColor>
+#include <boost/bind.hpp>
 
 Q_DECLARE_METATYPE(std::vector<unsigned char>);
 
@@ -211,7 +212,7 @@ public:
         // -- wallet is unlocked, can get at the private keys now
         refreshMessageTable();
         
-        parent->reset(); // reload table view
+        parent->revert(); // reload table view
         
         if (parent->proxyModel)
         {
@@ -232,7 +233,7 @@ public:
             // -- Wallet is locked, clear secure message display.
             cachedMessageTable.clear();
 
-            parent->reset(); // reload table view
+            parent->revert(); // reload table view
         };
     };
 

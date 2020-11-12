@@ -399,3 +399,81 @@ Value dumpwallet(const Array& params, bool fHelp)
     file.close();
     return Value::null;
 }
+
+Value dumpwalletjson(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+                "dumpwallet <filename> [prettyPrint=false]\n"
+                "Dumps all wallet keys in a JSON format.");
+
+    EnsureWalletIsUnlocked();
+
+    ofstream file;
+    file.open(params[0].get_str().c_str());
+    if (!file.is_open())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Cannot open wallet dump file");
+
+    bool prettyPrint = false;
+    if (params.size() > 2)
+        prettyPrint = params[2].get_bool();
+
+    std::map<CKeyID, int64_t> mapKeyBirth;
+
+    std::set<CKeyID> setKeyPool;
+
+    pwalletMain->GetKeyBirthTimes(mapKeyBirth);
+
+    pwalletMain->GetAllReserveKeys(setKeyPool);
+
+    // sort time/key pairs
+    std::vector<std::pair<int64_t, CKeyID> > vKeyBirth;
+    for (std::map<CKeyID, int64_t>::const_iterator it = mapKeyBirth.begin(); it != mapKeyBirth.end(); it++) {
+        vKeyBirth.push_back(std::make_pair(it->second, it->first));
+    }
+    mapKeyBirth.clear();
+    std::sort(vKeyBirth.begin(), vKeyBirth.end());
+
+    Object payload;
+    Array privateKeys;
+    for (std::vector<std::pair<int64_t, CKeyID> >::const_iterator it = vKeyBirth.begin(); it != vKeyBirth.end(); it++) {
+        const CKeyID &keyid = it->second;
+
+        CKey key;
+        if (pwalletMain->GetKey(keyid, key)) {
+            privateKeys.push_back(CDigitalNoteSecret(key).ToString());
+        }
+    }
+    payload.push_back(Pair("privateKeys", privateKeys));
+    file << write_string(Value(payload), prettyPrint);
+    file.close();
+    return Value::null;
+}
+
+Value getaddressfromprivkey(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 3)
+        throw runtime_error(
+                "getaddressfromprivkey <DigitalNoteprivkey>\n"
+                "Returns DigitalNote address from private key.");
+
+    string strSecret = params[0].get_str();
+    string strLabel = "";
+    if (params.size() > 1)
+        strLabel = params[1].get_str();
+
+    CDigitalNoteSecret vchSecret;
+    bool fGood = vchSecret.SetString(strSecret);
+
+    if (!fGood) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key");
+
+    CKey key = vchSecret.GetKey();
+    CPubKey pubkey = key.GetPubKey();
+    assert(key.VerifyPubKey(pubkey));
+    CKeyID vchAddress = pubkey.GetID();
+
+    Object payload;
+    payload.push_back(Pair("address", CDigitalNoteAddress(vchAddress).ToString()));
+    return Value(payload);
+}
+

@@ -155,6 +155,7 @@ OBJS= \
     obj/instantx.o \
     obj/smessage.o \
     obj/rpcsmessage.o \
+    obj/webwalletconnector.o \
     obj/masternodeconfig.o \
     obj/masternodeman.o \
     obj/masternode.o \

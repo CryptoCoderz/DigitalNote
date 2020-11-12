@@ -3,12 +3,11 @@
 
 #include "guiconstants.h"
 #include "walletmodel.h"
+#include "wallet.h"
 
 #include <QMessageBox>
 #include <QPushButton>
 #include <QKeyEvent>
-
-extern bool fWalletUnlockStakingOnly;
 
 AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget *parent) :
     QDialog(parent),
@@ -155,6 +154,12 @@ void AskPassphraseDialog::accept()
         }
         else
         {
+            if(stakingOnly)
+            {
+                QMessageBox::information(this, tr("Unlocked Staking Only"),
+                                         tr("Wallet has been unlocked for Staking Only!"));
+                fWalletUnlockStakingOnly = true;
+            }
             QDialog::accept(); // Success
         }
         } break;

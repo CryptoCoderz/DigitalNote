@@ -108,10 +108,13 @@ volatile bool fReopenDebugLog = false;
 //Live fork toggle
 string strLiveForkToggle = "";
 int64_t nLiveForkToggle = 0;
+//Roll back to block
+string strRollbackToBlock = "";
 //MasterNode recipient verification delay base time
 int64_t nMasterNodeChecksDelayBaseTime = 0;
 //MasterNode peer IP advanced relay system toggle
 bool fMnAdvRelay = false;
+int maxBlockHeight = -1;
 
 // Init OpenSSL library multithreading support
 static CCriticalSection** ppmutexOpenSSL;
@@ -1220,13 +1223,11 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
                fprintf(ConfFile, "rpcport=18094\n");
                fprintf(ConfFile, "rpcconnect=127.0.0.1\n");
                fprintf(ConfFile, "rpcallowip=127.0.0.1\n");
-               fprintf(ConfFile, "addnode=157.230.107.144\n");
-               fprintf(ConfFile, "addnode=138.197.161.183\n");
-               fprintf(ConfFile, "addnode=188.166.123.46\n");
-               fprintf(ConfFile, "addnode=159.203.14.113\n");
+               fprintf(ConfFile, "addnode=206.189.183.68\n");
+               fprintf(ConfFile, "addnode=167.71.183.195\n");
+               fprintf(ConfFile, "addnode=142.93.201.211\n");
+               fprintf(ConfFile, "addnode=134.209.55.249\n");
                //TODO: investigate node: fprintf(ConfFile, "addnode=199.175.54.187\n");
-               fprintf(ConfFile, "addnode=157.230.107.144\n");
-               fprintf(ConfFile, "addnode=138.197.161.183\n");
                fprintf(ConfFile, "addnode=seed1n.digitalnote.biz\n");
                fprintf(ConfFile, "addnode=seed2n.digitalnote.biz\n");
                fprintf(ConfFile, "addnode=seed3n.digitalnote.biz\n");

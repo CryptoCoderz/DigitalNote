@@ -12,6 +12,10 @@
 #include <sys/resource.h>
 #endif
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include "serialize.h"
 #include "tinyformat.h"
 
@@ -145,10 +149,14 @@ extern volatile bool fReopenDebugLog;
 //Live fork toggle
 extern std::string strLiveForkToggle;
 extern int64_t nLiveForkToggle;
+//Roll back to block
+extern std::string strRollbackToBlock;
 //MasterNode recipient verification delay base time
 extern int64_t nMasterNodeChecksDelayBaseTime;
 //MasterNode peer IP advanced relay system toggle
 extern bool fMnAdvRelay;
+//will sync until this block height. default -1 which represents disabled
+extern int maxBlockHeight;
 
 void RandAddSeed();
 void RandAddSeedPerfmon();

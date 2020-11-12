@@ -77,6 +77,7 @@ extern bool fOnlyTor;
 extern CWallet* pwalletMain;
 extern int64_t nLastCoinStakeSearchInterval;
 double GetPoSKernelPS();
+bool fGUIunlock;
 
 DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     QMainWindow(parent),
@@ -107,7 +108,7 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
     QApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
 #endif
     setObjectName("DigitalNote");
-    setStyleSheet("#DigitalNote { background-color: #ffffff; color: #4c5259;}");
+    setStyleSheet("#DigitalNote { background-color: #ffffff; color: #614eb0;}");
 
     // Accept D&D of URIs
     setAcceptDrops(true);
@@ -234,7 +235,7 @@ DigitalNoteGUI::DigitalNoteGUI(QWidget *parent):
 
     if (!fUseDarkTheme)
     {
-        statusBar()->setStyleSheet("#statusBar { color: #ffffff; background-color: #026483; }");
+        statusBar()->setStyleSheet("#statusBar { color: #ffffff; background-color: #614eb0; }");
     }
 
     syncIconMovie = new QMovie(fUseDarkTheme ? ":/movies/update_spinner_black" : ":/movies/update_spinner", "mng", this);
@@ -290,7 +291,7 @@ void DigitalNoteGUI::createActions()
     receiveCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
     tabGroup->addAction(receiveCoinsAction);
 
-    sendCoinsAction = new QAction(QIcon(":/icons/send"), tr("&Send"), this);
+    sendCoinsAction = new QAction(QIcon(":/icons/send-sidebar"), tr("&Send"), this);
     sendCoinsAction->setToolTip(tr("Send coins to a DigitalNote address"));
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
@@ -302,7 +303,7 @@ void DigitalNoteGUI::createActions()
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(historyAction);
 
-    addressBookAction = new QAction(QIcon(":/icons/address-book"), tr("&Addresses"), this);
+    addressBookAction = new QAction(QIcon(":/icons/address-book-sidebar"), tr("&Addresses"), this);
     addressBookAction->setToolTip(tr("Edit the list of stored addresses and labels"));
     addressBookAction->setCheckable(true);
     addressBookAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
@@ -313,7 +314,7 @@ void DigitalNoteGUI::createActions()
     masternodeManagerAction->setCheckable(true);
     tabGroup->addAction(masternodeManagerAction);
 
-    messageAction = new QAction(QIcon(":/icons/edit"), tr("&Messages"), this);
+    messageAction = new QAction(QIcon(":/icons/message"), tr("&Messages"), this);
     messageAction->setToolTip(tr("View and Send Encrypted messages"));
     messageAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_7));
     messageAction->setCheckable(true);
@@ -358,7 +359,7 @@ void DigitalNoteGUI::createActions()
     optionsAction->setToolTip(tr("Modify configuration options for DigitalNote"));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     toggleHideAction = new QAction(QIcon(fUseDarkTheme ? ":/icons/dark/bitcoin-dark" : ":/icons/bitcoin"), tr("&Show / Hide"), this);
-    encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
+    encryptWalletAction = new QAction(QIcon(":/icons/lock_closed_toolbar"), tr("&Encrypt Wallet..."), this);
     encryptWalletAction->setToolTip(tr("Encrypt or decrypt wallet"));
     backupWalletAction = new QAction(QIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setToolTip(tr("Backup wallet to another location"));
@@ -366,9 +367,9 @@ void DigitalNoteGUI::createActions()
     importPrivateKeyAction->setToolTip(tr("Import a private key"));
     changePassphraseAction = new QAction(QIcon(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setToolTip(tr("Change the passphrase used for wallet encryption"));
-    unlockWalletAction = new QAction(QIcon(":/icons/lock_open"),tr("&Unlock Wallet..."), this);
+    unlockWalletAction = new QAction(QIcon(":/icons/lock_open_toolbar"),tr("&Unlock Wallet..."), this);
     unlockWalletAction->setToolTip(tr("Unlock wallet"));
-    lockWalletAction = new QAction(QIcon(":/icons/lock_closed"),tr("&Lock Wallet"), this);
+    lockWalletAction = new QAction(QIcon(":/icons/lock_closed_toolbar"),tr("&Lock Wallet"), this);
     lockWalletAction->setToolTip(tr("Lock wallet"));
     signMessageAction = new QAction(QIcon(":/icons/edit"), tr("Sign &message..."), this);
     verifyMessageAction = new QAction(QIcon(":/icons/transaction_0"), tr("&Verify message..."), this);
@@ -444,7 +445,11 @@ static QWidget* makeToolBarSpacer()
 {
     QWidget* spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    spacer->setStyleSheet("QWidget { background: none; }");
+    spacer->setStyleSheet("QWidget { background: #121418; }");
+    if(!fUseDarkTheme)
+    {
+        spacer->setStyleSheet("QWidget { background: #614eb0; }");
+    }
     return spacer;
 }
 
@@ -456,12 +461,12 @@ void DigitalNoteGUI::createToolBars()
     toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
     toolbar->setObjectName("tabs");
-    toolbar->setStyleSheet("QToolButton { color: #ffffff; font-weight:bold; background-color: #121418;} QToolButton:hover { background-color: #2f1d4b; } QToolButton:checked { background-color: #2f1d4b } QToolButton:pressed { background-color: #2f1d4b; } #tabs { color: #ffffff; background-color: #121418; }");
+    toolbar->setStyleSheet("QToolBar { spacing: 0px; } QWidget { background:#121418; } QToolButton { color: #ffffff; font-weight:bold; background-color: #121418;} QToolButton:hover { background-color: #2f1d4b; } QToolButton:checked { background-color: #2f1d4b } QToolButton:pressed { background-color: #2f1d4b; } #tabs { color: #ffffff; background-color: #121418; }");
     toolbar->setIconSize(QSize(24,24));
 
     if(!fUseDarkTheme)
     {
-        toolbar->setStyleSheet("QToolButton { color: #ffffff; font-weight:bold; } QToolButton:hover { background-color: #3098c6; } QToolButton:checked { background-color: #3bb2e7; } QToolButton:pressed { background-color: #25779c; } #tabs { color: #ffffff; background-color: #026483; }");
+        toolbar->setStyleSheet("QToolBar { spacing: 0px; } QWidget { background:#614eb0; } QToolButton { color: #ffffff; font-weight:bold; } QToolButton:hover { background-color: #3098c6; } QToolButton:checked { background-color: #3bb2e7; } QToolButton:pressed { background-color: #25779c; } #tabs { color: #ffffff; background-color: #614eb0; }");
     }
 
     QLabel* header = new QLabel();
@@ -479,7 +484,7 @@ void DigitalNoteGUI::createToolBars()
     toolbar->addAction(addressBookAction);
     toolbar->addAction(masternodeManagerAction);
     if (!fLiteMode){
-            toolbar->addAction(messageAction);
+        toolbar->addAction(messageAction);
     }
     toolbar->addAction(blockAction);
     netLabel = new QLabel();
@@ -970,6 +975,12 @@ void DigitalNoteGUI::gotoOverviewPage()
 
 void DigitalNoteGUI::gotoHistoryPage()
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     historyAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(transactionsPage);
 
@@ -980,6 +991,12 @@ void DigitalNoteGUI::gotoHistoryPage()
 
 void DigitalNoteGUI::gotoAddressBookPage()
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     addressBookAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(addressBookPage);
 
@@ -990,6 +1007,12 @@ void DigitalNoteGUI::gotoAddressBookPage()
 
 void DigitalNoteGUI::gotoReceiveCoinsPage()
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     receiveCoinsAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(receiveCoinsPage);
 
@@ -1000,6 +1023,12 @@ void DigitalNoteGUI::gotoReceiveCoinsPage()
 
 void DigitalNoteGUI::gotoSendCoinsPage()
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     sendCoinsAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(sendCoinsPage);
 
@@ -1009,6 +1038,12 @@ void DigitalNoteGUI::gotoSendCoinsPage()
 
 void DigitalNoteGUI::gotoSignMessageTab(QString addr)
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     // call show() in showTab_SM()
     signVerifyMessageDialog->showTab_SM(true);
 
@@ -1018,6 +1053,12 @@ void DigitalNoteGUI::gotoSignMessageTab(QString addr)
 
 void DigitalNoteGUI::gotoVerifyMessageTab(QString addr)
 {
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     // call show() in showTab_VM()
     signVerifyMessageDialog->showTab_VM(true);
 
@@ -1026,14 +1067,20 @@ void DigitalNoteGUI::gotoVerifyMessageTab(QString addr)
 }
 
 void DigitalNoteGUI::gotoMessagePage()
-{/*
+{
+    if(!fGUIunlock) {
+        QMessageBox::information(this, tr("Wallet is locked"),
+                             tr("Please unlock your wallet to use this feature."));
+        return;
+    }
+
     messageAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(messagePage);
 
     exportAction->setEnabled(true);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
     connect(exportAction, SIGNAL(triggered()), messagePage, SLOT(exportClicked()));
-*/}
+}
 
 void DigitalNoteGUI::dragEnterEvent(QDragEnterEvent *event)
 {
@@ -1086,7 +1133,7 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
         unlockWalletAction->setVisible(true);
         lockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false);
-
+        fGUIunlock = false;
     }
     else
     {
@@ -1100,6 +1147,7 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
         unlockWalletAction->setVisible(false);
         lockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(true);
+        fGUIunlock = true;
         break;
     case WalletModel::Unlocked:
         labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_open" : ":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
@@ -1108,6 +1156,7 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
         unlockWalletAction->setVisible(false);
         lockWalletAction->setVisible(true);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
+        fGUIunlock = true;
         break;
     case WalletModel::Locked:
         labelEncryptionIcon->setPixmap(QIcon(fUseDarkTheme ? ":/icons/dark/lock_closed" : ":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
@@ -1116,6 +1165,7 @@ void DigitalNoteGUI::setEncryptionStatus(int status)
         unlockWalletAction->setVisible(true);
         lockWalletAction->setVisible(false);
         encryptWalletAction->setEnabled(false); // TODO: decrypt currently not supported
+        fGUIunlock = false;
         break;
     }
 
@@ -1136,7 +1186,7 @@ void DigitalNoteGUI::encryptWallet()
 
 void DigitalNoteGUI::backupWallet()
 {
-    QString saveDir = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+    QString saveDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     QString filename = QFileDialog::getSaveFileName(this, tr("Backup Wallet"), saveDir, tr("Wallet Data (*.dat)"));
     if(!filename.isEmpty()) {
         if(!walletModel->backupWallet(filename)) {

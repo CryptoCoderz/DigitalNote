@@ -11,6 +11,7 @@
 #include "transactionrecord.h"
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
+#include "smessage.h"
 
 #include "ui_interface.h"
 
@@ -145,6 +146,7 @@ TransactionView::TransactionView(QWidget *parent) :
     QAction *copyLabelAction = new QAction(tr("Copy label"), this);
     QAction *copyAmountAction = new QAction(tr("Copy amount"), this);
     QAction *copyTxIDAction = new QAction(tr("Copy transaction ID"), this);
+    QAction *copySmsgInfoAction = new QAction(tr("Copy Secure Message Info"), this);
     QAction *editLabelAction = new QAction(tr("Edit label"), this);
     QAction *showDetailsAction = new QAction(tr("Show transaction details"), this);
 
@@ -153,6 +155,7 @@ TransactionView::TransactionView(QWidget *parent) :
     contextMenu->addAction(copyLabelAction);
     contextMenu->addAction(copyAmountAction);
     contextMenu->addAction(copyTxIDAction);
+    contextMenu->addAction(copySmsgInfoAction);
     contextMenu->addAction(editLabelAction);
     contextMenu->addAction(showDetailsAction);
 
@@ -171,6 +174,7 @@ TransactionView::TransactionView(QWidget *parent) :
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(copyLabel()));
     connect(copyAmountAction, SIGNAL(triggered()), this, SLOT(copyAmount()));
     connect(copyTxIDAction, SIGNAL(triggered()), this, SLOT(copyTxID()));
+    connect(copySmsgInfoAction, SIGNAL(triggered()), this, SLOT(copySmsgInfo()));
     connect(editLabelAction, SIGNAL(triggered()), this, SLOT(editLabel()));
     connect(showDetailsAction, SIGNAL(triggered()), this, SLOT(showDetails()));
 }
@@ -400,6 +404,21 @@ void TransactionView::copyAmount()
 void TransactionView::copyTxID()
 {
     GUIUtil::copyEntryData(transactionView, 0, TransactionTableModel::TxIDRole);
+}
+
+void TransactionView::copySmsgInfo()
+{
+    QTableView *table = transactionView;
+    QModelIndexList indexes = table->selectionModel()->selectedRows(TransactionTableModel::ToAddress);
+    if(indexes.empty()){
+        QMessageBox::information(this, tr("Nothing Selected"), tr("You must select an address from the list first."),
+                              QMessageBox::Ok, QMessageBox::Ok);
+    } else {
+        std::string address = indexes[0].data().toString().toStdString();
+        std::string publicKey;
+        SecureMsgGetLocalPublicKey(address, publicKey);
+        GUIUtil::setClipboard(QString::fromStdString(address + ":" + publicKey));
+    }
 }
 
 void TransactionView::editLabel()

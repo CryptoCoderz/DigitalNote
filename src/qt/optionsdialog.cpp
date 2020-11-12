@@ -16,9 +16,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     ui(new Ui::OptionsDialog),
     model(0),
     mapper(0),
-    fRestartWarningDisplayed_Proxy(false),
-    fRestartWarningDisplayed_Lang(false),
-    fProxyIpValid(true)
+    fRestartWarningDisplayed_Lang(false)
 {
     ui->setupUi(this);
 
@@ -26,16 +24,6 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
 #ifndef USE_UPNP
     ui->mapPortUpnp->setEnabled(false);
 #endif
-
-    ui->proxyIp->setEnabled(false);
-    ui->proxyPort->setEnabled(false);
-    ui->proxyPort->setValidator(new QIntValidator(1, 65535, this));
-
-    connect(ui->connectSocks, SIGNAL(toggled(bool)), ui->proxyIp, SLOT(setEnabled(bool)));
-    connect(ui->connectSocks, SIGNAL(toggled(bool)), ui->proxyPort, SLOT(setEnabled(bool)));
-    connect(ui->connectSocks, SIGNAL(clicked(bool)), this, SLOT(showRestartWarning_Proxy()));
-
-    ui->proxyIp->installEventFilter(this);
 
     /* Window elements init */
 #ifdef Q_OS_MAC
@@ -83,8 +71,6 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     connect(mapper, SIGNAL(viewModified()), this, SLOT(enableApplyButton()));
     /* disable apply button when new data loaded */
     connect(mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(disableApplyButton()));
-    /* setup/change UI elements when proxy IP is invalid/valid */
-    connect(this, SIGNAL(proxyIpValid(QValidatedLineEdit *, bool)), this, SLOT(handleProxyIpValid(QValidatedLineEdit *, bool)));
 }
 
 OptionsDialog::~OptionsDialog()
@@ -125,10 +111,6 @@ void OptionsDialog::setMapper()
     /* Network */
     mapper->addMapping(ui->mapPortUpnp, OptionsModel::MapPortUPnP);
 
-    mapper->addMapping(ui->connectSocks, OptionsModel::ProxyUse);
-    mapper->addMapping(ui->proxyIp, OptionsModel::ProxyIP);
-    mapper->addMapping(ui->proxyPort, OptionsModel::ProxyPort);
-
     /* Window */
 #ifndef Q_OS_MAC
     mapper->addMapping(ui->minimizeToTray, OptionsModel::MinimizeToTray);
@@ -154,8 +136,7 @@ void OptionsDialog::disableApplyButton()
 
 void OptionsDialog::enableSaveButtons()
 {
-    /* prevent enabling of the save buttons when data modified, if there is an invalid proxy address present */
-    if(fProxyIpValid)
+    /* prevent enabling of the save buttons when data modified. */
         setSaveButtonState(true);
 }
 
@@ -187,15 +168,6 @@ void OptionsDialog::on_applyButton_clicked()
     disableApplyButton();
 }
 
-void OptionsDialog::showRestartWarning_Proxy()
-{
-    if(!fRestartWarningDisplayed_Proxy)
-    {
-        QMessageBox::warning(this, tr("Warning"), tr("This setting will take effect after restarting DigitalNote."), QMessageBox::Ok);
-        fRestartWarningDisplayed_Proxy = true;
-    }
-}
-
 void OptionsDialog::showRestartWarning_Lang()
 {
     if(!fRestartWarningDisplayed_Lang)
@@ -214,35 +186,10 @@ void OptionsDialog::updateDisplayUnit()
     }
 }
 
-void OptionsDialog::handleProxyIpValid(QValidatedLineEdit *object, bool fState)
-{
-    // this is used in a check before re-enabling the save buttons
-    fProxyIpValid = fState;
-
-    if(fProxyIpValid)
-    {
-        enableSaveButtons();
-        ui->statusLabel->clear();
-    }
-    else
-    {
-        disableSaveButtons();
-        object->setValid(fProxyIpValid);
-        ui->statusLabel->setStyleSheet("QLabel { color: red; }");
-        ui->statusLabel->setText(tr("The supplied proxy address is invalid."));
-    }
-}
-
 bool OptionsDialog::eventFilter(QObject *object, QEvent *event)
 {
     if(event->type() == QEvent::FocusOut)
-    {
-        if(object == ui->proxyIp)
-        {
-            CService addr;
-            /* Check proxyIp for a valid IPv4/IPv6 address and emit the proxyIpValid signal */
-            emit proxyIpValid(ui->proxyIp, LookupNumeric(ui->proxyIp->text().toStdString().c_str(), addr));
-        }
-    }
+    {   
     return QDialog::eventFilter(object, event);
+    }
 }

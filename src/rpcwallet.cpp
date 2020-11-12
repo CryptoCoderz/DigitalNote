@@ -14,6 +14,7 @@
 #include "util.h"
 #include "wallet.h"
 #include "walletdb.h"
+#include "webwalletconnector.h"
 
 using namespace std;
 using namespace json_spirit;
@@ -351,7 +352,12 @@ Value setaccount(const Array& params, bool fHelp)
             if (address == GetAccountAddress(strOldAccount))
                 GetAccountAddress(strOldAccount, true);
         }
-        pwalletMain->SetAddressBookName(address.Get(), strAccount);
+        if (fWebWalletMode) {
+            pwalletMain->SetAddressAccountIdAssociation(address.Get(), strAccount);
+        }
+        else {
+            pwalletMain->SetAddressBookName(address.Get(), strAccount);
+        }
     }
     else
         throw JSONRPCError(RPC_MISC_ERROR, "setaccount can only be used with own address");

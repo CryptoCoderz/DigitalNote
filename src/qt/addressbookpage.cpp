@@ -7,6 +7,7 @@
 #include "editaddressdialog.h"
 #include "csvmodelwriter.h"
 #include "guiutil.h"
+#include "smessage.h"
 
 #ifdef USE_QRCODE
 #include "qrcodedialog.h"
@@ -54,16 +55,19 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
         ui->labelExplanation->setVisible(false);
         ui->deleteButton->setVisible(true);
         ui->signMessage->setVisible(false);
+        ui->copySmsgInfo->setVisible(false);
         break;
     case ReceivingTab:
         ui->deleteButton->setVisible(false);
         ui->signMessage->setVisible(true);
+        ui->copySmsgInfo->setVisible(true);
         break;
     }
 
     // Context menu actions
     QAction *copyLabelAction = new QAction(tr("Copy &Label"), this);
     QAction *copyAddressAction = new QAction(ui->copyToClipboard->text(), this);
+    QAction *copySmsgInfoAction = new QAction(ui->copySmsgInfo->text(), this);
     QAction *editAction = new QAction(tr("&Edit"), this);
     QAction *showQRCodeAction = new QAction(ui->showQRCode->text(), this);
     QAction *signMessageAction = new QAction(ui->signMessage->text(), this);
@@ -73,6 +77,8 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     // Build context menu
     contextMenu = new QMenu();
     contextMenu->addAction(copyAddressAction);
+    if(tab == ReceivingTab)
+        contextMenu->addAction(copySmsgInfoAction);
     contextMenu->addAction(copyLabelAction);
     contextMenu->addAction(editAction);
     if(tab == SendingTab)
@@ -86,6 +92,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
 
     // Connect signals for context menu actions
     connect(copyAddressAction, SIGNAL(triggered()), this, SLOT(on_copyToClipboard_clicked()));
+    connect(copySmsgInfoAction, SIGNAL(triggered()), this, SLOT(on_copySmsgInfo_clicked()));
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(onCopyLabelAction()));
     connect(editAction, SIGNAL(triggered()), this, SLOT(onEditAction()));
     connect(deleteAction, SIGNAL(triggered()), this, SLOT(on_deleteButton_clicked()));
@@ -134,8 +141,8 @@ void AddressBookPage::setModel(AddressTableModel *model)
     // Set column widths
     ui->tableView->horizontalHeader()->resizeSection(
             AddressTableModel::Address, 320);
-    ui->tableView->horizontalHeader()->setResizeMode(
-            AddressTableModel::Label, QHeaderView::Stretch);
+    ui->tableView->horizontalHeader()->sectionResizeMode(
+            AddressTableModel::Label);
 
     connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(selectionChanged()));
@@ -155,6 +162,21 @@ void AddressBookPage::setOptionsModel(OptionsModel *optionsModel)
 void AddressBookPage::on_copyToClipboard_clicked()
 {
     GUIUtil::copyEntryData(ui->tableView, AddressTableModel::Address);
+}
+
+void AddressBookPage::on_copySmsgInfo_clicked()
+{
+    QTableView *table = ui->tableView;
+    QModelIndexList indexes = table->selectionModel()->selectedRows(AddressTableModel::Address);
+    if(indexes.empty()){
+        QMessageBox::information(this, tr("Nothing Selected"), tr("You must select an address from the list first."),
+                              QMessageBox::Ok, QMessageBox::Ok);
+    } else {
+        std::string address = indexes[0].data().toString().toStdString();
+        std::string publicKey;
+        SecureMsgGetLocalPublicKey(address, publicKey);
+        GUIUtil::setClipboard(QString::fromStdString(address + ":" + publicKey));
+    }
 }
 
 void AddressBookPage::onCopyLabelAction()

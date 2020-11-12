@@ -80,8 +80,8 @@ MessagePage::MessagePage(QWidget *parent) :
     messageTextEdit(new MRichTextEdit())
 {
     ui->setupUi(this);
-   
-    
+
+
 #ifdef Q_OS_MAC // Icons on push buttons are very uncommon on Mac
     ui->deleteButton->setIcon(QIcon());
 #endif
@@ -123,7 +123,7 @@ void MessagePage::setModel(MessageModel *model)
     this->model = model;
     if(!model)
         return;
-    
+
     //if (model->proxyModel)
     //    delete model->proxyModel;
     model->proxyModel = new QSortFilterProxyModel(this);
@@ -144,7 +144,7 @@ void MessagePage::setModel(MessageModel *model)
     // Set column widths
     ui->tableView->horizontalHeader()->resizeSection(MessageModel::Type,             100);
     ui->tableView->horizontalHeader()->resizeSection(MessageModel::Label,            100);
-    ui->tableView->horizontalHeader()->setResizeMode(MessageModel::Label,            QHeaderView::Stretch);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(MessageModel::Label,            QHeaderView::Stretch);
     ui->tableView->horizontalHeader()->resizeSection(MessageModel::FromAddress,      320);
     ui->tableView->horizontalHeader()->resizeSection(MessageModel::ToAddress,        320);
     ui->tableView->horizontalHeader()->resizeSection(MessageModel::SentDateTime,     170);

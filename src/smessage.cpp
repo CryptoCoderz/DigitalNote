@@ -70,6 +70,9 @@ boost::signals2::signal<void (SecMsgStored& inboxHdr)>  NotifySecMsgInboxChanged
 boost::signals2::signal<void (SecMsgStored& outboxHdr)> NotifySecMsgOutboxChanged;
 boost::signals2::signal<void ()> NotifySecMsgWalletUnlocked;
 
+boost::signals2::signal<void (json_spirit::Object& inboxHdr)> NotifySecMsgInboxChangedJson;
+boost::signals2::signal<void (json_spirit::Object& outboxHdr)> NotifySecMsgOutboxChangedJson;
+
 bool fSecMsgEnabled = false;
 
 std::map<int64_t, SecMsgBucket> smsgBuckets;
@@ -83,7 +86,7 @@ CCriticalSection cs_smsgThreads;
 
 leveldb::DB *smsgDB = NULL;
 
-
+using namespace json_spirit;
 namespace fs = boost::filesystem;
 
 bool SecMsgCrypter::SetKey(const std::vector<uint8_t>& vchNewKey, uint8_t* chNewIV)
@@ -580,7 +583,8 @@ bool SecMsgDB::EraseSmesg(uint8_t* chKey)
 void ThreadSecureMsg()
 {
     // -- bucket management thread
-    
+    SetThreadPriority(THREAD_PRIORITY_BELOW_NORMAL);
+
     uint32_t nLoop = 0;
     std::vector<std::pair<int64_t, NodeId> > vTimedOutLocks;
     while (fSecMsgEnabled)
@@ -596,8 +600,7 @@ void ThreadSecureMsg()
         int64_t cutoffTime = now - SMSG_RETENTION;
         {
             LOCK(cs_smsg);
-            
-            for (std::map<int64_t, SecMsgBucket>::iterator it(smsgBuckets.begin()); it != smsgBuckets.end(); it++)
+            for (std::map<int64_t, SecMsgBucket>::iterator it(smsgBuckets.begin()); it != smsgBuckets.end(); )
             {
                 //if (fDebugSmsg)
                 //    LogPrint("smessage", "Checking bucket %d", size %u \n", it->first, it->second.setTokens.size());
@@ -632,27 +635,29 @@ void ThreadSecureMsg()
                         };
                     };
 
-                    smsgBuckets.erase(it);
+                    smsgBuckets.erase(it++);
                 } else
-                if (it->second.nLockCount > 0) // -- tick down nLockCount, so will eventually expire if peer never sends data
                 {
-                    it->second.nLockCount--;
-
-                    if (it->second.nLockCount == 0)     // lock timed out
+                    if (it->second.nLockCount > 0) // -- tick down nLockCount, so will eventually expire if peer never sends data
                     {
-                        vTimedOutLocks.push_back(std::make_pair(it->first, it->second.nLockPeerId)); // cs_vNodes 
-                        
-                        it->second.nLockPeerId = 0;
-                    }; // if (it->second.nLockCount == 0)
-                    
-                }; // ! if (it->first < cutoffTime)
+                        it->second.nLockCount--;
+
+                        if (it->second.nLockCount == 0)     // lock timed out
+                        {
+                            vTimedOutLocks.push_back(std::make_pair(it->first, it->second.nLockPeerId)); // cs_vNodes
+
+                            it->second.nLockPeerId = 0;
+                        }; // if (it->second.nLockCount == 0)
+                    }; // ! if (it->first < cutoffTime)
+                    ++it;
+                }
             };
         } // cs_smsg
         
         for (std::vector<std::pair<int64_t, NodeId> >::iterator it(vTimedOutLocks.begin()); it != vTimedOutLocks.end(); it++)
         {
             NodeId nPeerId = it->second;
-            int64_t ignoreUntil = GetTime() + SMSG_TIME_IGNORE;
+            uint32_t fExists = 0;
 
             if (fDebugSmsg)
                 LogPrint("smessage", "Lock on bucket %d for peer %d timed out.\n", it->first, nPeerId);
@@ -665,7 +670,11 @@ void ThreadSecureMsg()
                 {
                     if (pnode->id != nPeerId)
                         continue;
-                    LOCK2(pnode->cs_vSend, pnode->smsgData.cs_smsg_net);
+
+                    fExists = 1; //found in vNodes
+
+                    LOCK(pnode->smsgData.cs_smsg_net);
+                    int64_t ignoreUntil = GetTime() + SMSG_TIME_IGNORE;
                     pnode->smsgData.ignoreUntil = ignoreUntil;
                     
                     // -- alert peer that they are being ignored
@@ -679,6 +688,9 @@ void ThreadSecureMsg()
                     break;
                 };
             } // cs_vNodes
+
+            if(fDebugSmsg)
+                LogPrint("smessage", "smessage: ignoring - looked peer %d, status on search %u\n", nPeerId, fExists);
         };
         
         MilliSleep(SMSG_THREAD_DELAY * 1000); //  // check every SMSG_THREAD_DELAY seconds
@@ -690,7 +702,6 @@ void ThreadSecureMsgPow()
     // -- proof of work thread
 
     int rv;
-    std::vector<uint8_t> vchKey;
     SecMsgStored smsgStored;
 
     std::string sPrefix("qm");
@@ -759,7 +770,10 @@ void ThreadSecureMsgPow()
             };
         };
 
-        delete it;
+        {
+            LOCK(cs_smsg);
+            delete it;
+        }
 
         // -- shutdown thread waits 5 seconds, this should be less
         MilliSleep(2000); // seconds
@@ -1117,12 +1131,8 @@ bool SecureMsgStart(bool fDontStart, bool fScanChain)
     if (SecureMsgReadIni() != 0)
         LogPrint("smessage", "Failed to read smsg.ini\n");
 
-    if (smsgAddresses.size() < 1)
-    {
-        LogPrint("smessage", "No address keys loaded.\n");
-        if (SecureMsgAddWalletAddresses() != 0)
-            LogPrint("smessage", "Failed to load addresses from wallet.\n");
-    };
+    if (SecureMsgAddWalletAddresses() != 0)
+        LogPrint("smessage", "Failed to load addresses from wallet.\n");
 
     if (fScanChain)
     {
@@ -1185,12 +1195,8 @@ bool SecureMsgEnable()
         if (SecureMsgReadIni() != 0)
             LogPrint("smessage", "Failed to read smsg.ini\n");
 
-        if (smsgAddresses.size() < 1)
-        {
-            LogPrint("smessage", "No address keys loaded.\n");
-            if (SecureMsgAddWalletAddresses() != 0)
-                LogPrint("smessage", "Failed to load addresses from wallet.\n");
-        };
+        if (SecureMsgAddWalletAddresses() != 0)
+            LogPrint("smessage", "Failed to load addresses from wallet.\n");
 
         smsgBuckets.clear(); // should be empty already
 
@@ -2512,7 +2518,7 @@ int SecureMsgScanMessage(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload,
     };
 
     std::string addressTo;
-    MessageData msg; // placeholder
+    MessageData msg;
     bool fOwnMessage = false;
 
     for (std::vector<SecMsgAddress>::iterator it = smsgAddresses.begin(); it != smsgAddresses.end(); ++it)
@@ -2538,7 +2544,7 @@ int SecureMsgScanMessage(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload,
         } else
         {
 
-            if (SecureMsgDecrypt(true, addressTo, pHeader, pPayload, nPayload, msg) == 0)
+            if (SecureMsgDecrypt(false, addressTo, pHeader, pPayload, nPayload, msg) == 0)
             {
                 if (fDebugSmsg)
                     LogPrint("smessage", "Decrypted message with %s.\n", addressTo.c_str());
@@ -2588,8 +2594,24 @@ int SecureMsgScanMessage(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload,
                 {
                     dbInbox.WriteSmesg(chKey, smsgInbox);
 
-                    if (reportToGui)
+                    if (reportToGui) {
                         NotifySecMsgInboxChanged(smsgInbox);
+
+                        LogPrint("webwallet", "webwallet: Sending update message in update to webwallet \n");
+                        char cbuf[256];
+                        Object messageObject;
+                        messageObject.push_back(Pair("received", getTimeString(smsgInbox.timeReceived, cbuf, sizeof(cbuf))));
+                        messageObject.push_back(Pair("sent", getTimeString(msg.timestamp, cbuf, sizeof(cbuf))));
+                        messageObject.push_back(Pair("from", msg.sFromAddress));
+                        messageObject.push_back(Pair("to", smsgInbox.sAddrTo));
+                        messageObject.push_back(Pair("text", (char*)&msg.vchMessage[0]));
+
+                        Object payload;
+                        payload.push_back(Pair("type", "messagesIn"));
+                        payload.push_back(Pair("data", messageObject));
+                        NotifySecMsgInboxChangedJson(payload);
+                        LogPrint("webwallet", "webwallet: Finished sending update message in update to webwallet \n");
+                    }
                     LogPrint("smessage", "SecureMsg saved to inbox, received with %s.\n", addressTo.c_str());
                 };
             };
@@ -3151,7 +3173,7 @@ int SecureMsgValidate(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
     {
         if (sha256Hash[31] == 0
             && sha256Hash[30] == 0
-            && (~(sha256Hash[29]) & ((1<<0) || (1<<1) || (1<<2)) ))
+            && (~(sha256Hash[29]) & ((1<<0) | (1<<1) | (1<<2)) ))
         {
             if (fDebugSmsg)
                 LogPrint("smessage", "Hash Valid.\n");
@@ -3243,7 +3265,7 @@ int SecureMsgSetHash(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
 
         if (sha256Hash[31] == 0
             && sha256Hash[30] == 0
-            && (~(sha256Hash[29]) & ((1<<0) || (1<<1) || (1<<2)) ))
+            && (~(sha256Hash[29]) & ((1<<0) | (1<<1) | (1<<2)) ))
         //    && sha256Hash[29] == 0)
         {
             found = true;
@@ -3290,7 +3312,6 @@ int SecureMsgSetHash(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
 
     if (fDebugSmsg)
         LogPrint("smessage", "SecureMsgSetHash() took %d ms, nonse %u\n", GetTimeMillis() - nStart, nonse);
-
     return 0;
 };
 
@@ -3491,7 +3512,7 @@ int SecureMsgEncrypt(SecureMessage &smsg, const std::string &addressFrom, const 
         {
             return errorN(8, "%s: vchPayload.resize %u threw: %s.", __func__, SMSG_PL_HDR_LEN + lenMsgData, e.what());
         };
-        
+
         memcpy(&vchPayload[SMSG_PL_HDR_LEN], pMsgData, lenMsgData);
         // -- compact signature proves ownership of from address and allows the public key to be recovered, recipient can always reply.
         if (!pwalletMain->GetKey(ckidFrom, keyFrom))
@@ -3622,9 +3643,13 @@ int SecureMsgSend(std::string &addressFrom, std::string &addressTo, std::string 
     // -- Place message in send queue, proof of work will happen in a thread.
     std::string sPrefix("qm");
     uint8_t chKey[18];
-    memcpy(&chKey[0],  sPrefix.data(),  2);
-    memcpy(&chKey[2],  &smsg.timestamp, 8);
-    memcpy(&chKey[10], &smsg.pPayload,  8);
+    memcpy(&chKey[0], sPrefix.data(), 2);
+
+    uint8_t *p = (uint8_t *)&smsg.timestamp;
+    for(int i = 0; i < 9; i++) {
+        chKey[i+2] = p[i];
+    }
+    memcpy(&chKey[10], smsg.pPayload, 8);
 
     SecMsgStored smsgSQ;
 
@@ -3655,6 +3680,7 @@ int SecureMsgSend(std::string &addressFrom, std::string &addressTo, std::string 
 
     //  -- for outbox create a copy encrypted for owned address
     //     if the wallet is encrypted private key needed to decrypt will be unavailable
+
 
     if (fDebugSmsg)
         LogPrint("smessage", "Encrypting message for outbox.\n");
@@ -3722,6 +3748,22 @@ int SecureMsgSend(std::string &addressFrom, std::string &addressTo, std::string 
                 {
                     dbSent.WriteSmesg(chKey, smsgOutbox);
                     NotifySecMsgOutboxChanged(smsgOutbox);
+
+                    LogPrint("webwallet", "webwallet: Sending update message out update to webwallet \n");
+
+                    char cbuf[256];
+                    Object messageObject;
+                    messageObject.push_back(Pair("received", getTimeString(smsgOutbox.timeReceived, cbuf, sizeof(cbuf))));
+                    messageObject.push_back(Pair("from", addressFrom));
+                    messageObject.push_back(Pair("to", addressTo));
+                    messageObject.push_back(Pair("text", message));
+
+                    Object payload;
+                    payload.push_back(Pair("type", "messagesOut"));
+                    payload.push_back(Pair("data", messageObject));
+                    NotifySecMsgOutboxChangedJson(payload);
+
+                    LogPrint("webwallet", "webwallet: Finished sending update message out update to webwallet \n");
                 };
             } // cs_smsgDB
         };
@@ -3998,4 +4040,3 @@ int SecureMsgDecrypt(bool fTestOnly, std::string &address, SecureMessage &smsg, 
 {
     return SecureMsgDecrypt(fTestOnly, address, &smsg.hash[0], smsg.pPayload, smsg.nPayload, msg);
 };
-

@@ -10,6 +10,10 @@
 #include "uint256.h"
 #include "version.h"
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <openssl/bn.h>
 
 #include <stdexcept>

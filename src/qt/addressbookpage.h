@@ -62,6 +62,7 @@ private slots:
     void on_newAddressButton_clicked();
     /** Copy address of currently selected address entry to clipboard */
     void on_copyToClipboard_clicked();
+    void on_copySmsgInfo_clicked();
     void on_signMessage_clicked();
     void on_verifyMessage_clicked();
     void selectionChanged();

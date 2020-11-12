@@ -30,7 +30,7 @@ static const int DATABASE_VERSION = 70509;
 //
 // network protocol versioning
 //
-static const int PROTOCOL_VERSION = 62021;
+static const int PROTOCOL_VERSION = 62028;
 
 // intial proto version, to be increased after version/verack negotiation
 static const int INIT_PROTO_VERSION = 209;
@@ -70,5 +70,8 @@ static const int MEMPOOL_GD_VERSION = 60002;
 
 // MasterNode peer IP advanced relay system start (Unfinished, not used)
 static const int64_t MIN_MASTERNODE_ADV_RELAY = 9993058800; // OFF (NOT TOGGLED)
+
+// MasterNode peer IP basic relay system start (on and functional)
+static const int64_t MIN_MASTERNODE_BSC_RELAY = 62026; // ON
 
 #endif

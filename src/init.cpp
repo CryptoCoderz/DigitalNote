@@ -24,6 +24,7 @@
 #include "masternodeconfig.h"
 #include "spork.h"
 #include "smessage.h"
+#include "webwalletconnector.h"
 
 #ifdef ENABLE_WALLET
 #include "db.h"
@@ -39,6 +40,7 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
+#include <string>
 
 #ifndef WIN32
 #include <signal.h>
@@ -51,6 +53,7 @@ using namespace boost;
 #ifdef ENABLE_WALLET
 CWallet* pwalletMain = NULL;
 int nWalletBackups = 10;
+int nNewHeight;
 #endif
 CClientUIInterface uiInterface;
 bool fConfChange;
@@ -116,6 +119,7 @@ void Shutdown()
     mempool.AddTransactionsUpdated(1);
     StopRPCThreads();
     SecureMsgShutdown();
+    WebWalletConnectorShutdown();
 
 #ifdef ENABLE_WALLET
     ShutdownRPCMining();
@@ -269,7 +273,8 @@ std::string HelpMessage()
     strUsage += "  -checklevel=<n>        " + _("How thorough the block verification is (0-6, default: 1)") + "\n";
     strUsage += "  -loadblock=<file>      " + _("Imports blocks from external blk000?.dat file") + "\n";
     strUsage += "  -maxorphanblocks=<n>   " + strprintf(_("Keep at most <n> unconnectable blocks in memory (default: %u)"), DEFAULT_MAX_ORPHAN_BLOCKS) + "\n";
-    strUsage += "  -backtoblock=<n>      " + _("Rollback local block chain to block height <n>") + "\n";
+    strUsage += "  -backtoblock=<n>       " + _("Rollback local block chain to block height <n>") + "\n";
+    strUsage += "  -maxblockheight=<n>    " + _("Stop sync when block height reaches <n>") + "\n";
 
     strUsage += "\n" + _("Block creation options:") + "\n";
     strUsage += "  -blockminsize=<n>      "   + _("Set minimum block size in bytes (default: 0)") + "\n";
@@ -301,6 +306,7 @@ std::string HelpMessage()
     strUsage += "  -stakethreshold=<n> " + _("This will set the output size of your stakes to never be below this number (default: 100)") + "\n";
     strUsage += "  -liveforktoggle=<n> " + _("Toggle experimental features via block height testing fork, (example: -command=<fork_height>)") + "\n";
     strUsage += "  -mnadvrelay=<n> " + _("Toggle MasterNode Advanced Relay System via 1/0, (example: -command=<true/false>)") + "\n";
+    strUsage += "  -webwallet=<n> " + _("Toggle web-wallet node flag via 1/0, (example: -command=<true/false>)") + "\n";
 
     return strUsage;
 }
@@ -461,9 +467,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     // Check for -debugnet (deprecated)
     if (GetBoolArg("-debugnet", false))
         InitWarning(_("Warning: Deprecated argument -debugnet ignored, use -debug=net"));
-    // Check for -socks - as this is a privacy risk to continue, exit here
-    if (mapArgs.count("-socks"))
-        return InitError(_("Error: Unsupported argument -socks found. Setting SOCKS version isn't possible anymore, only SOCKS5 proxies are supported."));
     if (fDaemon)
         fServer = true;
     else
@@ -562,7 +565,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     // ********************************************************* Step 5: Backup wallet and verify wallet database integrity
 #ifdef ENABLE_WALLET
     if (!fDisableWallet) {
-
         filesystem::path backupDir = GetDataDir() / "backups";
         if (!filesystem::exists(backupDir))
         {
@@ -573,19 +575,20 @@ bool AppInit2(boost::thread_group& threadGroup)
         nWalletBackups = std::max(0, std::min(10, nWalletBackups));
         if(nWalletBackups > 0)
         {
-            if (filesystem::exists(backupDir))
+            std::string sourcePathStr = GetDataDir().string();
+            sourcePathStr += "/" + strWalletFileName;
+            boost::filesystem::path sourceFile = sourcePathStr;
+            if (filesystem::exists(backupDir) && filesystem::exists(sourceFile))
             {
                 // Create backup of the wallet
                 std::string dateTimeStr = DateTimeStrFormat(".%Y-%m-%d-%H.%M", GetTime());
                 std::string backupPathStr = backupDir.string();
                 backupPathStr += "/" + strWalletFileName;
-                std::string sourcePathStr = GetDataDir().string();
-                sourcePathStr += "/" + strWalletFileName;
-                boost::filesystem::path sourceFile = sourcePathStr;
                 boost::filesystem::path backupFile = backupPathStr + dateTimeStr;
                 sourceFile.make_preferred();
                 backupFile.make_preferred();
                 try {
+                    LogPrintf("Creating backup of %s -> %s\n", sourceFile, backupFile);
                     boost::filesystem::copy_file(sourceFile, backupFile);
                     LogPrintf("Creating backup of %s -> %s\n", sourceFile, backupFile);
                 } catch(boost::filesystem::filesystem_error &error) {
@@ -792,14 +795,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     // ********************************************************* Step 7: load blockchain
 
-    if (GetBoolArg("-loadblockindextest", false))
-    {
-        CTxDB txdb("r");
-        txdb.LoadBlockIndex();
-        PrintBlockTree();
-        return false;
-    }
-
+    maxBlockHeight = GetArg("-maxblockheight", -1);
     uiInterface.InitMessage(_("Loading block index..."));
 
     nStart = GetTimeMillis();
@@ -846,23 +842,33 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     if (mapArgs.count("-backtoblock"))
     {
-        int nNewHeight = GetArg("-backtoblock", 5000);
-        CBlockIndex* pindex = pindexBest;
-        while (pindex != NULL && pindex->nHeight > nNewHeight)
-        {
-            pindex = pindex->pprev;
-        }
+        strRollbackToBlock = GetArg("-backtoblock", "");
+        LogPrintf("Rolling blocks back...\n");
+        if(!strRollbackToBlock.empty()){
+            nNewHeight = GetArg("-backtoblock", 0);
 
-        if (pindex != NULL)
-        {
-            LogPrintf("Back to block index %d\n", nNewHeight);
-	        CTxDB txdbAddr("rw");
-            CBlock block;
-            block.ReadFromDisk(pindex);
-            block.SetBestChain(txdbAddr, pindex);
+            CBlockIndex* pindex = pindexBest;
+            while (pindex != NULL && pindex->nHeight > nNewHeight)
+            {
+                ostringstream osHeight;
+                osHeight << pindex->nHeight;
+                string strHeight = osHeight.str();
+                uiInterface.InitMessage(strprintf("Rolling blocks back... %s to %i \n", strHeight, nNewHeight));
+                pindex = pindex->pprev;
+            }
+
+            if (pindex != NULL)
+            {
+                LogPrintf("Back to block index %d\n", nNewHeight);
+                CTxDB txdbAddr("rw");
+                CBlock block;
+                block.ReadFromDisk(pindex);
+                block.SetBestChain(txdbAddr, pindex);
+            }
         }
-        else
+        else {
             LogPrintf("Block %d not found\n", nNewHeight);
+        }
     }
 
     // ********************************************************* Step 8: load wallet
@@ -989,6 +995,10 @@ bool AppInit2(boost::thread_group& threadGroup)
     // ********************************************************* Step 10.5: startup secure messaging
 
     SecureMsgStart(fNoSmsg, GetBoolArg("-smsgscanchain", false));
+
+    // ********************************************************* Step 10.6: startup web wallet connector
+
+    WebWalletConnectorStart(GetBoolArg("-webwallet", false));
 
     // ********************************************************* Step 11: start node
 
