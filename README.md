@@ -1,3 +1,9 @@
+**PLEASE NOTE:** MASTER branch now is for stable pre-release updates. We have developed a RELEASE branch for latest OFFICIAL Releases. Please use the following clone command to retrieve the latest release version
+
+```
+git clone -b release --single-branch https://github.com/DigitalNoteXDN/DigitalNote-2 DigitalNote
+```
+
 DigitalNote [XDN] 2014-2018 (CryptoNote Base), 2018-2020 (Current) integration/staging tree
 ===========================================================================================
 
