@@ -17,19 +17,19 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 }
 
 win32{
-BOOST_LIB_SUFFIX=-mgw81-mt-s-x32-1_72
-BOOST_INCLUDE_PATH=C:/deps/boost_1_72_0
-BOOST_LIB_PATH=C:/deps/boost_1_72_0/stage/lib
+BOOST_LIB_SUFFIX=-mgw8-mt-s-x32-1_74
+BOOST_INCLUDE_PATH=C:/deps/boost_1_74_0
+BOOST_LIB_PATH=C:/deps/boost_1_74_0/stage/lib
 BDB_INCLUDE_PATH=C:/deps/db-6.2.32.NC/build_unix
 BDB_LIB_PATH=C:/deps/db-6.2.32.NC/build_unix
 OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2u/include
 OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2u
 MINIUPNPC_INCLUDE_PATH=C:/deps/
-MINIUPNPC_LIB_PATH=C:/deps/miniupnpc-2.1
+MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
 QRENCODE_INCLUDE_PATH=C:/deps/qrencode-4.0.2
 QRENCODE_LIB_PATH=C:/deps/qrencode-4.0.2/.libs
 SECP256K1_INCLUDE_PATH=C:/deps/secp256k1/include
-SECP256K1_LIB_PATH=C:/deps/secp256k1
+SECP256K1_LIB_PATH=C:/deps/secp256k1/.libs
 }
 
 # for boost 1.37, add -mt to the boost libraries
@@ -44,6 +44,8 @@ SECP256K1_LIB_PATH=C:/deps/secp256k1
 
 # workaround for boost 1.58
 DEFINES += BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
+DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
+DEFINES += BOOST_ALLOW_DEPRECATED_HEADERS
 
 OBJECTS_DIR = build
 MOC_DIR = build
@@ -73,6 +75,8 @@ QMAKE_LFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
 }
 # for extra security (see: https://wiki.debian.org/Hardening): this flag is GCC compiler-specific
 QMAKE_CXXFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+# main.o too many sections
+QMAKE_CXXFLAGS += -Wl,-allow-multiple-definition
 # for extra security on Windows: enable ASLR and DEP via GCC linker flags
 win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 # on Windows: enable GCC large address aware linker flag
@@ -501,7 +505,7 @@ CODECFORTR = UTF-8
 TRANSLATIONS = $$files(src/qt/locale/bitcoin_*.ts)
 
 isEmpty(QMAKE_LRELEASE) {
-    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
+    win32:QMAKE_LRELEASE = C:\Qt\qttools_5.15.1\bin\lrelease.exe
     else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
 }
 isEmpty(QM_DIR):QM_DIR = $$PWD/src/qt/locale
@@ -520,7 +524,7 @@ OTHER_FILES += \
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
     macx:BOOST_LIB_SUFFIX = -mt
-    windows:BOOST_LIB_SUFFIX=-mgw49-mt-s-1_57
+    windows:BOOST_LIB_SUFFIX=-mgw8-mt-s-x32-1_74
 }
 
 isEmpty(BOOST_THREAD_LIB_SUFFIX) {
@@ -530,37 +534,37 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/lib
-    windows:BDB_LIB_PATH=C:/dev/coindeps32/bdb-4.8/lib
+    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db@6.2.32/lib
+    windows:BDB_LIB_PATH=C:/deps/db-6.2.32.NC/build_unix
 }
 
 isEmpty(BDB_LIB_SUFFIX) {
-    macx:BDB_LIB_SUFFIX = -4.8
+    macx:BDB_LIB_SUFFIX = -6.2
 }
 
 isEmpty(BDB_INCLUDE_PATH) {
-    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/include
-    windows:BDB_INCLUDE_PATH=C:/dev/coindeps32/bdb-4.8/include
+    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db@6.2.32/include
+    windows:BDB_INCLUDE_PATH=C:/deps/db-6.2.32.NC/include
 }
 
 isEmpty(BOOST_LIB_PATH) {
     macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.59.0/lib
-    windows:BOOST_LIB_PATH=C:/dev/coindeps32/boost_1_57_0/lib
+    windows:BOOST_LIB_PATH=C:/deps/boost_1_74_0/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
     macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.59.0/include
-    windows:BOOST_INCLUDE_PATH=C:/dev/coindeps32/boost_1_57_0/include
+    windows:BOOST_INCLUDE_PATH=C:/deps/boost_1_74_0/include
 }
 
 isEmpty(QRENCODE_LIB_PATH) {
     macx:QRENCODE_LIB_PATH = /usr/local/lib
-	windows:QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs	
+	windows:QRENCODE_LIB_PATH=C:/deps/qrencode-4.0.2/.libs	
 }
 
 isEmpty(QRENCODE_INCLUDE_PATH) {
     macx:QRENCODE_INCLUDE_PATH = /usr/local/include
-	windows:QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4/
+	windows:QRENCODE_INCLUDE_PATH=C:/deps/qrencode-4.0.2/
 }
 
 isEmpty(MINIUPNPC_LIB_SUFFIX) {
@@ -569,22 +573,22 @@ isEmpty(MINIUPNPC_LIB_SUFFIX) {
 
 isEmpty(MINIUPNPC_INCLUDE_PATH) {
     macx:MINIUPNPC_INCLUDE_PATH=/usr/local/Cellar/miniupnpc/1.9.20151008/include
-    windows:MINIUPNPC_INCLUDE_PATH=C:/dev/coindeps32/miniupnpc-1.9
+    windows:MINIUPNPC_INCLUDE_PATH=C:/deps/miniupnpc
 }
 
 isEmpty(MINIUPNPC_LIB_PATH) {
     macx:MINIUPNPC_LIB_PATH=/usr/local/Cellar/miniupnpc/1.9.20151008/lib
-    windows:MINIUPNPC_LIB_PATH=C:/dev/coindeps32/miniupnpc-1.9
+    windows:MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
 }
 
 isEmpty(OPENSSL_INCLUDE_PATH) {
-    macx:OPENSSL_INCLUDE_PATH = /usr/local/openssl-1.0.1p/include
-    windows:OPENSSL_INCLUDE_PATH=C:/dev/coindeps32/openssl-1.0.1p/include
+    macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/include
+    windows:OPENSSL_INCLUDE_PATH=C:/dev/coindeps32/openssl-1.0.1p/lib
 }
 
 isEmpty(OPENSSL_LIB_PATH) {
-    macx:OPENSSL_LIB_PATH = /usr/local/openssl-1.0.1p/lib
-    windows:OPENSSL_LIB_PATH=C:/dev/coindeps32/openssl-1.0.1p/lib
+    macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/lib
+    windows:OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2u/lib
 }
 
 windows:DEFINES += WIN32
@@ -613,6 +617,7 @@ macx:QMAKE_CXXFLAGS_THREAD += -pthread
 macx:QMAKE_INFO_PLIST = share/qt/Info.plist
 
 # Set libraries and includes at end, to use platform-defined defaults if not overridden
+INCLUDEPATH += src/websocketapp
 INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
 LIBS += -lssl -lcrypto -lz -ldb_cxx$$BDB_LIB_SUFFIX
