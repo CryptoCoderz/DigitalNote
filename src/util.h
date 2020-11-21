@@ -12,6 +12,10 @@
 #include <sys/resource.h>
 #endif
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include "serialize.h"
 #include "tinyformat.h"
 
