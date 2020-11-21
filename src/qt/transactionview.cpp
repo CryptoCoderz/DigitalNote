@@ -174,7 +174,7 @@ TransactionView::TransactionView(QWidget *parent) :
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(copyLabel()));
     connect(copyAmountAction, SIGNAL(triggered()), this, SLOT(copyAmount()));
     connect(copyTxIDAction, SIGNAL(triggered()), this, SLOT(copyTxID()));
-    connect(copySmsgInfoAction, SIGNAL(triggered()), this, SLOT(copySmsgInfo));
+    connect(copySmsgInfoAction, SIGNAL(triggered()), this, SLOT(copySmsgInfo()));
     connect(editLabelAction, SIGNAL(triggered()), this, SLOT(editLabel()));
     connect(showDetailsAction, SIGNAL(triggered()), this, SLOT(showDetails()));
 }

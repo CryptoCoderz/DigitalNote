@@ -3767,7 +3767,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 {
     // this is a snapshot node. will only sync until certain block
     if (maxBlockHeight != -1 && pindexBest->nHeight >= maxBlockHeight) {
-        return;
+        return true;
     }
     RandAddSeedPerfmon();
     LogPrint("net", "received: %s (%u bytes)\n", strCommand, vRecv.size());
