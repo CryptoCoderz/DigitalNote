@@ -565,7 +565,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     // ********************************************************* Step 5: Backup wallet and verify wallet database integrity
 #ifdef ENABLE_WALLET
     if (!fDisableWallet) {
-
         filesystem::path backupDir = GetDataDir() / "backups";
         if (!filesystem::exists(backupDir))
         {
@@ -576,19 +575,20 @@ bool AppInit2(boost::thread_group& threadGroup)
         nWalletBackups = std::max(0, std::min(10, nWalletBackups));
         if(nWalletBackups > 0)
         {
-            if (filesystem::exists(backupDir))
+            std::string sourcePathStr = GetDataDir().string();
+            sourcePathStr += "/" + strWalletFileName;
+            boost::filesystem::path sourceFile = sourcePathStr;
+            if (filesystem::exists(backupDir) && filesystem::exists(sourceFile))
             {
                 // Create backup of the wallet
                 std::string dateTimeStr = DateTimeStrFormat(".%Y-%m-%d-%H.%M", GetTime());
                 std::string backupPathStr = backupDir.string();
                 backupPathStr += "/" + strWalletFileName;
-                std::string sourcePathStr = GetDataDir().string();
-                sourcePathStr += "/" + strWalletFileName;
-                boost::filesystem::path sourceFile = sourcePathStr;
                 boost::filesystem::path backupFile = backupPathStr + dateTimeStr;
                 sourceFile.make_preferred();
                 backupFile.make_preferred();
                 try {
+                    LogPrintf("Creating backup of %s -> %s\n", sourceFile, backupFile);
                     boost::filesystem::copy_file(sourceFile, backupFile);
                     LogPrintf("Creating backup of %s -> %s\n", sourceFile, backupFile);
                 } catch(boost::filesystem::filesystem_error &error) {
@@ -845,7 +845,7 @@ bool AppInit2(boost::thread_group& threadGroup)
         strRollbackToBlock = GetArg("-backtoblock", "");
         LogPrintf("Rolling blocks back...\n");
         if(!strRollbackToBlock.empty()){
-            nNewHeight = GetArg("-backtoblock", (int)"");
+            nNewHeight = GetArg("-backtoblock", 0);
 
             CBlockIndex* pindex = pindexBest;
             while (pindex != NULL && pindex->nHeight > nNewHeight)

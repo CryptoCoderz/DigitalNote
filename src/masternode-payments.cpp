@@ -362,8 +362,9 @@ void CMasternodePayments::Relay(CMasternodePaymentWinner& winner)
     LOCK(cs_vNodes);
     BOOST_FOREACH(CNode* pnode, vNodes){
         if(pnode->nVersion >= MIN_MASTERNODE_BSC_RELAY) {
-            LogPrintf("Relayed winning masternode. \n");
-            pnode->PushMessage("inv", vInv);
+            LogPrintf("Relayed winning masternode. (SKIPPED) \n");
+            // TODO: Revisit relay method
+            // pnode->PushMessage("inv", vInv);
         }
     }
 }

@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = DigitalNote-qt
-VERSION = 1.0.3.3
+VERSION = 1.0.3.4
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 QT += core gui widgets network printsupport
 DEFINES += ENABLE_WALLET
@@ -25,11 +25,11 @@ BDB_LIB_PATH=C:/deps/db-6.2.32.NC/build_unix
 OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2u/include
 OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2u
 MINIUPNPC_INCLUDE_PATH=C:/deps/
-MINIUPNPC_LIB_PATH=C:/deps/miniupnpc-2.1
+MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
 QRENCODE_INCLUDE_PATH=C:/deps/qrencode-4.0.2
 QRENCODE_LIB_PATH=C:/deps/qrencode-4.0.2/.libs
 SECP256K1_INCLUDE_PATH=C:/deps/secp256k1/include
-SECP256K1_LIB_PATH=C:/deps/secp256k1
+SECP256K1_LIB_PATH=C:/deps/secp256k1/.libs
 }
 
 # for boost 1.37, add -mt to the boost libraries
@@ -44,6 +44,8 @@ SECP256K1_LIB_PATH=C:/deps/secp256k1
 
 # workaround for boost 1.58
 DEFINES += BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
+DEFINES += BOOST_BIND_GLOBAL_PLACEHOLDERS
+DEFINES += BOOST_ALLOW_DEPRECATED_HEADERS
 
 OBJECTS_DIR = build
 MOC_DIR = build
@@ -51,11 +53,11 @@ UI_DIR = build
 
 # use: qmake "RELEASE=1"
 contains(RELEASE, 1) {
-    # Mac: compile for maximum compatibility (10.12, 64-bit)
-    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.12 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
-    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.12 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
-    macx:QMAKE_LFLAGS += -mmacosx-version-min=10.12 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
-    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.12 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
+    # Mac: compile for maximum compatibility (10.15, 64-bit)
+    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
+    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
+    macx:QMAKE_LFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
+    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
 
 
     !windows:!macx {
@@ -73,6 +75,8 @@ QMAKE_LFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
 }
 # for extra security (see: https://wiki.debian.org/Hardening): this flag is GCC compiler-specific
 QMAKE_CXXFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+# main.o too many sections
+QMAKE_CXXFLAGS += -Wl,-allow-multiple-definition
 # for extra security on Windows: enable ASLR and DEP via GCC linker flags
 win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 # on Windows: enable GCC large address aware linker flag
@@ -333,7 +337,6 @@ HEADERS += src/qt/bitcoingui.h \
     src/qt/sendmessagesdialog.h \
     src/qt/sendmessagesentry.h \
     src/qt/blockbrowser.h \
-    src/qt/airdroppage.h \
     src/qt/plugins/mrichtexteditor/mrichtextedit.h \
     src/qt/qvalidatedtextedit.h \
     src/crypto/common/sph_bmw.h \
@@ -457,7 +460,6 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/sendmessagesdialog.cpp \
     src/qt/sendmessagesentry.cpp \
     src/qt/blockbrowser.cpp \
-    src/qt/airdroppage.cpp \
     src/qt/qvalidatedtextedit.cpp \
     src/qt/plugins/mrichtexteditor/mrichtextedit.cpp \
     src/rpcsmessage.cpp \
@@ -490,7 +492,6 @@ FORMS += \
     src/qt/forms/sendmessagesentry.ui \
     src/qt/forms/sendmessagesdialog.ui \
     src/qt/forms/blockbrowser.ui \
-    src/qt/forms/airdroppage.ui \
     src/qt/plugins/mrichtexteditor/mrichtextedit.ui
 
 contains(USE_QRCODE, 1) {
@@ -506,7 +507,7 @@ CODECFORTR = UTF-8
 TRANSLATIONS = $$files(src/qt/locale/bitcoin_*.ts)
 
 isEmpty(QMAKE_LRELEASE) {
-    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
+    win32:QMAKE_LRELEASE = C:\Qt\qttools_5.15.1\bin\lrelease.exe
     else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
 }
 isEmpty(QM_DIR):QM_DIR = $$PWD/src/qt/locale
@@ -525,7 +526,7 @@ OTHER_FILES += \
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
     macx:BOOST_LIB_SUFFIX = -mt
-    windows:BOOST_LIB_SUFFIX=-mgw49-mt-s-1_57
+    windows:BOOST_LIB_SUFFIX=-mgw8-mt-s-x32-1_74
 }
 
 isEmpty(BOOST_THREAD_LIB_SUFFIX) {
@@ -536,7 +537,7 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 
 isEmpty(BDB_LIB_PATH) {
     macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db@6.2.32/lib
-    windows:BDB_LIB_PATH=C:/dev/coindeps32/bdb-4.8/lib
+    windows:BDB_LIB_PATH=C:/deps/db-6.2.32.NC/build_unix
 }
 
 isEmpty(BDB_LIB_SUFFIX) {
@@ -545,27 +546,28 @@ isEmpty(BDB_LIB_SUFFIX) {
 
 isEmpty(BDB_INCLUDE_PATH) {
     macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db@6.2.32/include
-    windows:BDB_INCLUDE_PATH=C:/dev/coindeps32/bdb-4.8/include
+    windows:BDB_INCLUDE_PATH=C:/deps/db-6.2.32.NC/include
 }
 
 isEmpty(BOOST_LIB_PATH) {
     macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.73.0/lib
-    windows:BOOST_LIB_PATH=C:/dev/coindeps32/boost_1_57_0/lib
+    windows:BOOST_LIB_PATH=C:/deps/boost_1_74_0/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
     macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.73.0/include
-    windows:BOOST_INCLUDE_PATH=C:/dev/coindeps32/boost_1_57_0/include
+    windows:BOOST_INCLUDE_PATH=C:/deps/boost_1_74_0/include
+
 }
 
 isEmpty(QRENCODE_LIB_PATH) {
     macx:QRENCODE_LIB_PATH = /usr/local/lib
-	windows:QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs	
+	windows:QRENCODE_LIB_PATH=C:/deps/qrencode-4.0.2/.libs	
 }
 
 isEmpty(QRENCODE_INCLUDE_PATH) {
     macx:QRENCODE_INCLUDE_PATH = /usr/local/include
-	windows:QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4/
+	windows:QRENCODE_INCLUDE_PATH=C:/deps/qrencode-4.0.2/
 }
 
 isEmpty(MINIUPNPC_LIB_SUFFIX) {
@@ -574,22 +576,22 @@ isEmpty(MINIUPNPC_LIB_SUFFIX) {
 
 isEmpty(MINIUPNPC_INCLUDE_PATH) {
     macx:MINIUPNPC_INCLUDE_PATH= /usr/local/Cellar/miniupnpc/2.1/include
-    windows:MINIUPNPC_INCLUDE_PATH=C:/dev/coindeps32/miniupnpc-1.9
+    windows:MINIUPNPC_INCLUDE_PATH=C:/deps/miniupnpc
 }
 
 isEmpty(MINIUPNPC_LIB_PATH) {
     macx:MINIUPNPC_LIB_PATH= /usr/local/Cellar/miniupnpc/2.1/lib
-    windows:MINIUPNPC_LIB_PATH=C:/dev/coindeps32/miniupnpc-1.9
+    windows:MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
 }
 
 isEmpty(OPENSSL_INCLUDE_PATH) {
     macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/include
-    windows:OPENSSL_INCLUDE_PATH=C:/dev/coindeps32/openssl-1.0.1p/include
+    windows:OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2u/include
 }
 
 isEmpty(OPENSSL_LIB_PATH) {
     macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/lib
-    windows:OPENSSL_LIB_PATH=C:/dev/coindeps32/openssl-1.0.1p/lib
+    windows:OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2u/lib
 }
 
 windows:DEFINES += WIN32
