@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(netbase_properties)
     BOOST_CHECK(CNetAddr("127.0.0.1").IsValid());
 }
 
-bool static TestSplitHost(string test, string host, int port)
+bool static TestSplitHost(const std::string &test, const std::string &host, int port)
 {
     string hostOut;
     int portOut = -1;

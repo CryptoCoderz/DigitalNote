@@ -118,7 +118,7 @@ void CActiveMasternode::ManageStatus()
 }
 
 // Send stop dseep to network for remote masternode
-bool CActiveMasternode::StopMasterNode(std::string strService, std::string strKeyMasternode, std::string& errorMessage) {
+bool CActiveMasternode::StopMasterNode(const std::string &strService, const std::string &strKeyMasternode, std::string& errorMessage) {
 	CTxIn vin;
     CKey keyMasternode;
     CPubKey pubKeyMasternode;
@@ -226,7 +226,7 @@ bool CActiveMasternode::Dseep(CTxIn vin, CService service, CKey keyMasternode, C
     return true;
 }
 
-bool CActiveMasternode::Register(std::string strService, std::string strKeyMasternode, std::string txHash, std::string strOutputIndex, std::string strDonationAddress, std::string strDonationPercentage, std::string& errorMessage) {
+bool CActiveMasternode::Register(const std::string &strService, const std::string &strKeyMasternode, const std::string &txHash, const std::string &strOutputIndex, const std::string &strDonationAddress, const std::string &strDonationPercentage, std::string& errorMessage) {
     CTxIn vin;
     CPubKey pubKeyCollateralAddress;
     CKey keyCollateralAddress;
@@ -317,7 +317,7 @@ bool CActiveMasternode::GetMasterNodeVin(CTxIn& vin, CPubKey& pubkey, CKey& secr
 	return GetMasterNodeVin(vin, pubkey, secretKey, "", "");
 }
 
-bool CActiveMasternode::GetMasterNodeVin(CTxIn& vin, CPubKey& pubkey, CKey& secretKey, std::string strTxHash, std::string strOutputIndex) {
+bool CActiveMasternode::GetMasterNodeVin(CTxIn& vin, CPubKey& pubkey, CKey& secretKey, std::string strTxHash, const std::string &strOutputIndex) {
     CScript pubScript;
 
     // Find possible candidates
@@ -356,11 +356,11 @@ bool CActiveMasternode::GetMasterNodeVin(CTxIn& vin, CPubKey& pubkey, CKey& secr
 	return GetVinFromOutput(*selectedOutput, vin, pubkey, secretKey);
 }
 
-bool CActiveMasternode::GetMasterNodeVinForPubKey(std::string collateralAddress, CTxIn& vin, CPubKey& pubkey, CKey& secretKey) {
+bool CActiveMasternode::GetMasterNodeVinForPubKey(const std::string &collateralAddress, CTxIn& vin, CPubKey& pubkey, CKey& secretKey) {
 	return GetMasterNodeVinForPubKey(collateralAddress, vin, pubkey, secretKey, "", "");
 }
 
-bool CActiveMasternode::GetMasterNodeVinForPubKey(std::string collateralAddress, CTxIn& vin, CPubKey& pubkey, CKey& secretKey, std::string strTxHash, std::string strOutputIndex) {
+bool CActiveMasternode::GetMasterNodeVinForPubKey(const std::string &collateralAddress, CTxIn& vin, CPubKey& pubkey, CKey& secretKey, const std::string &strTxHash, const std::string &strOutputIndex) {
     CScript pubScript;
 
     // Find possible candidates
@@ -447,7 +447,7 @@ vector<COutput> CActiveMasternode::SelectCoinsMasternode()
 }
 
 // get all possible outputs for running masternode for a specific pubkey
-vector<COutput> CActiveMasternode::SelectCoinsMasternodeForPubKey(std::string collateralAddress)
+vector<COutput> CActiveMasternode::SelectCoinsMasternodeForPubKey(const std::string &collateralAddress)
 {
     CDigitalNoteAddress address(collateralAddress);
     CScript scriptPubKey;

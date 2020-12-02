@@ -42,7 +42,7 @@ enum Network ParseNetwork(std::string net) {
     return NET_UNROUTABLE;
 }
 
-void SplitHostPort(std::string in, int &portOut, std::string &hostOut) {
+void SplitHostPort(const std::string &in, int &portOut, std::string &hostOut) {
     size_t colon = in.find_last_of(':');
     // if a : is found, and it either follows a [...], or no other : is in the string, treat it as port separator
     bool fHaveColon = colon != in.npos;

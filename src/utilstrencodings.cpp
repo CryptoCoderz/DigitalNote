@@ -420,7 +420,7 @@ bool ParseInt32(const std::string& str, int32_t *out)
         n <= std::numeric_limits<int32_t>::max();
 }
 
-std::string FormatParagraph(const std::string in, size_t width, size_t indent)
+std::string FormatParagraph(const std::string &in, size_t width, size_t indent)
 {
     std::stringstream out;
     size_t col = 0;

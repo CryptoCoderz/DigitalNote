@@ -375,7 +375,7 @@ void CMasternodePayments::Sync(CNode* node)
 }
 
 
-bool CMasternodePayments::SetPrivKey(std::string strPrivKey)
+bool CMasternodePayments::SetPrivKey(const std::string &strPrivKey)
 {
     CMasternodePaymentWinner winner;
 

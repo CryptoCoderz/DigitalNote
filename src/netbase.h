@@ -171,7 +171,7 @@ class CService : public CNetAddr
 typedef std::pair<CService, int> proxyType;
 
 enum Network ParseNetwork(std::string net);
-void SplitHostPort(std::string in, int &portOut, std::string &hostOut);
+void SplitHostPort(const std::string &in, int &portOut, std::string &hostOut);
 bool SetProxy(enum Network net, CService addrProxy, int nSocksVersion = 5);
 bool GetProxy(enum Network net, proxyType &proxyInfoOut);
 bool IsProxy(const CNetAddr &addr);

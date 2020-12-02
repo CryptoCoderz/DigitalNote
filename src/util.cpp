@@ -509,7 +509,7 @@ vector<unsigned char> ParseHex(const string& str)
     return ParseHex(str.c_str());
 }
 
-static void InterpretNegativeSetting(string name, map<string, string>& mapSettingsRet)
+static void InterpretNegativeSetting(const std::string &name, map<string, string>& mapSettingsRet)
 {
     // interpret -nofoo as -foo=0 (and -nofoo=0 as -foo=1) as long as -foo not set
     if (name.find("-no") == 0)
@@ -1040,7 +1040,7 @@ bool ParseInt32(const std::string& str, int32_t *out)
         n <= std::numeric_limits<int32_t>::max();
 }
 
-std::string FormatParagraph(const std::string in, size_t width, size_t indent)
+std::string FormatParagraph(const std::string &in, size_t width, size_t indent)
 {
     std::stringstream out;
     size_t col = 0;
