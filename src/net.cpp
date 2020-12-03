@@ -1232,7 +1232,7 @@ void ThreadSocketHandler()
                             {
                                 if (!pnode->fDisconnect)
                                 {
-                                    LogPrintf("ThreadSocketHandler() : (ERROR) invalid data from peer %d, socket recv error %s \n", nErr, pnode->addr.ToString());
+                                    LogPrintf("ThreadSocketHandler() : (ERROR) invalid data from peer %d, socket recv error %s \n", pnode->addr.ToString(), nErr);
                                 }
                                 // Disconnect from node that sent us invalid data
                                 // This is not a ban
