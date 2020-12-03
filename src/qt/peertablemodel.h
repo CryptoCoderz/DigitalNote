@@ -7,13 +7,13 @@
 
 #include "main.h"
 #include "net.h"
+#include "cnodestatestats.h"
 
 #include <QAbstractTableModel>
 #include <QStringList>
 
 class PeerTablePriv;
 class ClientModel;
-
 class QTimer;
 
 struct CNodeCombinedStats {

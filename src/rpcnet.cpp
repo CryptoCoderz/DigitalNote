@@ -13,6 +13,8 @@
 #include "protocol.h"
 #include "sync.h"
 #include "ui_interface.h"
+#include "cnodestatestats.h"
+
 #include "util.h"
 
 #include <boost/foreach.hpp>

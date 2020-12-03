@@ -58,6 +58,8 @@ LIBS += -l mingwthrd -l kernel32 -l user32 -l gdi32 -l comdlg32 -l winspool -l w
 HEADERS = $(wildcard *.h)
 
 OBJS= \
+    obj/cdisktxpos.o \
+    obj/ctransaction.o \
     obj/alert.o \
     obj/blocksizecalculator.o \
     obj/blockparams.o \

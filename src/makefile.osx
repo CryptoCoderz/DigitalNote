@@ -71,6 +71,8 @@ CFLAGS += -Wall -Wextra -Wformat -Wno-ignored-qualifiers -Wformat-security -Wno-
     $(DEBUGFLAGS) $(DEFS) $(INCLUDEPATHS)
 
 OBJS= \
+    obj/cdisktxpos.o \
+    obj/ctransaction.o \
     obj/alert.o \
     obj/blocksizecalculator.o \
     obj/blockparams.o \
