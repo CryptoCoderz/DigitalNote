@@ -75,7 +75,11 @@ void ProcessMessageMasternodePayments(CNode* pfrom, std::string& strCommand, CDa
 
         if(!masternodePayments.CheckSignature(winner)){
             LogPrintf("mnw - invalid signature\n");
-            Misbehaving(pfrom->GetId(), 100);
+            // Do not ban node for invalid MN winner sig,
+            // just return without submitting it as a winner.
+            // TODO: Once network has stabilized revisit MN winner peer handling
+            //
+            // Misbehaving(pfrom->GetId(), 100);
             return;
         }
 
