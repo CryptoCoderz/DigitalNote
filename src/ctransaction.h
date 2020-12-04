@@ -5,9 +5,9 @@
 #include <map>
 
 #include "serialize.h"
-#include "cdisktxpos.h"
 #include "scrypt.h"
 
+struct CDiskTxPos;
 class uint256;
 class CTxIn;
 class CTxOut;

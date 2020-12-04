@@ -1,8 +1,9 @@
-#include "ctransaction.h"
-
 #include "uint256.h"
 #include "txdb-leveldb.h"
+#include "cdisktxpos.h"
 #include "main.h"
+
+#include "ctransaction.h"
 
 bool CTransaction::DoS(int nDoSIn, bool fIn) const
 {
