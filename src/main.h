@@ -248,44 +248,7 @@ void InvalidChainFound(CBlockIndex* pindexNew);
 #include "cmerkletx.h"
 #include "ctxindex.h"
 #include "cblock.h"
-
-// Adaptive block sizing depends on this
-struct CDiskBlockPos
-{
-    int nFile;
-    unsigned int nPos;
-
-    IMPLEMENT_SERIALIZE (
-        READWRITE(VARINT(nFile));
-        READWRITE(VARINT(nPos));
-    )
-
-    CDiskBlockPos() {
-        SetNull();
-    }
-
-    CDiskBlockPos(int nFileIn, unsigned int nPosIn) {
-        nFile = nFileIn;
-        nPos = nPosIn;
-    }
-
-    friend bool operator==(const CDiskBlockPos &a, const CDiskBlockPos &b) {
-        return (a.nFile == b.nFile && a.nPos == b.nPos);
-    }
-
-    friend bool operator!=(const CDiskBlockPos &a, const CDiskBlockPos &b) {
-        return !(a == b);
-    }
-
-    void SetNull() { nFile = -1; nPos = 0; }
-    bool IsNull() const { return (nFile == -1); }
-
-    std::string ToString() const
-    {
-        return strprintf("CBlockDiskPos(nFile=%i, nPos=%i)", nFile, nPos);
-    }
-
-};
+#include "cdiskblockpos.h"
 
 /** The block chain is a tree shaped structure starting with the
  * genesis block at the root, with each block potentially having multiple
