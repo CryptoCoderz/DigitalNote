@@ -82,4 +82,4 @@ public:
     std::string ToString() const;
 };
 
-#endif // CDISKBLOCKPOS_H
+#endif // CBLOCKINDEX_H
