@@ -1,13 +1,15 @@
-#include "masternodeman.h"
+#include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
+
 #include "masternode.h"
 #include "activemasternode.h"
 #include "mnengine.h"
 #include "chain.h"
 #include "util.h"
 #include "addrman.h"
-#include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
+#include "cvalidationstate.h"
 
+#include "masternodeman.h"
 
 /** Masternode manager */
 CMasternodeMan mnodeman;

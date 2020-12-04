@@ -34,6 +34,7 @@ class CTxDB;
 class CTxIndex;
 class CWalletInterface;
 class CBlockLocator;
+class CDiskBlockPos;
 
 /** The maximum allowed multiple for the computed block size */
 static const unsigned int MAX_BLOCK_SIZE_INCREASE_MULTIPLE = 2;
@@ -244,30 +245,8 @@ bool IsFinalTx(const CTransaction &tx, int nBlockHeight = 0, int64_t nBlockTime 
 bool BuildAddrIndex(const CScript &script, std::vector<uint160>& addrIds);
 bool Reorganize(CTxDB& txdb, CBlockIndex* pindexNew);
 void InvalidChainFound(CBlockIndex* pindexNew);
-
-#include "cmerkletx.h"
-#include "ctxindex.h"
-#include "cblock.h"
-#include "cdiskblockpos.h"
-#include "cblockindex.h"
-#include "cdiskblockindex.h"
-#include "cblocklocator.h"
-#include "cvalidationstate.h"
-
-class CWalletInterface {
-protected:
-    virtual void SyncTransaction(const CTransaction &tx, const CBlock *pblock, bool fConnect, bool fFixSpentCoins) =0;
-    virtual void EraseFromWallet(const uint256 &hash) =0;
-    virtual void SetBestChain(const CBlockLocator &locator) =0;
-    virtual bool UpdatedTransaction(const uint256 &hash) =0;
-    virtual void Inventory(const uint256 &hash) =0;
-    virtual void ResendWalletTransactions(bool fForce) =0;
-    friend void ::RegisterWallet(CWalletInterface*);
-    friend void ::UnregisterWallet(CWalletInterface*);
-    friend void ::UnregisterAllWallets();
-};
-
 #endif
+
 /** Open a block file (blk?????.dat) */
 FILE* OpenBlockFile(const CDiskBlockPos &pos, bool fReadOnly);
 /** Open an undo file (rev?????.dat) */

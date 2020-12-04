@@ -1,5 +1,3 @@
-#include "clientmodel.h"
-
 #include "bantablemodel.h"
 #include "guiconstants.h"
 #include "optionsmodel.h"
@@ -12,6 +10,9 @@
 #include "main.h"
 #include "ui_interface.h"
 #include "masternodeman.h"
+#include "cblock.h"
+
+#include "clientmodel.h"
 
 #include <QDateTime>
 #include <QTimer>

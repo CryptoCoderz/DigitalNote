@@ -3,15 +3,17 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "assert.h"
+#include <boost/assign/list_of.hpp>
 
+#include "assert.h"
 #include "chainparams.h"
 #include "main.h"
 #include "util.h"
+#include "cblock.h"
+
 // TODO: Verify the requirement of below link
 // #include "base58.h"
 
-#include <boost/assign/list_of.hpp>
 
 using namespace boost::assign;
 

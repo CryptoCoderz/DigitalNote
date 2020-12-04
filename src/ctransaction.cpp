@@ -1,7 +1,7 @@
 #include "uint256.h"
 #include "txdb-leveldb.h"
 #include "cdisktxpos.h"
-#include "main.h"
+#include "ctxindex.h"
 
 #include "ctransaction.h"
 

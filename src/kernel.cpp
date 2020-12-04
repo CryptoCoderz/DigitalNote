@@ -5,8 +5,11 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "kernel.h"
 #include "txdb.h"
+#include "ctxindex.h"
+#include "cblock.h"
+
+#include "kernel.h"
 
 using namespace std;
 

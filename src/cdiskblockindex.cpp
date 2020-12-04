@@ -1,6 +1,7 @@
-#include "cdiskblockindex.h"
-
+#include "cblock.h"
 #include "main.h"
+
+#include "cdiskblockindex.h"
 
 CDiskBlockIndex::CDiskBlockIndex()
 {

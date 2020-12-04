@@ -1,5 +1,8 @@
-#include "ctxindex.h"
 #include "main.h"
+#include "cblock.h"
+#include "cblockindex.h"
+
+#include "ctxindex.h"
 
 CTxIndex::CTxIndex()
 {
@@ -41,7 +44,7 @@ int CTxIndex::GetDepthInMainChain() const
     if (!block.ReadFromDisk(pos.nFile, pos.nBlockPos, false))
         return 0;
     // Find the block in the index
-    map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(block.GetHash());
+    std::map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(block.GetHash());
     if (mi == mapBlockIndex.end())
         return 0;
     CBlockIndex* pindex = (*mi).second;

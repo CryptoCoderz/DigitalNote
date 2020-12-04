@@ -3,6 +3,7 @@
 #include <map>
 
 #include "uint256.h"
+#include "cblockindex.h"
 #include "main.h"
 
 CBlockLocator::CBlockLocator()

@@ -20,6 +20,8 @@
 #include "util.h"
 #include "main.h"
 #include "chainparams.h"
+#include "ctxindex.h"
+#include "cblock.h"
 
 using namespace std;
 using namespace boost;
