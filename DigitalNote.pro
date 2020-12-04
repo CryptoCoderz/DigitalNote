@@ -361,7 +361,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/importprivatekeydialog.cpp \
     src/qt/editconfigdialog.cpp \
     src/qt/bitcoinaddressvalidator.cpp \
-    src/cdisktxpos.cpp \
+    src/cmerkletx.cpp \
+	src/cdisktxpos.cpp \
 	src/ctransaction.cpp \
 	src/alert.cpp \
     src/blocksizecalculator.cpp \
