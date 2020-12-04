@@ -3,10 +3,10 @@
 
 #include <vector>
 
+#include "uint256.h"
 #include "ctransaction.h"
 
 class CBlockIndex;
-class uint256;
 class CBlock;
 
 /** A transaction with a merkle branch linking it to the block chain. */

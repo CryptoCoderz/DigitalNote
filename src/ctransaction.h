@@ -7,7 +7,7 @@
 #include "serialize.h"
 #include "scrypt.h"
 
-struct CDiskTxPos;
+class CDiskTxPos;
 class uint256;
 class CTxIn;
 class CTxOut;
