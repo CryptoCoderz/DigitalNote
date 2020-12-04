@@ -14,7 +14,8 @@ public:
     unsigned int nTxPos;
 
     CDiskTxPos();
-    CDiskTxPos(unsigned int nFileIn, unsigned int nBlockPosIn, unsigned int nTxPosIn);
+    CDiskTxPos(unsigned int nFileIn, unsigned int nBlockPosIn, unsigned int nTxPosIn)
+		: nFile(nFileIn), nBlockPos(nBlockPosIn), nTxPos(nTxPosIn) {};
 
     IMPLEMENT_SERIALIZE(READWRITE(FLATDATA(*this));)
     

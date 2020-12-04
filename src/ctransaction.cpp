@@ -4,6 +4,13 @@
 #include "txdb-leveldb.h"
 #include "main.h"
 
+bool CTransaction::DoS(int nDoSIn, bool fIn) const
+{
+	nDoS += nDoSIn;
+	
+	return fIn;
+}
+
 CTransaction::CTransaction()
 {
 	this->SetNull();

@@ -7,13 +7,6 @@ CDiskTxPos::CDiskTxPos()
 	this->SetNull();
 }
 
-CDiskTxPos::CDiskTxPos(unsigned int nFileIn, unsigned int nBlockPosIn, unsigned int nTxPosIn)
-{
-	this->nFile = nFileIn;
-	this->nBlockPos = nBlockPosIn;
-	this->nTxPos = nTxPosIn;
-}
-
 void CDiskTxPos::SetNull() {
 	this->nFile = (unsigned int) -1;
 	this->nBlockPos = 0;
