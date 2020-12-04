@@ -1,22 +1,20 @@
 // Copyright (c) 2011-2014 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#include "optionsmodel.h"
+#include <QSettings>
+#include <QStringList>
 
 #include "bitcoinunits.h"
 #include "guiutil.h"
-
 #include "init.h"
-#include "main.h"
 #include "net.h"
+
 #ifdef ENABLE_WALLET
 #include "wallet.h"
 #include "walletdb.h"
 #endif
 
-
-#include <QSettings>
-#include <QStringList>
+#include "optionsmodel.h"
 
 bool fUseDarkTheme;
 

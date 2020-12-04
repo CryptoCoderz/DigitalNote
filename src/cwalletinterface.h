@@ -1,6 +1,8 @@
 #ifndef CWALLETINTERFACE_H
 #define CWALLETINTERFACE_H
 
+#include "main.h"
+
 class CTransaction;
 class CBlock;
 class uint256;

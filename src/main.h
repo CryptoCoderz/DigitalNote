@@ -5,18 +5,8 @@
 #ifndef BITCOIN_MAIN_H
 #define BITCOIN_MAIN_H
 
-#include "chain.h"
-#include "bignum.h"
-#include "sync.h"
+#include "ctransaction.h"
 #include "txmempool.h"
-#include "net.h"
-#include "script.h"
-#include "scrypt.h"
-#include "crypto/bmw/bmw512.h"
-#include "crypto/echo/echo512.h"
-#include "fork.h"
-#include "genesis.h"
-#include "mining.h"
 
 #include <list>
 
@@ -35,6 +25,7 @@ class CTxIndex;
 class CWalletInterface;
 class CBlockLocator;
 class CDiskBlockPos;
+class CTxMemPool;
 
 /** The maximum allowed multiple for the computed block size */
 static const unsigned int MAX_BLOCK_SIZE_INCREASE_MULTIPLE = 2;
@@ -193,8 +184,6 @@ bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats);
 /** Increase a node's misbehavior score. */
 void Misbehaving(NodeId nodeid, int howmuch);
 
-#include "cdisktxpos.h"
-
 enum GetMinFee_mode
 {
     GMF_BLOCK,
@@ -203,9 +192,6 @@ enum GetMinFee_mode
 };
 
 int64_t GetMinFee(const CTransaction& tx, unsigned int nBytes, bool fAllowFree, enum GetMinFee_mode mode);
-
-#include "ctransaction.h"
-#include "ctxoutcompressor.h"
 
 /** Check for standard transaction types
     @param[in] mapInputs    Map of previous transactions that have outputs we're spending

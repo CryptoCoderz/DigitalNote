@@ -5,12 +5,11 @@
 #ifndef PEERTABLEMODEL_H
 #define PEERTABLEMODEL_H
 
-#include "main.h"
+#include <QStringList>
+#include <QAbstractTableModel>
+
 #include "net.h"
 #include "cnodestatestats.h"
-
-#include <QAbstractTableModel>
-#include <QStringList>
 
 class PeerTablePriv;
 class ClientModel;

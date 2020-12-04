@@ -10,6 +10,7 @@
 #include "main.h"
 #include "util.h"
 #include "cblock.h"
+#include "genesis.h"
 
 // TODO: Verify the requirement of below link
 // #include "base58.h"

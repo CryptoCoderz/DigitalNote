@@ -3,6 +3,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <boost/assign/list_of.hpp>
+
 #include "rpcserver.h"
 #include "blockparams.h"
 #include "chainparams.h"
@@ -14,8 +16,7 @@
 #include "init.h"
 #include "miner.h"
 #include "kernel.h"
-
-#include <boost/assign/list_of.hpp>
+#include "fork.h"
 
 using namespace json_spirit;
 using namespace std;

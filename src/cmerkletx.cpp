@@ -1,4 +1,3 @@
-#include "main.h"
 #include "txdb-leveldb.h"
 #include "blockparams.h"
 #include "spork.h"

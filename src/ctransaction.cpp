@@ -2,6 +2,8 @@
 #include "txdb-leveldb.h"
 #include "cdisktxpos.h"
 #include "ctxindex.h"
+#include "mining.h"
+#include "main.h"
 
 #include "ctransaction.h"
 

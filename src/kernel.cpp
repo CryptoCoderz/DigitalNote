@@ -8,6 +8,9 @@
 #include "txdb.h"
 #include "ctxindex.h"
 #include "cblock.h"
+#include "mining.h"
+#include "crypto/echo/echo512.h"
+#include "main.h"
 
 #include "kernel.h"
 

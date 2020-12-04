@@ -5,45 +5,9 @@
  * The DigitalNote Developers 2018-2020
  */
 
+#include <iostream>
+
 #include <QApplication>
-
-#include "bitcoingui.h"
-
-#include "transactiontablemodel.h"
-#include "addressbookpage.h"
-#include "sendcoinsdialog.h"
-#include "signverifymessagedialog.h"
-#include "optionsdialog.h"
-#include "aboutdialog.h"
-#include "clientmodel.h"
-#include "walletmodel.h"
-#include "editaddressdialog.h"
-#include "editconfigdialog.h"
-#include "optionsmodel.h"
-#include "transactiondescdialog.h"
-#include "addresstablemodel.h"
-#include "transactionview.h"
-#include "overviewpage.h"
-#include "bitcoinunits.h"
-#include "guiconstants.h"
-#include "askpassphrasedialog.h"
-#include "notificator.h"
-#include "guiutil.h"
-#include "rpcconsole.h"
-#include "wallet.h"
-#include "main.h"
-#include "init.h"
-#include "ui_interface.h"
-#include "masternodemanager.h"
-#include "messagemodel.h"
-#include "messagepage.h"
-#include "blockbrowser.h"
-#include "importprivatekeydialog.h"
-
-#ifdef Q_OS_MAC
-#include "macdockiconhandler.h"
-#endif
-
 #include <QMenuBar>
 #include <QMenu>
 #include <QIcon>
@@ -71,7 +35,41 @@
 #include <QTextDocument>
 #include <QInputDialog>
 
-#include <iostream>
+#include "transactiontablemodel.h"
+#include "addressbookpage.h"
+#include "sendcoinsdialog.h"
+#include "signverifymessagedialog.h"
+#include "optionsdialog.h"
+#include "aboutdialog.h"
+#include "clientmodel.h"
+#include "walletmodel.h"
+#include "editaddressdialog.h"
+#include "editconfigdialog.h"
+#include "optionsmodel.h"
+#include "transactiondescdialog.h"
+#include "addresstablemodel.h"
+#include "transactionview.h"
+#include "overviewpage.h"
+#include "bitcoinunits.h"
+#include "guiconstants.h"
+#include "askpassphrasedialog.h"
+#include "notificator.h"
+#include "guiutil.h"
+#include "rpcconsole.h"
+#include "wallet.h"
+#include "init.h"
+#include "ui_interface.h"
+#include "masternodemanager.h"
+#include "messagemodel.h"
+#include "messagepage.h"
+#include "blockbrowser.h"
+#include "importprivatekeydialog.h"
+
+#ifdef Q_OS_MAC
+#include "macdockiconhandler.h"
+#endif
+
+#include "bitcoingui.h"
 
 extern bool fOnlyTor;
 extern CWallet* pwalletMain;

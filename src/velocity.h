@@ -9,7 +9,8 @@
 #define VELOCITY_H 1
 
 #include "chainparams.h"
-#include "main.h"
+#include "fork.h"
+#include "mining.h"
 
 class CBlock;
 class CBlockIndex;

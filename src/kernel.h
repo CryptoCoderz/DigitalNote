@@ -4,7 +4,10 @@
 #ifndef PPCOIN_KERNEL_H
 #define PPCOIN_KERNEL_H
 
-#include "main.h"
+class CBlockIndex;
+class uint256;
+class CTransaction;
+class COutPoint;
 
 // To decrease granularity of timestamp
 // Supposed to be 2^n-1

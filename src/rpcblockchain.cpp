@@ -8,6 +8,7 @@
 #include "checkpoints.h"
 #include "cblock.h"
 #include "cblockindex.h"
+#include "main.h"
 
 using namespace json_spirit;
 using namespace std;
