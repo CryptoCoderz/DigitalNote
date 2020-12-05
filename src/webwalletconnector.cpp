@@ -50,8 +50,8 @@ enum action_type {
 
 struct action {
     action(action_type t, connection_hdl h) : type(t), hdl(h) {}
-    action(action_type t, connection_hdl h, std::string m): type(t), hdl(h), msg(m) {}
-    action(action_type t, std::string m): type(t), msg(m) {}
+    action(action_type t, connection_hdl h, const std::string &m): type(t), hdl(h), msg(m) {}
+    action(action_type t, const std::string &m): type(t), msg(m) {}
     action(action_type t): type(t) {}
 
     action_type type;
@@ -133,7 +133,7 @@ public:
         m_action_cond.notify_all();
     }
 
-    void sendMessage(std::string msg) {
+    void sendMessage(const std::string &msg) {
         if (!fWebWalletConnectorEnabled) {
             return;
         }
@@ -260,7 +260,7 @@ bool WebWalletConnectorShutdown()
     return true;
 }
 
-void SendUpdateToWebWallet(std::string msg) {
+void SendUpdateToWebWallet(const std::string &msg) {
     if (fWebWalletConnectorEnabled) {
         server_instance.sendMessage(msg);
     }

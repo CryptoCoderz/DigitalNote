@@ -252,7 +252,7 @@ Value getnewaddress(const Array& params, bool fHelp)
 }
 
 
-CDigitalNoteAddress GetAccountAddress(string strAccount, bool bForceNew=false)
+CDigitalNoteAddress GetAccountAddress(const std::string &strAccount, bool bForceNew=false)
 {
     CWalletDB walletdb(pwalletMain->strWalletFile);
 
@@ -634,7 +634,7 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
 }
 
 
-void GetAccountAddresses(string strAccount, set<CTxDestination>& setAddress)
+void GetAccountAddresses(const std::string &strAccount, set<CTxDestination>& setAddress)
 {
     BOOST_FOREACH(const PAIRTYPE(CTxDestination, string)& item, pwalletMain->mapAddressBook)
     {

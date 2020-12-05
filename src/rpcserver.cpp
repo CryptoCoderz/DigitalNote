@@ -116,7 +116,7 @@ Value ValueFromAmount(int64_t amount)
 // Utilities: convert hex-encoded Values
 // (throws error if not hex).
 //
-uint256 ParseHashV(const Value& v, string strName)
+uint256 ParseHashV(const Value& v, const std::string &strName)
 {
     string strHex;
     if (v.type() == str_type)
@@ -128,12 +128,12 @@ uint256 ParseHashV(const Value& v, string strName)
     return result;
 }
 
-uint256 ParseHashO(const Object& o, string strKey)
+uint256 ParseHashO(const Object& o, const std::string &strKey)
 {
     return ParseHashV(find_value(o, strKey), strKey);
 }
 
-vector<unsigned char> ParseHexV(const Value& v, string strName)
+vector<unsigned char> ParseHexV(const Value& v, const std::string &strName)
 {
     string strHex;
     if (v.type() == str_type)
@@ -143,7 +143,7 @@ vector<unsigned char> ParseHexV(const Value& v, string strName)
     return ParseHex(strHex);
 }
 
-vector<unsigned char> ParseHexO(const Object& o, string strKey)
+vector<unsigned char> ParseHexO(const Object& o, const std::string &strKey)
 {
     return ParseHexV(find_value(o, strKey), strKey);
 }
@@ -153,7 +153,7 @@ vector<unsigned char> ParseHexO(const Object& o, string strKey)
 /// Note: This interface may still be subject to change.
 ///
 
-string CRPCTable::help(string strCommand) const
+string CRPCTable::help(const std::string &strCommand) const
 {
     string strRet;
     set<rpcfn_type> setDone;
@@ -903,11 +903,11 @@ std::vector<std::string> CRPCTable::listCommands() const
     return commandList;
 }
 
-std::string HelpExampleCli(string methodname, string args){
+std::string HelpExampleCli(const std::string &methodname, const std::string &args){
     return "> DigitalNoted " + methodname + " " + args + "\n";
 }
 
-std::string HelpExampleRpc(string methodname, string args){
+std::string HelpExampleRpc(const std::string &methodname, const std::string &args){
     return "> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
         "\"method\": \"" + methodname + "\", \"params\": [" + args + "] }' -H 'content-type: text/plain;' http://127.0.0.1:9998/\n";
 }

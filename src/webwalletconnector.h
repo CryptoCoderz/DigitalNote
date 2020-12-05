@@ -14,7 +14,7 @@ extern bool fWebWalletConnectorEnabled;
 
 bool WebWalletConnectorStart(bool fDontStart);
 bool WebWalletConnectorShutdown();
-void SendUpdateToWebWallet(std::string msg);
+void SendUpdateToWebWallet(const std::string &msg);
 
 // subscriptions
 void subscribeToCoreSignals();

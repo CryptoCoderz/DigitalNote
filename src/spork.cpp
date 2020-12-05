@@ -234,7 +234,7 @@ void CSporkManager::Relay(CSporkMessage& msg)
     RelayInventory(inv);
 }
 
-bool CSporkManager::SetPrivKey(std::string strPrivKey)
+bool CSporkManager::SetPrivKey(const std::string &strPrivKey)
 {
     CSporkMessage msg;
 

@@ -120,7 +120,7 @@ public:
     std::string GetSporkNameByID(int id);
     int GetSporkIDByName(std::string strName);
     bool UpdateSpork(int nSporkID, int64_t nValue);
-    bool SetPrivKey(std::string strPrivKey);
+    bool SetPrivKey(const std::string &strPrivKey);
     bool CheckSignature(CSporkMessage& spork);
     bool Sign(CSporkMessage& spork);
     void Relay(CSporkMessage& msg);

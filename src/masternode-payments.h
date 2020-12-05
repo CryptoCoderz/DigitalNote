@@ -80,7 +80,7 @@ public:
         enabled = false;
     }
 
-    bool SetPrivKey(std::string strPrivKey);
+    bool SetPrivKey(const std::string &strPrivKey);
     bool CheckSignature(CMasternodePaymentWinner& winner);
     bool Sign(CMasternodePaymentWinner& winner);
 

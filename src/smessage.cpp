@@ -1296,7 +1296,7 @@ bool SecureMsgDisable()
 };
 
 
-bool SecureMsgReceiveData(CNode* pfrom, std::string strCommand, CDataStream& vRecv)
+bool SecureMsgReceiveData(CNode* pfrom, const std::string &strCommand, CDataStream& vRecv)
 {
     /*
         Called from ProcessMessage
