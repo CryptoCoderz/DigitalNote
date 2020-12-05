@@ -13,7 +13,6 @@
 #include "base58.h"
 #include "protocol.h"
 #include "spork.h"
-#include "main.h"
 #include <boost/lexical_cast.hpp>
 
 using namespace std;

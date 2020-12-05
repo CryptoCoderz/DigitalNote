@@ -11,6 +11,7 @@
 #include "masternode.h"
 #include "masternodeman.h"
 #include "masternode-payments.h"
+#include "fork.h"
 
 using namespace std;
 

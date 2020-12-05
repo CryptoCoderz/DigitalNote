@@ -2,22 +2,22 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "mnengine.h"
-#include "main.h"
+#include <algorithm>
+#include <openssl/rand.h>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/assign/list_of.hpp>
+
 #include "init.h"
 #include "util.h"
 #include "masternodeman.h"
 #include "instantx.h"
 #include "ui_interface.h"
+#include "cvalidationstate.h"
 
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/lexical_cast.hpp>
-
-#include <algorithm>
-#include <boost/assign/list_of.hpp>
-#include <openssl/rand.h>
+#include "mnengine.h"
 
 using namespace std;
 using namespace boost;

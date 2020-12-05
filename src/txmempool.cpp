@@ -5,7 +5,7 @@
 
 #include "chain.h"
 #include "txmempool.h"
-#include "main.h" // for CTransaction
+#include "ctransaction.h"
 
 using namespace std;
 

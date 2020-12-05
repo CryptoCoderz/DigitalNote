@@ -198,7 +198,7 @@ contains(USE_O0, 1) {
 }
 
 QMAKE_CXXFLAGS_WARN_ON = -fdiagnostics-show-option -Wall -Wextra -Wno-ignored-qualifiers -Wformat -Wformat-security -Wno-unused-parameter -Wstack-protector
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-variable -fpermissive
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-variable -fpermissive -Wfatal-errors
 
 windows:QMAKE_CXXFLAGS_WARN_ON += -Wno-cpp -Wno-maybe-uninitialized
 !macx:QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-local-typedefs
@@ -361,7 +361,17 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/qt/importprivatekeydialog.cpp \
     src/qt/editconfigdialog.cpp \
     src/qt/bitcoinaddressvalidator.cpp \
-    src/alert.cpp \
+    src/cvalidationstate.cpp \
+	src/cblocklocator.cpp \
+	src/cdiskblockindex.cpp \
+	src/cblockindex.cpp \
+	src/cdiskblockpos.cpp \
+	src/cblock.cpp \
+	src/ctxindex.cpp \
+	src/cmerkletx.cpp \
+	src/cdisktxpos.cpp \
+	src/ctransaction.cpp \
+	src/alert.cpp \
     src/blocksizecalculator.cpp \
     src/allocators.cpp \
     src/base58.cpp \

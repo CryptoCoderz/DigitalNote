@@ -10,9 +10,10 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-#include "main.h"
+
 #include "util.h"
 #include "clientversion.h"
+#include "main.h"
 
 using namespace std;
 

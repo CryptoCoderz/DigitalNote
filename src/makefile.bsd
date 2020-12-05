@@ -94,6 +94,8 @@ xCXXFLAGS=-O0 -msse2 -pthread -Wall -Wextra -Wno-ignored-qualifiers -Wformat -Wf
 xLDFLAGS=$(LDHARDENING) $(LDFLAGS)
 
 OBJS= \
+    obj/cdisktxpos.o \
+    obj/ctransaction.o \
     obj/alert.o \
     obj/blocksizecalculator.o \
     obj/blockparams.o \

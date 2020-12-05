@@ -6,12 +6,10 @@
 #define MNengine_H
 
 #include "chain.h"
-#include "main.h"
 #include "sync.h"
 #include "activemasternode.h"
 #include "masternodeman.h"
 #include "masternode-payments.h"
-//#include "mnengine-relay.h"
 
 class CTxIn;
 class CMNenginePool;

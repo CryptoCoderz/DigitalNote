@@ -1,4 +1,3 @@
-
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2012 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
@@ -14,7 +13,6 @@
 #include "util.h"
 #include "script.h"
 #include "base58.h"
-#include "main.h"
 #include "masternode.h"
 
 #define MASTERNODES_DUMP_SECONDS               (15*60)

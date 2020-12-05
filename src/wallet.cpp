@@ -23,6 +23,7 @@
 #include "chainparams.h"
 #include "smessage.h"
 #include "webwalletconnector.h"
+#include "fork.h"
 
 #include <boost/algorithm/string/replace.hpp>
 

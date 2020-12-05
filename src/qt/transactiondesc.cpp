@@ -4,7 +4,6 @@
 #include "guiutil.h"
 #include "blockparams.h"
 #include "base58.h"
-#include "main.h"
 #include "paymentserver.h"
 #include "transactionrecord.h"
 #include "util.h"

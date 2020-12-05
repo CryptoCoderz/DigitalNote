@@ -5,8 +5,14 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "kernel.h"
 #include "txdb.h"
+#include "ctxindex.h"
+#include "cblock.h"
+#include "mining.h"
+#include "crypto/echo/echo512.h"
+#include "main.h"
+
+#include "kernel.h"
 
 using namespace std;
 

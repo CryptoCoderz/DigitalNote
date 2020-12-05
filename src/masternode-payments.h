@@ -1,5 +1,3 @@
-
-
 // Copyright (c) 2014-2015 The Dash developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -11,7 +9,6 @@
 #include "key.h"
 #include "util.h"
 #include "base58.h"
-#include "main.h"
 #include "masternode.h"
 
 using namespace std;

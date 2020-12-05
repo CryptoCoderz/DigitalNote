@@ -1,6 +1,7 @@
-#include "blockbrowser.h"
+#include <sstream>
+#include <string>
+
 #include "ui_blockbrowser.h"
-#include "main.h"
 #include "wallet.h"
 #include "base58.h"
 #include "clientmodel.h"
@@ -8,8 +9,8 @@
 #include "rpcconsole.h"
 #include "transactionrecord.h"
 
-#include <sstream>
-#include <string>
+#include "blockbrowser.h"
+
 double getBlockHardness(int height)
 {
     const CBlockIndex* blockindex = getBlockIndex(height);

@@ -4,9 +4,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "rpcserver.h"
-#include "main.h"
 #include "kernel.h"
 #include "checkpoints.h"
+#include "cblock.h"
+#include "cblockindex.h"
+#include "main.h"
 
 using namespace json_spirit;
 using namespace std;

@@ -13,6 +13,8 @@
 #include "base58.h"
 #include "main.h"
 #include "script.h"
+#include "cblockindex.h"
+
 #include "masternode.h"
 
 class uint256;

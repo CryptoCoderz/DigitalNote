@@ -2,18 +2,18 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "peertablemodel.h"
+#include <QDebug>
+#include <QList>
+#include <QTimer>
 
 #include "clientmodel.h"
 #include "guiconstants.h"
 #include "guiutil.h"
-
 #include "net.h"
 #include "sync.h"
+#include "main.h"
 
-#include <QDebug>
-#include <QList>
-#include <QTimer>
+#include "peertablemodel.h"
 
 bool NodeLessThan::operator()(const CNodeCombinedStats &left, const CNodeCombinedStats &right) const
 {

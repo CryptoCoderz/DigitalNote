@@ -1,10 +1,10 @@
+#include <boost/lexical_cast.hpp>
 #include "uint256.h"
 #include "sync.h"
 #include "net.h"
 #include "key.h"
 #include "util.h"
 #include "base58.h"
-#include "main.h"
 #include "protocol.h"
 #include "instantx.h"
 #include "activemasternode.h"
@@ -13,7 +13,7 @@
 #include "mnengine.h"
 #include "spork.h"
 #include "txdb.h"
-#include <boost/lexical_cast.hpp>
+#include "cvalidationstate.h"
 
 using namespace std;
 using namespace boost;

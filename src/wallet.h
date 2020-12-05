@@ -9,11 +9,11 @@
 
 #include <string>
 #include <vector>
-
+#include <map>
+#include <set>
 #include <stdlib.h>
 
 #include "crypter.h"
-#include "main.h"
 #include "key.h"
 #include "keystore.h"
 #include "script.h"
@@ -21,6 +21,15 @@
 #include "util.h"
 #include "stealth.h"
 #include "base58.h"
+#include "cwalletinterface.h"
+#include "serialize.h"
+#include "mining.h"
+#include "cmerkletx.h"
+#include "ctxindex.h"
+#include "cblock.h"
+#include "cblockindex.h"
+#include "cblocklocator.h"
+#include "cdiskblockpos.h"
 
 // Settings
 extern int64_t nPoSageReward;
