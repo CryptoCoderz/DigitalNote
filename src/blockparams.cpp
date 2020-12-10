@@ -479,31 +479,6 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
 //
 
 //
-// Masternode Select Payout Toggle
-//
-bool fMNselect(int nHeight)
-{
-    // Try to get frist masternode in our list
-    CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
-    // If initial sync or we can't find a masternode in our list
-    if(IsInitialBlockDownload() || !winningNode){
-        // Return false (for sanity, we have no masternode to pay)
-        LogPrintf("MasterNode Select Validation : Either still syncing or no masternodes found\n");
-        return false;
-    }
-    // Set TX values
-    CScript payee;
-    CTxIn vin;
-    //spork
-    if(masternodePayments.GetWinningMasternode(nHeight, payee, vin)){
-        LogPrintf("MasterNode Select Validation: SUCCEEDED\n");
-        return true;
-    }
-    return false;
-}
-
-
-//
 // PoW coin base reward
 //
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)

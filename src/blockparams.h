@@ -40,7 +40,6 @@ void VRX_ThreadCurve(const CBlockIndex* pindexLast, bool fProofOfStake);
 void VRX_Dry_Run(const CBlockIndex* pindexLast);
 unsigned int VRX_Retarget(const CBlockIndex* pindexLast, bool fProofOfStake);
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake);
-extern bool fMNselect(int nHeight);
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees);
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees);
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue);
