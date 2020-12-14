@@ -307,8 +307,6 @@ static const CRPCCommand vRPCCommands[] =
     { "listsinceblock",         &listsinceblock,         false,     false,     true },
     { "dumpprivkey",            &dumpprivkey,            false,     false,     true },
     { "dumpwallet",             &dumpwallet,             true,      false,     true },
-    { "dumpwalletjson",         &dumpwalletjson,         true,      false,     true },
-    { "getaddressfromprivkey",  &getaddressfromprivkey,  true,      false,     true },
     { "importprivkey",          &importprivkey,          false,     false,     true },
     { "importwallet",           &importwallet,           false,     false,     true },
     { "importaddress",          &importaddress,          false,     false,     true },

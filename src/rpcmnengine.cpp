@@ -476,7 +476,7 @@ Value masternode(const Array& params, bool fHelp)
         {
             CScript payee;
             CTxIn vin;
-            if(masternodePayments.GetWinningMasternode(nHeight, payee, vin)){
+            if(masternodePayments.GetBlockPayee(nHeight, payee, vin)){
                 CTxDestination address1;
                 ExtractDestination(payee, address1);
                 CDigitalNoteAddress address2(address1);
