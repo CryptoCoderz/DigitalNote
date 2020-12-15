@@ -54,10 +54,10 @@ UI_DIR = build
 # use: qmake "RELEASE=1"
 contains(RELEASE, 1) {
     # Mac: compile for maximum compatibility (10.15, 64-bit)
-    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
-    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
-    macx:QMAKE_LFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
-    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
+    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk
+    macx:QMAKE_CFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk
+    macx:QMAKE_LFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk
+    macx:QMAKE_OBJECTIVE_CFLAGS += -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk
 
 
     !windows:!macx {
@@ -550,12 +550,12 @@ isEmpty(BDB_INCLUDE_PATH) {
 }
 
 isEmpty(BOOST_LIB_PATH) {
-    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.73.0/lib
+    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost/1.74.0/lib
     windows:BOOST_LIB_PATH=C:/deps/boost_1_74_0/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
-    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.73.0/include
+    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost/1.74.0/include
     windows:BOOST_INCLUDE_PATH=C:/deps/boost_1_74_0/include
 
 }
@@ -585,12 +585,12 @@ isEmpty(MINIUPNPC_LIB_PATH) {
 }
 
 isEmpty(OPENSSL_INCLUDE_PATH) {
-    macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/include
+    macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl@1.1/1.1.1h/include
     windows:OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.2u/include
 }
 
 isEmpty(OPENSSL_LIB_PATH) {
-    macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl@1.1/1.1.1g/lib
+    macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl@1.1/1.1.1h/lib
     windows:OPENSSL_LIB_PATH=C:/deps/openssl-1.0.2u/lib
 }
 
