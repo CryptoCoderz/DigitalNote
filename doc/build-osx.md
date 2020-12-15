@@ -8,7 +8,7 @@ You can get the current version from http://developer.apple.com
 
 1. Clone the github tree to get the source code
 
-    ```git clone https://github.com/CryptoCoderz/DigitalNote DigitalNote``` 
+    ```git clone https://github.com/DigitalNoteXDN/DigitalNote-2 DigitalNote-2``` 
 
 2. Install dependencies using Homebrew
    1. Install dependencies:
