@@ -97,6 +97,7 @@ DigitalNote-qt: Qt5 GUI Release for DigitalNote
    brew install qrencode
    brew install qt5
    brew install protobuf
+   brew install libevent
    brew install python2.7
    sudo easy_install appscript
    ```
