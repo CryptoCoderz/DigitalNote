@@ -685,8 +685,8 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
         std::string errorMessage = "";
         if(!mnEngineSigner.VerifyMessage(pubkey, vchSig, strMessage, errorMessage)){
             LogPrintf("dsee - WARNING - Could not verify masternode address signature\n");
-            //Misbehaving(pfrom->GetId(), 100);
-            //return;
+            Misbehaving(pfrom->GetId(), 100);
+            return;
         }
 
         //search existing masternode list, this is where we update existing masternodes with new dsee broadcasts
@@ -847,7 +847,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 {
                     LogPrintf("dseep - WARNING - Could not verify masternode address signature %s \n", vin.ToString().c_str());
                     //Misbehaving(pfrom->GetId(), 100);
-                    //return;
+                    return;
                 }
 
                 pmn->lastDseep = sigTime;
@@ -902,8 +902,8 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 if(!mnEngineSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage))
                 {
                     LogPrintf("mvote - WARNING - Could not verify masternode address signature %s \n", vin.ToString().c_str());
-                    //Misbehaving(pfrom->GetId(), 100);
-                    //return;
+
+                    return;
                 }
 
                 pmn->nVote = nVote;

@@ -96,21 +96,24 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
 
-        vSeeds.push_back(CDNSSeedData("node0",  "206.189.183.68"));
-        vSeeds.push_back(CDNSSeedData("node1",  "167.71.183.195"));
-        vSeeds.push_back(CDNSSeedData("node2",  "142.93.201.211"));
-        vSeeds.push_back(CDNSSeedData("node3",  "134.209.55.249"));
-        vSeeds.push_back(CDNSSeedData("node4",  "seed1n.digitalnote.biz"));
-        vSeeds.push_back(CDNSSeedData("node5",  "seed2n.digitalnote.biz"));
-        vSeeds.push_back(CDNSSeedData("node6",  "seed3n.digitalnote.biz"));
-        vSeeds.push_back(CDNSSeedData("node7",  "seed4n.digitalnote.biz"));
+        vSeeds.push_back(CDNSSeedData("node0",  "138.197.161.183"));
+        vSeeds.push_back(CDNSSeedData("node1",  "157.230.107.144"));
+        vSeeds.push_back(CDNSSeedData("node1",  "188.166.123.46"));
+        vSeeds.push_back(CDNSSeedData("node1",  "159.203.14.113"));
+        vSeeds.push_back(CDNSSeedData("node1",  "199.175.54.187"));
+        vSeeds.push_back(CDNSSeedData("node1",  "157.230.107.144"));
+        vSeeds.push_back(CDNSSeedData("node1",  "138.197.161.183"));
+        vSeeds.push_back(CDNSSeedData("node2",  "seed1n.digitalnote.biz"));
+        vSeeds.push_back(CDNSSeedData("node3",  "seed2n.digitalnote.biz"));
+        vSeeds.push_back(CDNSSeedData("node4",  "seed3n.digitalnote.biz"));
+        vSeeds.push_back(CDNSSeedData("node5",  "seed4n.digitalnote.biz"));
 
         convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
 
         nPoolMaxTransactions = 9;
         strMNenginePoolDummyAddress = "dUnVN6zz2apaoWkb5krGoBCwwo8ZD3axue";
         strDevOpsAddress = "dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7";
-        nEndPoWBlock = 0x7fffffff;
+        nEndPoWBlock = 394624;
         nStartPoSBlock = 0;
     }
 
