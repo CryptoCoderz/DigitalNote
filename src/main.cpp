@@ -918,6 +918,10 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
                                 hash.ToString(), nSigOps, MAX_TX_SIGOPS));
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
+        if (tx.GetValueIn(mapInputs) < tx.GetValueOut()) {
+            LogPrintf("AcceptToMemoryPool : tx input is less that output\n");
+            return tx.DoS(100, error("AcceptToMemoryPool : tx input is less that output"));
+        }
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
 
         // Don't accept it if it can't get into a block
@@ -1080,6 +1084,10 @@ bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree
                                 hash.ToString(), nSigOps, MAX_TX_SIGOPS));
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
+        if (tx.GetValueIn(mapInputs) < tx.GetValueOut()) {
+            LogPrintf("AcceptableInputs : tx input is less that output\n");
+            return error("AcceptableInputs : tx input is less than output");
+        }
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
         int64_t txMinFee = GetMinFee(tx, nSize, true, GMF_RELAY);
 
@@ -1976,8 +1984,13 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             int64_t nTxValueOut = tx.GetValueOut();
             nValueIn += nTxValueIn;
             nValueOut += nTxValueOut;
-            if (!tx.IsCoinStake())
+            if (!tx.IsCoinStake()) {
                 nFees += nTxValueIn - nTxValueOut;
+                if (nTxValueIn < nTxValueOut) {
+                    LogPrintf("ConnectBlock : block contains a tx input that is less that output\n");
+                    return false;
+                }
+            }
             if (tx.IsCoinStake())
                 nStakeReward = nTxValueOut - nTxValueIn;
 
