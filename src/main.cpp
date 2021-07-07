@@ -2948,6 +2948,7 @@ bool CBlock::AcceptBlock()
     // Set logged values
     CAmount tx_inputs_values = 0;
     CAmount tx_outputs_values = 0;
+    CAmount tx_threshold = (300 * COIN);
     // Check that all transactions are finalized
     BOOST_FOREACH(const CTransaction& tx, vtx)
     {
@@ -2956,15 +2957,11 @@ bool CBlock::AcceptBlock()
         }
         // Log inputs/output values
         tx_inputs_values += tx.GetValueMapIn(tx.GetMapTxInputs());
-        // Don't include PoW or PoS payments
-        // these are already checked in CoinStake and CoinBase respectfully
-        if (!tx.IsCoinBase() && !tx.IsCoinStake()) {
-            tx_outputs_values += tx.GetValueOut();
-        }
+        tx_outputs_values += tx.GetValueOut();
     }
 
     // Ensure input/output sanity of transactions in the block
-    if(tx_inputs_values < tx_outputs_values)
+    if((tx_inputs_values + tx_threshold) < tx_outputs_values)
     {
         if(nHeight > 500) {
             return DoS(100, error("AcceptBlock() : block contains a tx input that is less that output"));
