@@ -735,11 +735,10 @@ double CTransaction::ComputePriority(double dPriorityInputs, unsigned int nTxSiz
     return dPriorityInputs / nTxSize;
 }
 
-MapPrevTx CTransaction::GetMapTxInputs() const
+void CTransaction::GetMapTxInputs(MapPrevTx& mapInputs) const
 {
     // Load TX inputs
     CTxDB txdb("r");
-    MapPrevTx mapInputs;
     map<uint256, CTxIndex> mapUnused;
     bool fInvalid = false;
     // Ensure we can fetch inputs
@@ -748,11 +747,9 @@ MapPrevTx CTransaction::GetMapTxInputs() const
         if (fInvalid)
         {
             LogPrintf("Invalid TX attempted to set in GetMapTXInputs\n");
-            return mapInputs;
+            return;
         }
     }
-    // Return mapped inputs
-    return mapInputs;
 }
 
 bool CTransaction::CheckTransaction() const
@@ -2956,16 +2953,16 @@ bool CBlock::AcceptBlock()
             return DoS(10, error("AcceptBlock() : contains a non-final transaction"));
         }
         // Log inputs/output values
-        tx_inputs_values += tx.GetValueMapIn(tx.GetMapTxInputs());
+        MapPrevTx mapInputs;
+        tx.GetMapTxInputs(mapInputs);
+        tx_inputs_values += tx.GetValueMapIn(mapInputs);
         tx_outputs_values += tx.GetValueOut();
     }
 
     // Ensure input/output sanity of transactions in the block
     if((tx_inputs_values + tx_threshold) < tx_outputs_values)
     {
-        if(nHeight > 500) {
-            return DoS(100, error("AcceptBlock() : block contains a tx input that is less that output"));
-        }
+        return DoS(100, error("AcceptBlock() : block contains a tx input that is less that output"));
     }
 
     // Check that the block chain matches the known block chain up to a checkpoint

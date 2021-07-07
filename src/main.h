@@ -329,7 +329,7 @@ public:
         return nValueOut;
     }
     // Map TX inputs for scanning
-    MapPrevTx GetMapTxInputs() const;
+    void GetMapTxInputs(MapPrevTx &mapInputs) const;
 
     /** Amount of bitcoins coming in to this transaction
         Note that lightweight clients may not know anything besides the hash of previous transactions,
