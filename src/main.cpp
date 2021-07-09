@@ -1666,12 +1666,18 @@ bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTes
 const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& inputs) const
 {
     MapPrevTx::const_iterator mi = inputs.find(input.prevout.hash);
-    if (mi == inputs.end())
+    if (mi == inputs.end()) {
         throw std::runtime_error("CTransaction::GetOutputFor() : prevout.hash not found");
+    }
 
     const CTransaction& txPrev = (mi->second).second;
-    if (input.prevout.n >= txPrev.vout.size())
-        throw std::runtime_error("CTransaction::GetOutputFor() : prevout.n out of range");
+    // Don't allow oversized outputs
+    if (input.prevout.n >= txPrev.vout.size()) {
+        // Skip if input is 0 (coinbase tx!)
+        if(!input.prevout.IsNull()) {
+            throw std::runtime_error("CTransaction::GetOutputFor() : prevout.n out of range");
+        }
+    }
 
     return txPrev.vout[input.prevout.n];
 }
@@ -2957,6 +2963,11 @@ bool CBlock::AcceptBlock()
         tx.GetMapTxInputs(mapInputs);
         tx_inputs_values += tx.GetValueMapIn(mapInputs);
         tx_outputs_values += tx.GetValueOut();
+    }
+
+    // Verify we haven't overflowed CAmount value or had NULL inputs/outpus in the block
+    if((tx_inputs_values + tx_threshold) <= 0) {
+        return DoS(100, error("AcceptBlock() : block contains a tx input that is less that output"));
     }
 
     // Ensure input/output sanity of transactions in the block
