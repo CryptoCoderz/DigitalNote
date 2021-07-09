@@ -2979,7 +2979,9 @@ bool CBlock::AcceptBlock()
     // Ensure input/output sanity of transactions in the block
     if((tx_inputs_values + tx_threshold) < tx_outputs_values)
     {
-        return DoS(100, error("AcceptBlock() : block contains a tx input that is less that output"));
+        if(nHeight > 175) {
+            return DoS(100, error("AcceptBlock() : block contains a tx input that is less that output"));
+        }
     }
 
     // Check that the block chain matches the known block chain up to a checkpoint
