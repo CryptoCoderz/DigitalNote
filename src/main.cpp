@@ -2961,13 +2961,19 @@ bool CBlock::AcceptBlock()
         // Log inputs/output values
         MapPrevTx mapInputs;
         tx.GetMapTxInputs(mapInputs);
-        tx_inputs_values += tx.GetValueMapIn(mapInputs);
-        tx_outputs_values += tx.GetValueOut();
-    }
-
-    // Verify we haven't overflowed CAmount value or had NULL inputs/outpus in the block
-    if((tx_inputs_values + tx_threshold) <= 0) {
-        return DoS(100, error("AcceptBlock() : block contains a tx input that is less that output"));
+        // Log inputs/output values
+        if(tx_inputs_values + tx.GetValueMapIn(mapInputs) >= 0)
+        {
+            tx_inputs_values += tx.GetValueMapIn(mapInputs);
+        } else {
+            return DoS(10, error("AcceptBlock() : overflow detected tx_inputs_values + tx.GetValueMapIn(mapInputs)"));
+        }
+        if(tx_outputs_values + tx.GetValueOut() >= 0)
+        {
+            tx_outputs_values += tx.GetValueOut();
+        } else {
+            return DoS(10, error("AcceptBlock() : overflow detected tx_outputs_values + tx.GetValueOut()"));
+        }
     }
 
     // Ensure input/output sanity of transactions in the block
