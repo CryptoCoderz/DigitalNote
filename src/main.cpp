@@ -64,7 +64,6 @@ bool fImporting = false;
 bool fReindex = false;
 bool fAddrIndex = false;
 bool fHaveGUI = false;
-bool AcceptBlock_Tx_Scan = false;
 
 struct COrphanBlock {
     uint256 hashBlock;
@@ -585,7 +584,7 @@ bool AreInputsStandard(const CTransaction& tx, const MapPrevTx& mapInputs)
 
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {
-        const CTxOut& prev = tx.GetOutputFor(tx.vin[i], mapInputs);
+        const CTxOut& prev = tx.GetOutputFor(tx.vin[i], mapInputs, false);
 
         vector<vector<unsigned char> > vSolutions;
         txnouttype whichType;
@@ -663,7 +662,7 @@ unsigned int GetP2SHSigOpCount(const CTransaction& tx, const MapPrevTx& inputs)
     unsigned int nSigOps = 0;
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {
-        const CTxOut& prevout = tx.GetOutputFor(tx.vin[i], inputs);
+        const CTxOut& prevout = tx.GetOutputFor(tx.vin[i], inputs, false);
         if (prevout.scriptPubKey.IsPayToScriptHash())
             nSigOps += prevout.scriptPubKey.GetSigOpCount(tx.vin[i].scriptSig);
     }
@@ -736,14 +735,15 @@ double CTransaction::ComputePriority(double dPriorityInputs, unsigned int nTxSiz
     return dPriorityInputs / nTxSize;
 }
 
-void CTransaction::GetMapTxInputs(MapPrevTx& mapInputs) const
+void CTransaction::GetMapTxInputs(MapPrevTx& mapInputs, bool fAcceptBlock) const
 {
     // Load TX inputs
     CTxDB txdb("r");
     map<uint256, CTxIndex> mapUnused;
     bool fInvalid = false;
+
     // Ensure we can fetch inputs
-    if (!this->FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid))
+    if (!this->FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid, fAcceptBlock))
     {
         if (fInvalid)
         {
@@ -912,7 +912,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
         MapPrevTx mapInputs;
         map<uint256, CTxIndex> mapUnused;
         bool fInvalid = false;
-        if (!tx.FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid))
+        if (!tx.FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid, false))
         {
             if (fInvalid)
                 return error("AcceptToMemoryPool : FetchInputs found invalid tx %s", hash.ToString());
@@ -935,8 +935,8 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
                           error("AcceptToMemoryPool : too many sigops %s, %d > %d",
                                 hash.ToString(), nSigOps, MAX_TX_SIGOPS));
 
-        int64_t nFees = tx.GetValueMapIn(mapInputs)-tx.GetValueOut();
-        if (tx.GetValueMapIn(mapInputs) < tx.GetValueOut()) {
+        int64_t nFees = tx.GetValueMapIn(mapInputs, false)-tx.GetValueOut();
+        if (tx.GetValueMapIn(mapInputs, false) < tx.GetValueOut()) {
             LogPrintf("AcceptToMemoryPool : tx input is less that output\n");
             return tx.DoS(100, error("AcceptToMemoryPool : tx input is less that output"));
         }
@@ -1078,7 +1078,7 @@ bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree
         MapPrevTx mapInputs;
         map<uint256, CTxIndex> mapUnused;
         bool fInvalid = false;
-        if (!tx.FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid))
+        if (!tx.FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid, false))
         {
             if (fInvalid)
                 return error("AcceptableInputs : FetchInputs found invalid tx %s", hash.ToString());
@@ -1101,8 +1101,8 @@ bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree
                           error("AcceptableInputs : too many sigops %s, %d > %d",
                                 hash.ToString(), nSigOps, MAX_TX_SIGOPS));
 
-        int64_t nFees = tx.GetValueMapIn(mapInputs)-tx.GetValueOut();
-        if (tx.GetValueMapIn(mapInputs) < tx.GetValueOut()) {
+        int64_t nFees = tx.GetValueMapIn(mapInputs, false)-tx.GetValueOut();
+        if (tx.GetValueMapIn(mapInputs, false) < tx.GetValueOut()) {
             LogPrintf("AcceptableInputs : tx input is less that output\n");
             return error("AcceptableInputs : tx input is less than output");
         }
@@ -1594,7 +1594,7 @@ bool CTransaction::DisconnectInputs(CTxDB& txdb)
 
 
 bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTestPool,
-                               bool fBlock, bool fMiner, MapPrevTx& inputsRet, bool& fInvalid) const
+                               bool fBlock, bool fMiner, MapPrevTx& inputsRet, bool& fInvalid, bool fAcceptBlock) const
 {
     // FetchInputs can return false either because we just haven't seen some inputs
     // (in which case the transaction should be stored as an orphan)
@@ -1632,16 +1632,23 @@ bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTes
         if (!fFound || txindex.pos == CDiskTxPos(1,1,1))
         {
             // Get prev tx from single transactions in memory
-            if (!mempool.lookup(prevout.hash, txPrev))
-                return error("FetchInputs() : %s mempool Tx prev not found %s", GetHash().ToString(),  prevout.hash.ToString());
-            if (!fFound)
+            if (!mempool.lookup(prevout.hash, txPrev)) {
+                if (!fAcceptBlock) {
+                    return error("FetchInputs() : %s mempool Tx prev not found %s", GetHash().ToString(),  prevout.hash.ToString());
+                }
+            }
+            if (!fFound) {
                 txindex.vSpent.resize(txPrev.vout.size());
+            }
         }
         else
         {
             // Get prev tx from disk
-            if (!txPrev.ReadFromDisk(txindex.pos))
-                return error("FetchInputs() : %s ReadFromDisk prev tx %s failed", GetHash().ToString(),  prevout.hash.ToString());
+            if (!txPrev.ReadFromDisk(txindex.pos)) {
+                if (!fAcceptBlock) {
+                    return error("FetchInputs() : %s ReadFromDisk prev tx %s failed", GetHash().ToString(),  prevout.hash.ToString());
+                }
+            }
         }
     }
 
@@ -1656,15 +1663,17 @@ bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTes
         {
             // Revisit this if/when transaction replacement is implemented and allows
             // adding inputs:
-            fInvalid = true;
-            return DoS(100, error("FetchInputs() : %s prevout.n out of range %d %u %u prev tx %s\n%s", GetHash().ToString(), prevout.n, txPrev.vout.size(), txindex.vSpent.size(), prevout.hash.ToString(), txPrev.ToString()));
+            if (!fAcceptBlock) {
+                fInvalid = true;
+                return DoS(100, error("FetchInputs() : %s prevout.n out of range %d %u %u prev tx %s\n%s", GetHash().ToString(), prevout.n, txPrev.vout.size(), txindex.vSpent.size(), prevout.hash.ToString(), txPrev.ToString()));
+            }
         }
     }
 
     return true;
 }
 
-const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& inputs) const
+const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& inputs, bool fAcceptBlock) const
 {
     MapPrevTx::const_iterator mi = inputs.find(input.prevout.hash);
     if (mi == inputs.end()) {
@@ -1675,7 +1684,7 @@ const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& in
     // Don't allow oversized outputs
     if (input.prevout.n >= txPrev.vout.size()) {
         // Skip if queried by AcceptBlock()
-        if (!AcceptBlock_Tx_Scan) {
+        if (!fAcceptBlock) {
             throw std::runtime_error("CTransaction::GetOutputFor() : prevout.n out of range");
         }
     }
@@ -1683,7 +1692,7 @@ const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& in
     return txPrev.vout[input.prevout.n];
 }
 
-int64_t CTransaction::GetValueMapIn(const MapPrevTx& inputs) const
+int64_t CTransaction::GetValueMapIn(const MapPrevTx& inputs, bool fAcceptBlock) const
 {
     if (IsCoinBase())
         return 0;
@@ -1691,11 +1700,9 @@ int64_t CTransaction::GetValueMapIn(const MapPrevTx& inputs) const
     int64_t nResult = 0;
     for (unsigned int i = 0; i < vin.size(); i++)
     {
-        nResult += GetOutputFor(vin[i], inputs).nValue;
+        nResult += GetOutputFor(vin[i], inputs, fAcceptBlock).nValue;
     }
-    if (AcceptBlock_Tx_Scan) {
-        AcceptBlock_Tx_Scan = false;
-    }
+
     return nResult;
 
 }
@@ -1914,7 +1921,7 @@ void CBlock::RebuildAddressIndex(CTxDB& txdb)
             MapPrevTx mapInputs;
             map<uint256, CTxIndex> mapQueuedChangesT;
             bool fInvalid;
-            if (!tx.FetchInputs(txdb, mapQueuedChangesT, true, false, mapInputs, fInvalid))
+            if (!tx.FetchInputs(txdb, mapQueuedChangesT, true, false, mapInputs, fInvalid, false))
                 return;
 
             MapPrevTx::const_iterator mi;
@@ -1997,7 +2004,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         else
         {
             bool fInvalid;
-            if (!tx.FetchInputs(txdb, mapQueuedChanges, true, false, mapInputs, fInvalid))
+            if (!tx.FetchInputs(txdb, mapQueuedChanges, true, false, mapInputs, fInvalid, false))
                 return false;
 
             // Add in sigops done by pay-to-script-hash inputs;
@@ -2007,7 +2014,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             if (nSigOps > MAX_BLOCK_SIGOPS)
                 return DoS(100, error("ConnectBlock() : too many sigops"));
 
-            int64_t nTxValueIn = tx.GetValueMapIn(mapInputs);
+            int64_t nTxValueIn = tx.GetValueMapIn(mapInputs, false);
             int64_t nTxValueOut = tx.GetValueOut();
             nValueIn += nTxValueIn;
             nValueOut += nTxValueOut;
@@ -2079,7 +2086,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
                 MapPrevTx mapInputs;
                 map<uint256, CTxIndex> mapQueuedChangesT;
                 bool fInvalid;
-                if (!tx.FetchInputs(txdb, mapQueuedChangesT, true, false, mapInputs, fInvalid))
+                if (!tx.FetchInputs(txdb, mapQueuedChangesT, true, false, mapInputs, fInvalid, false))
                     return false;
 
                 MapPrevTx::const_iterator mi;
@@ -2955,6 +2962,7 @@ bool CBlock::AcceptBlock()
     // Set logged values
     CAmount tx_inputs_values = 0;
     CAmount tx_outputs_values = 0;
+    CAmount tx_MapIn_values = 0;
     CAmount tx_threshold = (300 * COIN);
     // Check that all transactions are finalized
     BOOST_FOREACH(const CTransaction& tx, vtx)
@@ -2964,12 +2972,12 @@ bool CBlock::AcceptBlock()
         }
         // Log inputs/output values
         MapPrevTx mapInputs;
-        tx.GetMapTxInputs(mapInputs);
-        AcceptBlock_Tx_Scan = true;
+        tx.GetMapTxInputs(mapInputs, true);
+        tx_MapIn_values = tx.GetValueMapIn(mapInputs, true);
         // Log inputs/output values
-        if(tx_inputs_values + tx.GetValueMapIn(mapInputs) >= 0)
+        if((tx_inputs_values + tx_MapIn_values) >= 0)
         {
-            tx_inputs_values += tx.GetValueMapIn(mapInputs);
+            tx_inputs_values += tx_MapIn_values;
         } else {
             return DoS(10, error("AcceptBlock() : overflow detected tx_inputs_values + tx.GetValueMapIn(mapInputs)"));
         }
