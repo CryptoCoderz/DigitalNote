@@ -64,6 +64,7 @@ bool fImporting = false;
 bool fReindex = false;
 bool fAddrIndex = false;
 bool fHaveGUI = false;
+bool AcceptBlock_Tx_Scan = false;
 
 struct COrphanBlock {
     uint256 hashBlock;
@@ -1673,8 +1674,8 @@ const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& in
     const CTransaction& txPrev = (mi->second).second;
     // Don't allow oversized outputs
     if (input.prevout.n >= txPrev.vout.size()) {
-        // Skip if input is coinstake tx!
-        if(!IsCoinStake()) {
+        // Skip if queried by AcceptBlock()
+        if (!AcceptBlock_Tx_Scan) {
             throw std::runtime_error("CTransaction::GetOutputFor() : prevout.n out of range");
         }
     }
@@ -1691,6 +1692,9 @@ int64_t CTransaction::GetValueMapIn(const MapPrevTx& inputs) const
     for (unsigned int i = 0; i < vin.size(); i++)
     {
         nResult += GetOutputFor(vin[i], inputs).nValue;
+    }
+    if (AcceptBlock_Tx_Scan) {
+        AcceptBlock_Tx_Scan = false;
     }
     return nResult;
 
@@ -2961,6 +2965,7 @@ bool CBlock::AcceptBlock()
         // Log inputs/output values
         MapPrevTx mapInputs;
         tx.GetMapTxInputs(mapInputs);
+        AcceptBlock_Tx_Scan = true;
         // Log inputs/output values
         if(tx_inputs_values + tx.GetValueMapIn(mapInputs) >= 0)
         {
