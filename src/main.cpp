@@ -1635,6 +1635,8 @@ bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTes
             if (!mempool.lookup(prevout.hash, txPrev)) {
                 if (!fAcceptBlock) {
                     return error("FetchInputs() : %s mempool Tx prev not found %s", GetHash().ToString(),  prevout.hash.ToString());
+                } else {
+                    LogPrintf("FetchInputs() : fAcceptBlock toggled, Skipping mempool Tx prev not found error \n");
                 }
             }
             if (!fFound) {
@@ -1647,27 +1649,31 @@ bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTes
             if (!txPrev.ReadFromDisk(txindex.pos)) {
                 if (!fAcceptBlock) {
                     return error("FetchInputs() : %s ReadFromDisk prev tx %s failed", GetHash().ToString(),  prevout.hash.ToString());
+                } else {
+                    LogPrintf("FetchInputs() : fAcceptBlock toggled, Skipping ReadFromDisk Tx prev not found error \n");
                 }
             }
         }
     }
 
-    // Make sure all prevout.n indexes are valid:
-    for (unsigned int i = 0; i < vin.size(); i++)
-    {
-        const COutPoint prevout = vin[i].prevout;
-        assert(inputsRet.count(prevout.hash) != 0);
-        const CTxIndex& txindex = inputsRet[prevout.hash].first;
-        const CTransaction& txPrev = inputsRet[prevout.hash].second;
-        if (prevout.n >= txPrev.vout.size() || prevout.n >= txindex.vSpent.size())
+    if (!fAcceptBlock) {
+        // Make sure all prevout.n indexes are valid:
+        for (unsigned int i = 0; i < vin.size(); i++)
         {
-            // Revisit this if/when transaction replacement is implemented and allows
-            // adding inputs:
-            if (!fAcceptBlock) {
+            const COutPoint prevout = vin[i].prevout;
+            assert(inputsRet.count(prevout.hash) != 0);
+            const CTxIndex& txindex = inputsRet[prevout.hash].first;
+            const CTransaction& txPrev = inputsRet[prevout.hash].second;
+            if (prevout.n >= txPrev.vout.size() || prevout.n >= txindex.vSpent.size())
+            {
+                // Revisit this if/when transaction replacement is implemented and allows
+                // adding inputs:
                 fInvalid = true;
                 return DoS(100, error("FetchInputs() : %s prevout.n out of range %d %u %u prev tx %s\n%s", GetHash().ToString(), prevout.n, txPrev.vout.size(), txindex.vSpent.size(), prevout.hash.ToString(), txPrev.ToString()));
             }
         }
+    } else {
+        LogPrintf("FetchInputs() : fAcceptBlock toggled, Skipping prevout.n validation \n");
     }
 
     return true;
