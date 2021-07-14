@@ -60,7 +60,7 @@ static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
 /** Minimum TX count (for relaying) */
 static const int64_t MIN_TX_COUNT = 0;
 /** Minimum TX value (for relaying) */
-static const int64_t MIN_TX_VALUE = 0.01 * COIN;
+static const int64_t MIN_TX_VALUE = 1 * COIN;
 /** No amount larger than this (in satoshi) is valid */
 static const int64_t MAX_SINGLE_TX = 10000000000 * COIN; // 10 Billion DigitalNote coins
 /** Moneyrange params */
@@ -79,6 +79,8 @@ static const int64_t nDrift = 5 * 60;
 inline int64_t FutureDrift(int64_t nTime) { return nTime + nDrift; }
 /** "reject" message codes **/
 static const unsigned char REJECT_INVALID = 0x10;
+/** Velocity Factor handling toggle */
+inline bool FACTOR_TOGGLE(int nHeight) { return TestNet() || nHeight > 394623; }
 
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
@@ -328,8 +330,6 @@ public:
         }
         return nValueOut;
     }
-    // Map TX inputs for scanning
-    void GetMapTxInputs(MapPrevTx &mapInputs, bool fAcceptBlock) const;
 
     /** Amount of bitcoins coming in to this transaction
         Note that lightweight clients may not know anything besides the hash of previous transactions,
@@ -339,7 +339,7 @@ public:
         @return Sum of value of all inputs (scriptSigs)
         @see CTransaction::FetchInputs
      */
-    int64_t GetValueMapIn(const MapPrevTx& mapInputs, bool fAcceptBlock) const;
+    int64_t GetValueMapIn(const MapPrevTx& mapInputs) const;
 
     bool ReadFromDisk(CDiskTxPos pos, FILE** pfileRet=NULL)
     {
@@ -418,7 +418,7 @@ public:
      @return    Returns true if all inputs are in txdb or mapTestPool
      */
     bool FetchInputs(CTxDB& txdb, const std::map<uint256, CTxIndex>& mapTestPool,
-                     bool fBlock, bool fMiner, MapPrevTx& inputsRet, bool& fInvalid, bool fAcceptBlock) const;
+                     bool fBlock, bool fMiner, MapPrevTx& inputsRet, bool& fInvalid) const;
 
     /** Sanity check previous transactions, then, if all checks succeed,
         mark them as spent by this transaction.
@@ -437,7 +437,7 @@ public:
     bool CheckTransaction() const;
     bool GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64_t& nCoinAge) const;
 
-    const CTxOut& GetOutputFor(const CTxIn& input, const MapPrevTx& inputs, bool fAcceptBlock) const;
+    const CTxOut& GetOutputFor(const CTxIn& input, const MapPrevTx& inputs) const;
 };
 
 

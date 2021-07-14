@@ -1,26 +1,26 @@
 // Copyright (c) 2014 The Cryptocoin Revival Foundation
-// Copyright (c) 2015-2020 The CryptoCoderz Team / Espers
-// Copyright (c) 2018-2020 The Rubix Project
-// Copyright (c) 2018-2020 The DigitalNote Project
+// Copyright (c) 2015-2021 The CryptoCoderz Team / Espers
+// Copyright (c) 2018-2021 The DigitalNote Project
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "blockparams.h"
 #include "main.h"
+#include "txdb.h"
 #include "velocity.h"
 #include "rpcserver.h"
 #include "wallet.h"
+
+bool VELOCITY_FACTOR = false;
 
 /* VelocityI(int nHeight) ? i : -1
    Returns i or -1 if not found */
 int VelocityI(int nHeight)
 {
-    int i = 0;
-    i --;
-    BOOST_FOREACH(int h, VELOCITY_HEIGHT)
-    if( nHeight >= h )
-      i++;
-    return i;
+    if (FACTOR_TOGGLE(nHeight)) {
+        VELOCITY_FACTOR = true;
+    }
+    return nHeight;
 }
 
 /* Velocity(int nHeight) ? true : false
@@ -42,16 +42,13 @@ bool Velocity_check(int nHeight)
    Returns true if proposed Block matches constrains */
 bool Velocity(CBlockIndex* prevBlock, CBlock* block)
 {
-    const MapPrevTx mapInputs;
-
     // Define values
-    int64_t TXvalue = 0;
-    int64_t TXinput = 0;
-    int64_t TXfee = 0;
-    int64_t TXdevfee = 0;
-    int64_t TXnetfee = 0;
-    int64_t TXcount = 0;
-    int64_t TXlogic = 0;
+    CAmount tx_inputs_values = 0;
+    CAmount tx_outputs_values = 0;
+    CAmount tx_MapIn_values = 0;
+    CAmount tx_MapOut_values = 0;
+    CAmount tx_threshold = (500 * COIN);
+    int64_t TXcount = block->vtx.size();
     int64_t TXrate = 0;
     int64_t CURvalstamp  = 0;
     int64_t OLDvalstamp  = 0;
@@ -59,13 +56,10 @@ bool Velocity(CBlockIndex* prevBlock, CBlock* block)
     int64_t OLDstamp = 0;
     int64_t TXstampC = 0;
     int64_t TXstampO = 0;
-    int64_t devopsPayment = 0;
     int64_t SYScrntstamp = 0;
     int64_t SYSbaseStamp = 0;
     int nHeight = prevBlock->nHeight+1;
     int i = VelocityI(nHeight);
-    int HaveCoins = false;
-    bool fpayment = true;
     // Set stanard values
     TXrate = block->GetBlockTime() - prevBlock->GetBlockTime();
     TXstampC = block->nTime;
@@ -77,57 +71,50 @@ bool Velocity(CBlockIndex* prevBlock, CBlock* block)
     SYScrntstamp = GetAdjustedTime() + VELOCITY_MIN_RATE[i];
     SYSbaseStamp = GetTime() + VELOCITY_MIN_RATE[i];
 
-    // TODO: Rework and activate below section for future releases
-    // Factor in TXs for Velocity constraints only if there are TXs to do so with
-    if(VELOCITY_FACTOR[i] == true && TXvalue > 0)
+    // Factor in TXs for Velocity constraints
+    if(VELOCITY_FACTOR == true)
     {
         // Set factor values
         BOOST_FOREACH(const CTransaction& tx, block->vtx)
         {
-            TXvalue = tx.GetValueOut();
-            TXinput = tx.GetValueMapIn(mapInputs, false);
-            TXfee = TXinput - TXvalue;
-            TXcount = block->vtx.size();
-            // TXlogic = GetPrevAccountBalance - TXinput;
-            // TXrate = block->GetBlockTime() - prevBlock->GetBlockTime();
+            // Load TX inputs
+            CTxDB txdb("r");
+            MapPrevTx mapInputs;
+            map<uint256, CTxIndex> mapUnused;
+            bool fInvalid = false;
+            // Ensure we can fetch inputs
+            if (!tx.FetchInputs(txdb, mapUnused, true, false, mapInputs, fInvalid))
+            {
+                LogPrintf("DENIED: Invalid TX found during FetchInputs\n");
+                return false;
+            }
+            // Authenticate submitted block's TXs
+            tx_MapIn_values = tx.GetValueMapIn(mapInputs);
+            tx_MapOut_values = tx.GetValueOut();
+            if(tx_inputs_values + tx_MapIn_values >= 0) {
+                tx_inputs_values += tx_MapIn_values;
+            } else {
+                LogPrintf("DENIED: overflow detected tx_inputs_values + tx.GetValueMapIn(mapInputs)\n");
+                return false;
+            }
+            if(tx_outputs_values + tx_MapOut_values >= 0) {
+                tx_outputs_values += tx_MapOut_values;
+            } else {
+                LogPrintf("DENIED: overflow detected tx_outputs_values + tx.GetValueOut()\n");
+                return false;
+            }
         }
-        // Set Velocity logic value
-        if(TXlogic > 0)
+        // Ensure input/output sanity of transactions in the block
+        if((tx_inputs_values + tx_threshold) < tx_outputs_values)
         {
-            HaveCoins = true;
+            LogPrintf("DENIED: block contains a tx input that is less that output\n");
+            return false;
         }
         // Check for and enforce minimum TXs per block (Minimum TXs are disabled for Espers)
         if(VELOCITY_MIN_TX[i] > 0 && TXcount < VELOCITY_MIN_TX[i])
         {
             LogPrintf("DENIED: Not enough TXs in block\n");
             return false;
-        }
-        // Authenticate submitted block's TXs
-        if(VELOCITY_MIN_VALUE[i] > 0 || VELOCITY_MIN_FEE[i] > 0)
-        {
-            // Make sure we accept only blocks that sent an amount
-            // NOT being more than available coins to send
-            if(VELOCITY_MIN_FEE[i] > 0 && TXinput > 0)
-            {
-                if(HaveCoins == false)
-                {
-                    LogPrintf("DENIED: Balance has insuficient funds for attempted TX with Velocity\n");
-                    return false;
-                }
-            }
-            if(VELOCITY_MIN_VALUE[i] > 0 && TXvalue < VELOCITY_MIN_VALUE[i])
-            {
-                LogPrintf("DENIED: Invalid TX value found by Velocity\n");
-                return false;
-            }
-            if(VELOCITY_MIN_FEE[i] > 0 && TXinput > 0)
-            {
-                if(TXfee < VELOCITY_MIN_FEE[i])
-                {
-                    LogPrintf("DENIED: Invalid network fee found by Velocity\n");
-                    return false;
-                }
-            }
         }
     }
 
@@ -155,49 +142,6 @@ bool Velocity(CBlockIndex* prevBlock, CBlock* block)
     {
         LogPrintf("DENIED: Block timestamp is not logical\n");
         return false;
-    }
-
-    // Verify coinbase transaction includes DevOps payment
-    if (1 > 2)
-    {
-        if(block->IsProofOfStake())
-        {
-            fpayment = false;
-            devopsPayment = GetDevOpsPayment(nHeight, nPoSageReward);
-            // Set block TX values
-            BOOST_FOREACH(const CTransaction& tx, block->vtx)
-            {
-                TXcount = block->vtx.size();
-                TXvalue = tx.GetValueOut();
-                TXinput = tx.GetValueMapIn(mapInputs, false);
-                TXfee = TXinput - TXvalue;
-                if(TXfee > devopsPayment){
-                    TXnetfee = TXfee - devopsPayment;
-                }
-                else{
-                    TXnetfee = devopsPayment - TXfee;
-                }
-                if(TXfee > TXnetfee){
-                    TXdevfee = TXfee - TXnetfee;
-                }
-                else{
-                    TXdevfee = TXnetfee - TXfee;
-                }
-
-            }
-
-            if(TXdevfee == devopsPayment)
-            {
-                LogPrintf("CHECK_PASSED: block contains valid devops payment\n");
-                fpayment = true;
-            }
-        }
-
-        if (!fpayment)
-        {
-            LogPrintf("DENIED: block does not contain valid devops payment\n");
-            return false;
-        }
     }
 
     // Constrain Velocity
