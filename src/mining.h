@@ -17,6 +17,8 @@ static const unsigned int nModifierInterval = 2 * 60;
 static const int64_t nGenesisBlockReward = 1 * COIN;
 /** Reserve block subsidy */
 static const int64_t nBlockRewardReserve = 80000000 * COIN; // Reserve for swap from XDN cryptonote codebase
+/** Reimburse block subsidy */
+static const int64_t nBlockReimburse = 1000000000 * COIN; // Bittrex Reimburse
 /** Standard block subsidy */
 static const int64_t nBlockStandardReward = 300 * COIN;
 /** Block spacing preferred */

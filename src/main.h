@@ -71,6 +71,12 @@ static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20
 static const int MAX_BLOCKS_IN_TRANSIT_PER_PEER = 128;
 /** Timeout in seconds before considering a block download peer unresponsive. */
 static const unsigned int BLOCK_DOWNLOAD_TIMEOUT = 60;
+/** Maximum block reorganize depth (consider else an invalid fork) */
+static const unsigned int BLOCK_REORG_MAX_DEPTH = 150;
+/** Minimum block reorganize depth (consider else an invalid fork) */
+static const unsigned int BLOCK_REORG_MIN_DEPTH = 15;
+/** Depth for rolling checkpoing block */
+static const unsigned int BLOCK_TEMP_CHECKPOINT_DEPTH = 12;
 /** Defaults to yes, adaptively increase/decrease max/min/priority along with the re-calculated block size **/
 static const unsigned int DEFAULT_SCALE_BLOCK_SIZE_OPTIONS = 1;
 /** Future drift value */

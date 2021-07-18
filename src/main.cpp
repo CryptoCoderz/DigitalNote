@@ -64,6 +64,7 @@ bool fImporting = false;
 bool fReindex = false;
 bool fAddrIndex = false;
 bool fHaveGUI = false;
+bool fRollingCheckpoint = false;
 
 struct COrphanBlock {
     uint256 hashBlock;
@@ -2113,9 +2114,41 @@ bool static Reorganize(CTxDB& txdb, CBlockIndex* pindexNew)
 {
     LogPrintf("REORGANIZE\n");
 
-    // Find the fork
+    // Set values
     CBlockIndex* pfork = pindexBest;
     CBlockIndex* plonger = pindexNew;
+    CBlockIndex* plongerindex = plonger;
+    int64_t pfinglonger = (plonger->nHeight - pfork->nHeight);
+    int64_t pheightlonger = plonger->nHeight;
+
+    // Ensure reorganize depth sanity
+    if (pfinglonger > BLOCK_REORG_MAX_DEPTH) {
+        return error("Reorganize() : Maximum depth exceeded");
+    }
+    if (pfinglonger < BLOCK_REORG_MIN_DEPTH) {
+        return error("Reorganize() : Minimum depth exceeded");
+    }
+
+    // Get a checkpoint for quality assurance
+    if (fRollingCheckpoint) {
+        // Verify chain quality
+        while (pheightlonger > RollingHeight)
+        {
+            if(plongerindex->GetBlockHash() == RollingBlock) {
+                break;
+            }
+            plongerindex = plongerindex->pprev;
+            pheightlonger --;
+        }
+        if(plongerindex->GetBlockHash() != RollingBlock) {
+            return error("Reorganize() : Chain quality failed, blockhash is invalid");
+        }
+    } else {
+        //
+        return error("Reorganize() : Chain quality failed, blockheight is invalid");
+    }
+
+    // Find the fork
     while (pfork != plonger)
     {
         while (plonger->nHeight > pfork->nHeight)
@@ -2688,8 +2721,9 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             nMasterNodeChecksEngageTime = nMasterNodeChecksDelayBaseTime + nMasterNodeChecksDelay;
         }
         // Devops Address Set and Updates
-        strVfyDevopsAddress = "dHy3LZvqX5B2rAAoLiA7Y7rpvkLXKTkD18";
-        if(pindexBest->GetBlockTime() < nPaymentUpdate_2) { strVfyDevopsAddress = Params().DevOpsAddress(); }
+        strVfyDevopsAddress = Params().DevOpsAddress();
+        if(pindexBest->GetBlockTime() < nPaymentUpdate_2) { strVfyDevopsAddress = "dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"; }
+        else if(pindexBest->nHeight < nHeightReimburse) { strVfyDevopsAddress = "dHy3LZvqX5B2rAAoLiA7Y7rpvkLXKTkD18"; }
         // Check PoW or PoS payments for current block
         for (unsigned int i=0; i < vtx[isProofOfStake].vout.size(); i++) {
             // Define values
@@ -2979,6 +3013,9 @@ bool CBlock::AcceptBlock()
             if (nBestHeight > (pnode->nStartingHeight != -1 ? pnode->nStartingHeight - 2000 : nBlockEstimate))
                 pnode->PushInventory(CInv(MSG_BLOCK, hash));
     }
+
+    // Set rolling checkpoint status
+    fRollingCheckpoint = RollingCheckpoints(nHeight);
 
     return true;
 }

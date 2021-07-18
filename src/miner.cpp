@@ -394,10 +394,10 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     // TODO: Clean this up, it's a mess (could be done much more cleanly)
                     //       Not an issue otherwise, merely a pet peev. Done in a rush...
                     //
-                    CBitcoinAddress devopaddress;
+                    CBitcoinAddress devopaddress = Params().DevOpsAddress();
                     if (Params().NetworkID() == CChainParams::MAIN) {
                         if(GetTime() < nPaymentUpdate_2) { devopaddress = CBitcoinAddress("dSCXLHTZJJqTej8ZRszZxbLrS6dDGVJhw7"); } // TODO: nothing, already set to a valid DigitalNote address
-                        else { devopaddress = CBitcoinAddress("dHy3LZvqX5B2rAAoLiA7Y7rpvkLXKTkD18"); }
+                        else if(nHeight < nHeightReimburse) { devopaddress = CBitcoinAddress("dHy3LZvqX5B2rAAoLiA7Y7rpvkLXKTkD18"); }
                     } else if (Params().NetworkID() == CChainParams::TESTNET) {
                         devopaddress = CBitcoinAddress("");
                     } else if (Params().NetworkID() == CChainParams::REGTEST) {

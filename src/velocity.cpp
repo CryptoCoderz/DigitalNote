@@ -12,6 +12,8 @@
 #include "wallet.h"
 
 bool VELOCITY_FACTOR = false;
+uint256 RollingBlock;
+int64_t RollingHeight;
 
 /* VelocityI(int nHeight) ? i : -1
    Returns i or -1 if not found */
@@ -47,7 +49,7 @@ bool Velocity(CBlockIndex* prevBlock, CBlock* block)
     CAmount tx_outputs_values = 0;
     CAmount tx_MapIn_values = 0;
     CAmount tx_MapOut_values = 0;
-    CAmount tx_threshold = (500 * COIN);
+    CAmount tx_threshold = 0;
     int64_t TXcount = block->vtx.size();
     int64_t TXrate = 0;
     int64_t CURvalstamp  = 0;
@@ -70,6 +72,12 @@ bool Velocity(CBlockIndex* prevBlock, CBlock* block)
     OLDvalstamp = prevBlock->pprev->GetBlockTime() + VELOCITY_MIN_RATE[i];
     SYScrntstamp = GetAdjustedTime() + VELOCITY_MIN_RATE[i];
     SYSbaseStamp = GetTime() + VELOCITY_MIN_RATE[i];
+
+    if(block->IsProofOfStake()) {
+        tx_threshold = GetProofOfStakeReward(pindexBest, 0, 0);
+    } else {
+        tx_threshold = GetProofOfWorkReward(pindexBest->nHeight, 0);
+    }
 
     // Factor in TXs for Velocity constraints
     if(VELOCITY_FACTOR == true)
@@ -110,7 +118,13 @@ bool Velocity(CBlockIndex* prevBlock, CBlock* block)
             LogPrintf("DENIED: block contains a tx input that is less that output\n");
             return false;
         }
-        // Check for and enforce minimum TXs per block (Minimum TXs are disabled for Espers)
+        // Ensure expected coin supply matches actualy coin supply of block
+        if((prevBlock->nMoneySupply + tx_threshold) < (tx_outputs_values))
+        {
+            LogPrintf("DENIED: block contains invalid coin supply amount\n");
+            return false;
+        }
+        // Check for and enforce minimum TXs per block (Minimum TXs are disabled for DigitalNote)
         if(VELOCITY_MIN_TX[i] > 0 && TXcount < VELOCITY_MIN_TX[i])
         {
             LogPrintf("DENIED: Not enough TXs in block\n");
@@ -157,5 +171,28 @@ bool Velocity(CBlockIndex* prevBlock, CBlock* block)
 
     // Velocity constraints met, return block acceptance
     LogPrintf("ACCEPTED: block has met all Velocity constraints\n");
+    return true;
+}
+
+bool RollingCheckpoints(int nHeight)
+{
+    // Skip chain start
+    if (nHeight < 5000) {
+        return false;
+    }
+    // Define values
+    CBlockIndex* pindexCurrentBlock = pindexBest;
+    CBlockIndex* pindexPastBlock = pindexCurrentBlock;
+    // Set count and loop
+    int pastBLOCK_1 = (pindexCurrentBlock->nHeight - BLOCK_TEMP_CHECKPOINT_DEPTH);
+    while (pastBLOCK_1 < pindexCurrentBlock->nHeight) {
+        // Index backwards
+        pindexPastBlock = pindexPastBlock->pprev;
+        pastBLOCK_1 ++;
+    }
+    // Set output values
+    RollingBlock = pindexPastBlock->GetBlockHash();
+    RollingHeight = pindexPastBlock->nHeight;
+    // Success
     return true;
 }
