@@ -49,10 +49,10 @@ public:
         // The message start string is designed to be unlikely to occur in normal data.
         // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
         // a large 4-byte int at any alignment.
-        pchMessageStart[0] = 0x21;
-        pchMessageStart[1] = 0xaf;
-        pchMessageStart[2] = 0x9c;
-        pchMessageStart[3] = 0xe3;
+        pchMessageStart[0] = 0x44;
+        pchMessageStart[1] = 0xe1;
+        pchMessageStart[2] = 0xea;
+        pchMessageStart[3] = 0x4b;
         vAlertPubKey = ParseHex("01b88735a49f1996be6b659c91a94fbfebeb5d517698712acdbef262f7c2f81f85d131a669df3be611393f454852a2d08c6314bba5ca3cbe5616262da3b1a6afed");
         nDefaultPort = 18092;
         nRPCPort = 18094;
@@ -96,17 +96,17 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
         base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
 
-        vSeeds.push_back(CDNSSeedData("node0",  "138.197.161.183"));
-        vSeeds.push_back(CDNSSeedData("node1",  "157.230.107.144"));
-        vSeeds.push_back(CDNSSeedData("node1",  "188.166.123.46"));
-        vSeeds.push_back(CDNSSeedData("node1",  "159.203.14.113"));
-        vSeeds.push_back(CDNSSeedData("node1",  "199.175.54.187"));
-        vSeeds.push_back(CDNSSeedData("node1",  "157.230.107.144"));
-        vSeeds.push_back(CDNSSeedData("node1",  "138.197.161.183"));
-        vSeeds.push_back(CDNSSeedData("node2",  "seed1n.digitalnote.biz"));
-        vSeeds.push_back(CDNSSeedData("node3",  "seed2n.digitalnote.biz"));
-        vSeeds.push_back(CDNSSeedData("node4",  "seed3n.digitalnote.biz"));
-        vSeeds.push_back(CDNSSeedData("node5",  "seed4n.digitalnote.biz"));
+        //vSeeds.push_back(CDNSSeedData("node0",  "138.197.161.183"));
+        //vSeeds.push_back(CDNSSeedData("node1",  "157.230.107.144"));
+        //vSeeds.push_back(CDNSSeedData("node1",  "188.166.123.46"));
+        //vSeeds.push_back(CDNSSeedData("node1",  "159.203.14.113"));
+        //vSeeds.push_back(CDNSSeedData("node1",  "199.175.54.187"));
+        //vSeeds.push_back(CDNSSeedData("node1",  "157.230.107.144"));
+        //vSeeds.push_back(CDNSSeedData("node1",  "138.197.161.183"));
+        //vSeeds.push_back(CDNSSeedData("node2",  "seed1n.digitalnote.biz"));
+        //vSeeds.push_back(CDNSSeedData("node3",  "seed2n.digitalnote.biz"));
+        //vSeeds.push_back(CDNSSeedData("node4",  "seed3n.digitalnote.biz"));
+        //vSeeds.push_back(CDNSSeedData("node5",  "seed4n.digitalnote.biz"));
 
         convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
 
