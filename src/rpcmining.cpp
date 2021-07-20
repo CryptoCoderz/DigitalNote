@@ -272,8 +272,8 @@ Value getworkex(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(-9, "DigitalNote is not connected!");
 
-    if (IsInitialBlockDownload())
-        throw JSONRPCError(-10, "DigitalNote is downloading blocks...");
+    //if (IsInitialBlockDownload())
+    //    throw JSONRPCError(-10, "DigitalNote is downloading blocks...");
 
     if (pindexBest->nHeight >= Params().EndPoWBlock())
         throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
@@ -406,8 +406,8 @@ Value getwork(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "DigitalNote is not connected!");
 
-    if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DigitalNote is downloading blocks...");
+    //if (IsInitialBlockDownload())
+    //    throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DigitalNote is downloading blocks...");
 
     if (pindexBest->nHeight >= Params().EndPoWBlock())
         throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
@@ -558,8 +558,8 @@ Value getblocktemplate(const Array& params, bool fHelp)
     if (vNodes.empty())
         throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "DigitalNote is not connected!");
 
-    if (IsInitialBlockDownload())
-        throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DigitalNote is downloading blocks...");
+    //if (IsInitialBlockDownload())
+    //    throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "DigitalNote is downloading blocks...");
 
     if (pindexBest->nHeight >= Params().EndPoWBlock())
         throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");

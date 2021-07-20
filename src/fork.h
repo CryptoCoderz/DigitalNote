@@ -17,7 +17,7 @@ static const int64_t nPaymentUpdate_2 = 1562094000;
 /** Masternode/Devops Payment Update 3 */
 static const int64_t nPaymentUpdate_3 = 1562281200;
 /** Bittrex Reimburse Update */
-static const int64_t nHeightReimburse = 400669; //402000;
+static const int64_t nHeightReimburse = 400670; //402000;
 /** Velocity toggle block */
 static const int64_t VELOCITY_TOGGLE = 175; // Implementation of the Velocity system into the chain.
 /** Velocity retarget toggle block */

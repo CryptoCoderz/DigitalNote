@@ -363,7 +363,7 @@ void VRX_Dry_Run(const CBlockIndex* pindexLast)
                 return; // diff reset
             }
         }
-        if(pindexLast->nHeight == 400669) {
+        if(pindexLast->nHeight == 400670) {
             fDryRun = true;
             return; // diff reset
         }
